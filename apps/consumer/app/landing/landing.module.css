@@ -1,0 +1,622 @@
+.page {
+  min-height: 100vh;
+  padding: 24px 18px 112px;
+  background: var(--bg-base);
+  color: var(--text-primary);
+  font-family: var(--font-stack);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+.hero,
+.section {
+  width: min(1120px, 100%);
+  margin: 0 auto 24px;
+}
+
+.hero {
+  display: grid;
+  gap: 24px;
+  padding: 24px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 28px;
+  background: var(--bg-surface);
+  box-shadow: var(--shadow);
+}
+
+.heroTop,
+.heroGrid,
+.sectionHeading,
+.finalCtaPanel,
+.safetyPanel {
+  display: grid;
+}
+
+.heroTop {
+  grid-template-columns: auto auto;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.brandBadge,
+.agePill,
+.phoneState,
+.trustPill,
+.feedChipRow span,
+.heroStatLabel,
+.legalSummaryHint,
+.stickySecondary,
+.stickyPrimary,
+.primaryCta,
+.secondaryCta,
+.ghostCta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.brandBadge {
+  gap: 10px;
+  min-height: 40px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-surface-elevated);
+  color: var(--text-primary);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.brandIcon {
+  width: 22px;
+  height: 22px;
+  display: block;
+}
+
+.agePill,
+.phoneState {
+  min-height: 30px;
+  padding: 0 11px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.agePill {
+  border: 1px solid color-mix(in srgb, var(--status-warning) 32%, transparent);
+  background: color-mix(in srgb, var(--status-warning) 12%, transparent);
+  color: var(--status-warning);
+}
+
+.heroGrid {
+  grid-template-columns: minmax(0, 1.04fr) minmax(320px, 0.96fr);
+  gap: 28px;
+  align-items: center;
+}
+
+.heroCopy {
+  display: grid;
+  gap: 18px;
+}
+
+.eyebrow {
+  margin: 0;
+  color: var(--accent-primary);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+}
+
+.heroCopy h1,
+.sectionHeading h2,
+.finalCtaPanel h2 {
+  margin: 0;
+  color: var(--text-primary);
+  font-weight: 700;
+  line-height: 1.02;
+  letter-spacing: -0.05em;
+  text-wrap: balance;
+}
+
+.heroCopy h1 {
+  max-width: 11ch;
+  font-size: clamp(40px, 8vw, 74px);
+}
+
+.sectionHeading h2,
+.finalCtaPanel h2 {
+  font-size: clamp(30px, 4.6vw, 48px);
+}
+
+.lead,
+.sectionHeading p,
+.heroStatCopy,
+.noticeBox p,
+.previewCard p,
+.previewCardSoft p,
+.conversionCard p,
+.installCard p,
+.onboardingCard p,
+.flowCard p,
+.midCtaPanel p,
+.safetyPanel p,
+.legalBody,
+.faqItem p,
+.legalNote p,
+.stickyCtaText span {
+  margin: 0;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  text-wrap: pretty;
+}
+
+.lead {
+  max-width: 60ch;
+  font-size: clamp(17px, 2vw, 19px);
+  color: var(--text-primary);
+}
+
+.ctaRow,
+.finalCtaRow,
+.midCtaRow,
+.stickyCtaActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.primaryCta,
+.secondaryCta,
+.ghostCta,
+.stickyPrimary,
+.stickySecondary {
+  min-height: 48px;
+  padding: 0 17px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: transform 180ms ease, border-color 180ms ease, background 180ms ease;
+}
+
+.primaryCta,
+.stickyPrimary {
+  background: var(--accent-primary);
+  color: var(--text-primary);
+}
+
+.secondaryCta,
+.ghostCta,
+.stickySecondary {
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-surface-elevated);
+  color: var(--text-primary);
+}
+
+.ghostCta {
+  color: var(--text-secondary);
+}
+
+.primaryCta:hover,
+.secondaryCta:hover,
+.ghostCta:hover,
+.stickyPrimary:hover,
+.stickySecondary:hover {
+  transform: translateY(-1px);
+}
+
+.heroStatGrid,
+.conversionGrid,
+.installGrid,
+.onboardingGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.heroStatCard,
+.conversionCard,
+.installCard,
+.onboardingCard,
+.flowCard,
+.legalModule,
+.faqItem,
+.midCtaPanel,
+.finalCtaPanel,
+.safetyPanel,
+.noticeBox,
+.legalNote {
+  border: 1px solid var(--border-subtle);
+  border-radius: 20px;
+  background: var(--bg-surface);
+}
+
+.heroStatCard,
+.conversionCard,
+.installCard,
+.onboardingCard,
+.flowCard {
+  display: grid;
+  gap: 8px;
+  padding: 18px;
+}
+
+.heroStatValue {
+  color: var(--text-primary);
+  font-size: 34px;
+  line-height: 1;
+  font-weight: 700;
+  letter-spacing: -0.05em;
+}
+
+.heroStatLabel {
+  justify-content: flex-start;
+  color: var(--accent-primary);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.heroStatCopy {
+  font-size: 13px;
+}
+
+.noticeBox {
+  gap: 8px;
+  padding: 18px;
+}
+
+.noticeBox strong,
+.conversionCard strong,
+.installCard strong,
+.onboardingCard strong,
+.flowCard strong,
+.midCtaPanel strong,
+.safetyPanel strong,
+.legalSummary,
+.faqItem summary,
+.legalNote strong {
+  color: var(--text-primary);
+  font-weight: 700;
+}
+
+.noticeBox strong,
+.midCtaPanel strong,
+.legalNote strong {
+  font-size: 16px;
+}
+
+.conversionCard strong,
+.installCard strong,
+.onboardingCard strong,
+.flowCard strong {
+  font-size: 18px;
+  letter-spacing: -0.03em;
+}
+
+.heroVisual {
+  display: grid;
+  gap: 18px;
+  justify-items: center;
+}
+
+.heroLogo {
+  width: min(100%, 460px);
+  max-width: 100%;
+  display: block;
+}
+
+.phoneMock {
+  width: min(100%, 420px);
+  padding: 16px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 28px;
+  background: var(--bg-base);
+  box-shadow: var(--shadow);
+}
+
+.phoneTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.phoneCity {
+  color: var(--text-primary);
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.phoneState {
+  border: 1px solid color-mix(in srgb, var(--accent-primary) 30%, transparent);
+  background: var(--accent-muted);
+  color: var(--accent-primary);
+}
+
+.phoneFeed {
+  display: grid;
+  gap: 10px;
+  padding-top: 14px;
+}
+
+.feedChipRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.feedChipRow span,
+.trustPill {
+  min-height: 28px;
+  padding: 0 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-surface);
+  color: var(--text-secondary);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.previewCard,
+.previewCardSoft {
+  display: grid;
+  gap: 10px;
+  padding: 16px;
+  border-radius: 20px;
+  border: 1px solid var(--border-subtle);
+}
+
+.previewCard {
+  background: var(--bg-surface);
+}
+
+.previewCardSoft {
+  background: var(--bg-surface-elevated);
+}
+
+.previewMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  color: var(--text-secondary);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.previewCard p,
+.previewCardSoft p {
+  color: var(--text-primary);
+  line-height: 1.55;
+}
+
+.trustStrip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.section {
+  display: grid;
+  gap: 18px;
+}
+
+.sectionHeading {
+  gap: 10px;
+  max-width: 720px;
+}
+
+.sectionHeading p {
+  font-size: 15px;
+}
+
+.midCtaPanel,
+.finalCtaPanel {
+  gap: 18px;
+  padding: 20px;
+  background: var(--bg-surface-elevated);
+  box-shadow: var(--shadow);
+}
+
+.midCtaPanel {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+}
+
+.flowGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.safetyPanel {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  padding: 20px;
+}
+
+.legalGrid,
+.faqGrid {
+  display: grid;
+  gap: 12px;
+}
+
+.legalModule,
+.faqItem {
+  overflow: hidden;
+}
+
+.legalSummary,
+.faqItem summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  list-style: none;
+  cursor: pointer;
+  padding: 18px 20px;
+  font-size: 16px;
+}
+
+.legalSummary::-webkit-details-marker,
+.faqItem summary::-webkit-details-marker {
+  display: none;
+}
+
+.legalSummaryHint {
+  min-height: 28px;
+  padding: 0 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-surface-elevated);
+  color: var(--text-secondary);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.legalBody {
+  display: grid;
+  gap: 14px;
+  padding: 0 20px 20px;
+}
+
+.legalList {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding-left: 18px;
+  color: var(--text-secondary);
+}
+
+.legalNote {
+  display: grid;
+  gap: 8px;
+  padding: 18px 20px;
+  background: color-mix(in srgb, var(--status-warning) 10%, var(--bg-surface-elevated));
+}
+
+.faqItem {
+  padding: 0;
+}
+
+.faqItem p {
+  padding: 0 20px 18px;
+}
+
+.stickyCtaBar {
+  position: fixed;
+  left: 50%;
+  bottom: 16px;
+  z-index: 20;
+  width: min(1120px, calc(100% - 24px));
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 16px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 24px;
+  background: color-mix(in srgb, var(--bg-surface-elevated) 94%, black);
+  box-shadow: var(--shadow);
+}
+
+.stickyCtaText {
+  display: grid;
+  gap: 2px;
+}
+
+.stickyCtaText strong {
+  color: var(--text-primary);
+  font-size: 15px;
+}
+
+.stickyCtaText span {
+  font-size: 12px;
+}
+
+@media (max-width: 920px) {
+  .heroGrid,
+  .heroStatGrid,
+  .conversionGrid,
+  .installGrid,
+  .onboardingGrid,
+  .flowGrid,
+  .safetyPanel,
+  .midCtaPanel {
+    grid-template-columns: 1fr;
+  }
+
+  .heroCopy h1 {
+    max-width: 12ch;
+  }
+
+  .finalCtaPanel {
+    gap: 16px;
+  }
+}
+
+@media (max-width: 640px) {
+  .page {
+    padding: 16px 12px 108px;
+  }
+
+  .hero,
+  .section {
+    margin-bottom: 18px;
+  }
+
+  .hero {
+    padding: 18px;
+    border-radius: 24px;
+  }
+
+  .heroTop {
+    grid-template-columns: 1fr;
+  }
+
+  .brandBadge {
+    justify-content: flex-start;
+  }
+
+  .heroCopy,
+  .sectionHeading {
+    gap: 12px;
+  }
+
+  .ctaRow,
+  .finalCtaRow,
+  .midCtaRow,
+  .stickyCtaActions {
+    flex-direction: column;
+  }
+
+  .primaryCta,
+  .secondaryCta,
+  .ghostCta,
+  .stickyPrimary,
+  .stickySecondary {
+    width: 100%;
+  }
+
+  .stickyCtaBar {
+    width: calc(100% - 16px);
+    left: 8px;
+    right: 8px;
+    bottom: 8px;
+    transform: none;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    border-radius: 20px;
+  }
+}

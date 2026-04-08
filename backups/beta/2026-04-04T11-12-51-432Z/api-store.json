@@ -1,0 +1,3863 @@
+{
+  "cities": [
+    {
+      "id": "city-munich",
+      "slug": "muenchen",
+      "label": "Muenchen",
+      "countryCode": "DE",
+      "lat": 48.137154,
+      "lng": 11.576124,
+      "isExplorerEnabled": true
+    },
+    {
+      "id": "city-vienna",
+      "slug": "wien",
+      "label": "Wien",
+      "countryCode": "AT",
+      "lat": 48.208174,
+      "lng": 16.373819,
+      "isExplorerEnabled": true
+    },
+    {
+      "id": "city-zurich",
+      "slug": "zuerich",
+      "label": "Zuerich",
+      "countryCode": "CH",
+      "lat": 47.376888,
+      "lng": 8.541694,
+      "isExplorerEnabled": true
+    }
+  ],
+  "installIdentity": {
+    "id": "install-001",
+    "installKey": "install-demo-001",
+    "accessToken": "nuudl_at_mZGEPmHC4spKtiprnBh44KPq5GelmO92",
+    "cityId": "city-munich",
+    "cityLabel": "Muenchen",
+    "adultGateAccepted": true,
+    "adultVerified": false,
+    "plus": {
+      "active": true,
+      "explorer": true,
+      "imageChat": true,
+      "noAds": true,
+      "weeklyBoosts": 3,
+      "weeklyColorDrops": 3
+    },
+    "createdAt": "2026-03-26T12:00:00.000Z"
+  },
+  "channels": [
+    {
+      "id": "channel-main",
+      "slug": "main",
+      "title": "Main",
+      "description": "Open city-wide adult feed",
+      "cityId": "city-munich",
+      "memberCount": 9842,
+      "isVerified": false,
+      "isExclusive": false,
+      "isAdultOnly": true,
+      "joined": true
+    },
+    {
+      "id": "channel-confession",
+      "slug": "confession",
+      "title": "Confession",
+      "description": "Stories and anonymous confessions",
+      "cityId": "city-munich",
+      "memberCount": 5280,
+      "isVerified": false,
+      "isExclusive": false,
+      "isAdultOnly": true,
+      "joined": true
+    },
+    {
+      "id": "channel-verified",
+      "slug": "creator-news",
+      "title": "Creator News",
+      "description": "Verified updates and platform posts",
+      "cityId": "city-munich",
+      "memberCount": 1240,
+      "isVerified": true,
+      "isExclusive": true,
+      "isAdultOnly": true,
+      "joined": true
+    }
+  ],
+  "posts": [
+    {
+      "id": "post-5e8fafb9-09ef-41c4-9fd8-e6d4130bcf06",
+      "cityId": "city-munich",
+      "channelId": null,
+      "recipientInstallIdentityId": "install-001",
+      "body": "manual restriction test",
+      "authorLabel": "Anon 12",
+      "score": 0,
+      "replyCount": 0,
+      "createdAt": "2026-04-03T14:43:20.797Z",
+      "tags": [],
+      "media": [],
+      "tipTotalCents": 0,
+      "canTip": false,
+      "isPinned": false,
+      "moderation": "visible"
+    },
+    {
+      "id": "post-0a45d2d0-d851-49d1-8a3d-36065d3a1e68",
+      "cityId": "city-munich",
+      "channelId": null,
+      "recipientInstallIdentityId": "install-001",
+      "body": "links",
+      "authorLabel": "Anon 16",
+      "score": 0,
+      "replyCount": 0,
+      "createdAt": "2026-04-02T10:48:21.232Z",
+      "tags": [
+        "a",
+        "b",
+        "c",
+        "d",
+        "e",
+        "f"
+      ],
+      "media": [],
+      "tipTotalCents": 0,
+      "canTip": false,
+      "isPinned": false,
+      "moderation": "visible"
+    },
+    {
+      "id": "post-36e130a4-a5e1-4d21-8216-749168669cfa",
+      "cityId": "city-munich",
+      "channelId": "channel-main",
+      "recipientInstallIdentityId": "install-001",
+      "body": "Beta verify post",
+      "authorLabel": "Anon 76",
+      "score": 0,
+      "replyCount": 1,
+      "createdAt": "2026-04-02T09:58:42.258Z",
+      "tags": [],
+      "media": [
+        {
+          "id": "media-1-b3b916e4-8428-4ec9-a73d-6b37acd83f59",
+          "kind": "image",
+          "url": "http://localhost:4000/media/media-6541567c-c113-42b6-98ba-aa34e88b8173.png"
+        }
+      ],
+      "tipTotalCents": 0,
+      "canTip": false,
+      "isPinned": false,
+      "moderation": "flagged"
+    },
+    {
+      "id": "post-816b5a13-755f-466a-be20-39447447fa7d",
+      "cityId": "city-munich",
+      "channelId": "channel-main",
+      "recipientInstallIdentityId": "install-001",
+      "body": "Beta verify post",
+      "authorLabel": "Anon 17",
+      "score": 0,
+      "replyCount": 1,
+      "createdAt": "2026-04-02T09:55:15.594Z",
+      "tags": [],
+      "media": [
+        {
+          "id": "media-1-1d075bf3-e238-4458-9ad6-f50f065668e0",
+          "kind": "image",
+          "url": "http://localhost:4000/media/media-42b05cc3-faa8-41d8-9b9c-f4273c17fd32.png"
+        }
+      ],
+      "tipTotalCents": 0,
+      "canTip": false,
+      "isPinned": false,
+      "moderation": "flagged"
+    },
+    {
+      "id": "post-0254fe9b-5c56-4a4b-94a3-bbee2efd9a41",
+      "cityId": "city-munich",
+      "channelId": "channel-main",
+      "recipientInstallIdentityId": "install-001",
+      "body": "Beta smoke post with uploaded media",
+      "authorLabel": "Anon 98",
+      "score": 0,
+      "replyCount": 1,
+      "createdAt": "2026-04-01T17:02:52.062Z",
+      "tags": [],
+      "media": [
+        {
+          "id": "media-1-b426dc14-4e5a-4b64-9f4a-51d9adaca510",
+          "kind": "image",
+          "url": "http://localhost:4000/media/media-8f225be7-885f-4933-a5f9-c6a064912f59.png"
+        }
+      ],
+      "tipTotalCents": 0,
+      "canTip": false,
+      "isPinned": false,
+      "moderation": "flagged"
+    },
+    {
+      "id": "post-001",
+      "cityId": "city-munich",
+      "channelId": "channel-main",
+      "recipientInstallIdentityId": "install-creator-017",
+      "body": "Who is online in Muenchen tonight? Looking for bold stories and honest replies.",
+      "authorLabel": "Anon 17",
+      "score": 43,
+      "replyCount": 4,
+      "createdAt": "2026-03-26T13:05:00.000Z",
+      "tags": [
+        "night",
+        "muenchen"
+      ],
+      "media": [],
+      "tipTotalCents": 1400,
+      "canTip": true,
+      "isPinned": false,
+      "moderation": "visible"
+    },
+    {
+      "id": "post-002",
+      "cityId": "city-munich",
+      "channelId": "channel-confession",
+      "recipientInstallIdentityId": "install-creator-002",
+      "body": "Confession: I earn more from private attention than from my office job.",
+      "authorLabel": "Anon 04",
+      "score": 87,
+      "replyCount": 16,
+      "createdAt": "2026-03-26T12:12:00.000Z",
+      "tags": [
+        "creator",
+        "money"
+      ],
+      "media": [
+        {
+          "id": "media-001",
+          "kind": "image",
+          "url": "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=640&q=80"
+        }
+      ],
+      "tipTotalCents": 4200,
+      "canTip": true,
+      "isPinned": true,
+      "moderation": "flagged"
+    },
+    {
+      "id": "post-003",
+      "cityId": "city-munich",
+      "channelId": "channel-verified",
+      "recipientInstallIdentityId": "install-hq-001",
+      "body": "Platform note: city-only launch is live, explorer remains read-only until adult verification.",
+      "authorLabel": "NUUDL HQ",
+      "score": 11,
+      "replyCount": 2,
+      "createdAt": "2026-03-26T11:30:00.000Z",
+      "tags": [
+        "launch",
+        "system"
+      ],
+      "media": [],
+      "tipTotalCents": 0,
+      "canTip": false,
+      "isPinned": true,
+      "moderation": "visible"
+    }
+  ],
+  "replies": [
+    {
+      "id": "reply-3f830e78-aacf-45cf-bedb-d2078d9a0ae3",
+      "postId": "post-36e130a4-a5e1-4d21-8216-749168669cfa",
+      "recipientInstallIdentityId": "install-001",
+      "body": "Beta verify reply",
+      "authorLabel": "Anon 64",
+      "score": 0,
+      "createdAt": "2026-04-02T09:58:44.313Z",
+      "tipTotalCents": 0,
+      "canTip": false,
+      "moderation": "visible"
+    },
+    {
+      "id": "reply-171f2a0c-af2b-4e18-bcbd-a9c79c7e4aea",
+      "postId": "post-816b5a13-755f-466a-be20-39447447fa7d",
+      "recipientInstallIdentityId": "install-001",
+      "body": "Beta verify reply",
+      "authorLabel": "Anon 21",
+      "score": 0,
+      "createdAt": "2026-04-02T09:55:17.631Z",
+      "tipTotalCents": 0,
+      "canTip": false,
+      "moderation": "visible"
+    },
+    {
+      "id": "reply-c04f06da-0634-4335-8738-5a9ddc8a4387",
+      "postId": "post-0254fe9b-5c56-4a4b-94a3-bbee2efd9a41",
+      "recipientInstallIdentityId": "install-001",
+      "body": "Beta smoke reply",
+      "authorLabel": "Anon 94",
+      "score": 0,
+      "createdAt": "2026-04-01T17:02:52.069Z",
+      "tipTotalCents": 0,
+      "canTip": false,
+      "moderation": "visible"
+    },
+    {
+      "id": "reply-e49ee68c-c0ff-4baf-85c7-d05f2d99dfac",
+      "postId": "post-001",
+      "recipientInstallIdentityId": "install-001",
+      "body": "gert",
+      "authorLabel": "Anon 55",
+      "score": 0,
+      "createdAt": "2026-04-01T16:38:38.895Z",
+      "tipTotalCents": 0,
+      "canTip": false,
+      "moderation": "visible"
+    },
+    {
+      "id": "reply-189327ea-7967-4926-98f6-1dca14ca84f8",
+      "postId": "post-001",
+      "recipientInstallIdentityId": "install-001",
+      "body": "wasdf",
+      "authorLabel": "Anon 55",
+      "score": 0,
+      "createdAt": "2026-04-01T16:38:35.704Z",
+      "tipTotalCents": 0,
+      "canTip": false,
+      "moderation": "visible"
+    },
+    {
+      "id": "reply-9caf8bcb-268c-4d86-a0a1-8e0a90d2ce07",
+      "postId": "post-001",
+      "recipientInstallIdentityId": "install-001",
+      "body": "asdfasd",
+      "authorLabel": "Anon 55",
+      "score": 0,
+      "createdAt": "2026-04-01T16:38:33.291Z",
+      "tipTotalCents": 0,
+      "canTip": false,
+      "moderation": "visible"
+    },
+    {
+      "id": "reply-001",
+      "postId": "post-001",
+      "recipientInstallIdentityId": "install-creator-009",
+      "body": "I am here. Keep it anonymous and direct.",
+      "authorLabel": "Anon 09",
+      "score": 5,
+      "createdAt": "2026-03-26T13:10:00.000Z",
+      "tipTotalCents": 0,
+      "canTip": false,
+      "moderation": "visible"
+    },
+    {
+      "id": "reply-002",
+      "postId": "post-002",
+      "recipientInstallIdentityId": "install-creator-025",
+      "body": "This is exactly why creator payouts need proper review and safety checks.",
+      "authorLabel": "Anon 25",
+      "score": 12,
+      "createdAt": "2026-03-26T12:19:00.000Z",
+      "tipTotalCents": 0,
+      "canTip": false,
+      "moderation": "visible"
+    }
+  ],
+  "notifications": [
+    {
+      "id": "notif-19b5ad86-960a-4de6-9a41-80220b75fff7",
+      "kind": "vote",
+      "message": "Vote updated on post post-001.",
+      "read": false,
+      "createdAt": "2026-04-03T14:44:59.964Z",
+      "targetRoute": "/post/post-001"
+    },
+    {
+      "id": "notif-fdf1df9b-0bb9-4788-aafb-0b67041f6ca2",
+      "kind": "vote",
+      "message": "Vote updated on post post-001.",
+      "read": false,
+      "createdAt": "2026-04-03T14:44:57.936Z",
+      "targetRoute": "/post/post-001"
+    },
+    {
+      "id": "notif-143d2908-0e49-442c-b672-ffe00e7affdb",
+      "kind": "vote",
+      "message": "Vote updated on post post-001.",
+      "read": false,
+      "createdAt": "2026-04-03T14:44:55.905Z",
+      "targetRoute": "/post/post-001"
+    },
+    {
+      "id": "notif-064a4848-c9f5-4d04-a0e8-f75004e08e10",
+      "kind": "vote",
+      "message": "Vote updated on post post-001.",
+      "read": false,
+      "createdAt": "2026-04-03T14:44:53.890Z",
+      "targetRoute": "/post/post-001"
+    },
+    {
+      "id": "notif-727148c2-72b4-4528-b4a4-d94769fc77b9",
+      "kind": "vote",
+      "message": "Vote updated on post post-001.",
+      "read": false,
+      "createdAt": "2026-04-03T14:44:51.860Z",
+      "targetRoute": "/post/post-001"
+    },
+    {
+      "id": "notif-359e886c-a42f-4533-b5c5-19ec232456e4",
+      "kind": "vote",
+      "message": "Vote updated on post post-001.",
+      "read": false,
+      "createdAt": "2026-04-03T14:44:49.828Z",
+      "targetRoute": "/post/post-001"
+    },
+    {
+      "id": "notif-fead61d2-9e33-4710-aa5b-55849b4ab630",
+      "kind": "vote",
+      "message": "Vote updated on post post-001.",
+      "read": false,
+      "createdAt": "2026-04-03T14:44:47.803Z",
+      "targetRoute": "/post/post-001"
+    },
+    {
+      "id": "notif-735a74fc-d0c1-429a-96c4-1a571f3db110",
+      "kind": "vote",
+      "message": "Vote updated on post post-001.",
+      "read": false,
+      "createdAt": "2026-04-03T14:44:45.766Z",
+      "targetRoute": "/post/post-001"
+    },
+    {
+      "id": "notif-9d29e349-4541-48b6-a7d2-cc2d8657a8ce",
+      "kind": "vote",
+      "message": "Vote updated on post post-001.",
+      "read": false,
+      "createdAt": "2026-04-03T14:44:43.738Z",
+      "targetRoute": "/post/post-001"
+    },
+    {
+      "id": "notif-d209e19a-f9ab-420f-8c86-9d2097db7c23",
+      "kind": "vote",
+      "message": "Vote updated on post post-001.",
+      "read": false,
+      "createdAt": "2026-04-03T14:44:41.703Z",
+      "targetRoute": "/post/post-001"
+    },
+    {
+      "id": "notif-900c5148-44c7-45a6-b946-db3f8a8e917e",
+      "kind": "moderation",
+      "message": "Moderation case mod-3045868c-0463-4d54-a39f-1cbe88f1f6d0 was flag.",
+      "read": false,
+      "createdAt": "2026-04-02T09:58:48.385Z"
+    },
+    {
+      "id": "notif-2fa45c29-8f56-47d2-96cd-1885d3af3f72",
+      "kind": "moderation",
+      "message": "Report report-0e1ca14e-0532-4f5b-b723-56f4eea3ba84 opened for moderation.",
+      "read": false,
+      "createdAt": "2026-04-02T09:58:46.341Z"
+    },
+    {
+      "id": "notif-1a41e4e9-4776-4a6c-8738-0c5fd8458ecf",
+      "kind": "system",
+      "message": "New reply added to post post-36e130a4-a5e1-4d21-8216-749168669cfa.",
+      "read": false,
+      "createdAt": "2026-04-02T09:58:44.313Z"
+    },
+    {
+      "id": "notif-1760cb93-ccb4-453e-a55f-956d03d7cfcb",
+      "kind": "moderation",
+      "message": "Moderation case mod-3188c2b7-487e-44e9-8fd1-d6a7f27a5c69 was flag.",
+      "read": false,
+      "createdAt": "2026-04-02T09:55:21.724Z"
+    },
+    {
+      "id": "notif-e1b2956f-5083-4850-9c6f-91a29fe617f0",
+      "kind": "moderation",
+      "message": "Report report-2d04e422-b786-4798-bbb8-b417f9d0935d opened for moderation.",
+      "read": false,
+      "createdAt": "2026-04-02T09:55:19.680Z"
+    },
+    {
+      "id": "notif-4977e3ff-2752-42a5-ae1e-407ad8b9e799",
+      "kind": "system",
+      "message": "New reply added to post post-816b5a13-755f-466a-be20-39447447fa7d.",
+      "read": false,
+      "createdAt": "2026-04-02T09:55:17.631Z"
+    },
+    {
+      "id": "notif-fa76f822-7a19-4e88-9293-464d5e333c1f",
+      "kind": "moderation",
+      "message": "Moderation case mod-e5234e86-4d2b-4965-a4ec-2e031d004137 was flag.",
+      "read": false,
+      "createdAt": "2026-04-01T17:02:52.108Z"
+    },
+    {
+      "id": "notif-1d1a2609-cf20-4479-9eb5-4c34fcb542ee",
+      "kind": "moderation",
+      "message": "Report report-a67378bd-babf-40f5-a833-d4e6033d1cb9 opened for moderation.",
+      "read": false,
+      "createdAt": "2026-04-01T17:02:52.101Z"
+    },
+    {
+      "id": "notif-3a416ae7-729b-4ef2-b3a1-9180c89b324e",
+      "kind": "chat_request",
+      "message": "New chat message in chat-request-6e592547-4218-43d1-b8c7-5789bdc9d908.",
+      "read": false,
+      "createdAt": "2026-04-01T17:02:52.093Z",
+      "targetRoute": "/chat/chat-request-6e592547-4218-43d1-b8c7-5789bdc9d908"
+    },
+    {
+      "id": "notif-5c2a1aca-7803-4541-a846-134936794a10",
+      "kind": "chat_request",
+      "message": "Chat request chat-request-6e592547-4218-43d1-b8c7-5789bdc9d908 was accepted.",
+      "read": false,
+      "createdAt": "2026-04-01T17:02:52.090Z",
+      "targetRoute": "/chat/chat-request-6e592547-4218-43d1-b8c7-5789bdc9d908"
+    },
+    {
+      "id": "notif-2b062547-d6f4-4c78-9431-81b421b88a84",
+      "kind": "chat_request",
+      "message": "Hi from beta smoke",
+      "read": false,
+      "createdAt": "2026-04-01T17:02:52.088Z",
+      "targetRoute": "/chat/chat-request-6e592547-4218-43d1-b8c7-5789bdc9d908"
+    },
+    {
+      "id": "notif-422cd510-1bd5-489c-a859-7b7b85c82b04",
+      "kind": "system",
+      "message": "New reply added to post post-0254fe9b-5c56-4a4b-94a3-bbee2efd9a41.",
+      "read": false,
+      "createdAt": "2026-04-01T17:02:52.069Z"
+    },
+    {
+      "id": "notif-6a0bad36-c289-46bf-88bd-bf04f91985c6",
+      "kind": "system",
+      "message": "New reply added to post post-001.",
+      "read": false,
+      "createdAt": "2026-04-01T16:38:38.895Z"
+    },
+    {
+      "id": "notif-03d594e8-c1d4-4165-ab92-a5864f36bb71",
+      "kind": "system",
+      "message": "New reply added to post post-001.",
+      "read": false,
+      "createdAt": "2026-04-01T16:38:35.705Z"
+    },
+    {
+      "id": "notif-e1739f81-547c-475b-883f-e56143915600",
+      "kind": "system",
+      "message": "New reply added to post post-001.",
+      "read": false,
+      "createdAt": "2026-04-01T16:38:33.292Z"
+    },
+    {
+      "id": "notif-b86f2d80-5d5c-4a1e-9697-006f03013b25",
+      "kind": "moderation",
+      "message": "Moderation case mod-001 was flag.",
+      "read": false,
+      "createdAt": "2026-04-01T16:29:38.389Z"
+    },
+    {
+      "id": "notif-ace94774-47cb-4d77-a671-dfe98b7438f8",
+      "kind": "moderation",
+      "message": "Moderation case mod-001 was flag.",
+      "read": false,
+      "createdAt": "2026-04-01T16:27:54.791Z"
+    },
+    {
+      "id": "notif-001",
+      "kind": "reply",
+      "message": "Anon 09 replied to your post in Main.",
+      "createdAt": "2026-03-26T13:11:00.000Z",
+      "read": false,
+      "targetRoute": "/post/post-001"
+    },
+    {
+      "id": "notif-002",
+      "kind": "tip",
+      "message": "You received EUR 8.00 in tips on a pinned confession post.",
+      "createdAt": "2026-03-26T12:40:00.000Z",
+      "read": false,
+      "targetRoute": "/post/post-002"
+    },
+    {
+      "id": "notif-003",
+      "kind": "system",
+      "message": "Complete adult verification to unlock explicit content and explorer mode.",
+      "createdAt": "2026-03-26T11:00:00.000Z",
+      "read": true,
+      "targetRoute": "/me"
+    }
+  ],
+  "wallet": {
+    "currency": "EUR",
+    "availableCents": 5200,
+    "pendingCents": 1800,
+    "lifetimeTippedCents": 6400,
+    "lifetimeEarnedCents": 18000,
+    "lifetimePaidOutCents": 8000
+  },
+  "wallets": {
+    "install-001": {
+      "currency": "EUR",
+      "availableCents": 5200,
+      "pendingCents": 1800,
+      "lifetimeTippedCents": 6400,
+      "lifetimeEarnedCents": 18000,
+      "lifetimePaidOutCents": 8000
+    }
+  },
+  "ledger": [
+    {
+      "id": "ledger-001",
+      "installIdentityId": "install-001",
+      "kind": "topup",
+      "status": "available",
+      "grossCents": 2500,
+      "platformFeeCents": 0,
+      "netCents": 2500,
+      "refType": "wallet",
+      "refId": "topup-001",
+      "createdAt": "2026-03-25T18:00:00.000Z"
+    },
+    {
+      "id": "ledger-002",
+      "installIdentityId": "install-001",
+      "kind": "tip_out",
+      "status": "available",
+      "grossCents": 800,
+      "platformFeeCents": 160,
+      "netCents": 640,
+      "refType": "post",
+      "refId": "post-002",
+      "createdAt": "2026-03-26T12:32:00.000Z"
+    },
+    {
+      "id": "ledger-003",
+      "installIdentityId": "install-creator-002",
+      "kind": "tip_in",
+      "status": "pending",
+      "grossCents": 800,
+      "platformFeeCents": 160,
+      "netCents": 640,
+      "refType": "post",
+      "refId": "post-002",
+      "createdAt": "2026-03-26T12:32:00.000Z"
+    }
+  ],
+  "walletTopups": [
+    {
+      "id": "topup-001",
+      "installIdentityId": "install-001",
+      "provider": "fake",
+      "status": "succeeded",
+      "grossCents": 2500,
+      "createdAt": "2026-03-25T18:00:00.000Z"
+    }
+  ],
+  "tips": [
+    {
+      "id": "tip-001",
+      "senderInstallIdentityId": "install-001",
+      "recipientInstallIdentityId": "install-creator-002",
+      "targetType": "post",
+      "targetId": "post-002",
+      "grossCents": 800,
+      "platformFeeCents": 160,
+      "creatorNetCents": 640,
+      "status": "pending",
+      "createdAt": "2026-03-26T12:32:00.000Z"
+    }
+  ],
+  "creatorApplication": {
+    "id": "creator-app-001",
+    "installIdentityId": "install-001",
+    "status": "under_review",
+    "adultVerified": true,
+    "kycState": "pending",
+    "payoutState": "not_ready",
+    "submittedAt": "2026-03-25T16:00:00.000Z"
+  },
+  "moderationCases": [
+    {
+      "id": "mod-3045868c-0463-4d54-a39f-1cbe88f1f6d0",
+      "cityId": "city-munich",
+      "targetType": "post",
+      "targetId": "post-36e130a4-a5e1-4d21-8216-749168669cfa",
+      "reason": "beta verify report | action: flag | note: beta verify action",
+      "status": "reviewed",
+      "createdAt": "2026-04-02T09:58:46.341Z"
+    },
+    {
+      "id": "mod-3188c2b7-487e-44e9-8fd1-d6a7f27a5c69",
+      "cityId": "city-munich",
+      "targetType": "post",
+      "targetId": "post-816b5a13-755f-466a-be20-39447447fa7d",
+      "reason": "beta verify report | action: flag | note: beta verify action",
+      "status": "reviewed",
+      "createdAt": "2026-04-02T09:55:19.680Z"
+    },
+    {
+      "id": "mod-e5234e86-4d2b-4965-a4ec-2e031d004137",
+      "cityId": "city-munich",
+      "targetType": "post",
+      "targetId": "post-0254fe9b-5c56-4a4b-94a3-bbee2efd9a41",
+      "reason": "beta smoke moderation path | action: flag | note: beta smoke review",
+      "status": "reviewed",
+      "createdAt": "2026-04-01T17:02:52.101Z"
+    },
+    {
+      "id": "mod-001",
+      "cityId": "city-munich",
+      "targetType": "post",
+      "targetId": "post-002",
+      "reason": "Manual review for explicit image and payout eligibility | action: flag | note: phase-a smoke | action: flag | note: phase-a smoke",
+      "status": "reviewed",
+      "createdAt": "2026-03-26T12:15:00.000Z"
+    },
+    {
+      "id": "mod-002",
+      "cityId": "city-munich",
+      "targetType": "user",
+      "targetId": "install-suspicious-003",
+      "reason": "Spam and repeated chat requests",
+      "status": "reviewed",
+      "createdAt": "2026-03-26T09:00:00.000Z"
+    }
+  ],
+  "reports": [
+    {
+      "id": "report-0e1ca14e-0532-4f5b-b723-56f4eea3ba84",
+      "reporterInstallIdentityId": "install-001",
+      "cityId": "city-munich",
+      "targetType": "post",
+      "targetId": "post-36e130a4-a5e1-4d21-8216-749168669cfa",
+      "reason": "beta verify report",
+      "moderationCaseId": "mod-3045868c-0463-4d54-a39f-1cbe88f1f6d0",
+      "status": "reviewed",
+      "createdAt": "2026-04-02T09:58:46.341Z",
+      "updatedAt": "2026-04-02T09:58:48.385Z"
+    },
+    {
+      "id": "report-2d04e422-b786-4798-bbb8-b417f9d0935d",
+      "reporterInstallIdentityId": "install-001",
+      "cityId": "city-munich",
+      "targetType": "post",
+      "targetId": "post-816b5a13-755f-466a-be20-39447447fa7d",
+      "reason": "beta verify report",
+      "moderationCaseId": "mod-3188c2b7-487e-44e9-8fd1-d6a7f27a5c69",
+      "status": "reviewed",
+      "createdAt": "2026-04-02T09:55:19.680Z",
+      "updatedAt": "2026-04-02T09:55:21.724Z"
+    },
+    {
+      "id": "report-a67378bd-babf-40f5-a833-d4e6033d1cb9",
+      "reporterInstallIdentityId": "install-001",
+      "cityId": "city-munich",
+      "targetType": "post",
+      "targetId": "post-0254fe9b-5c56-4a4b-94a3-bbee2efd9a41",
+      "reason": "beta smoke moderation path",
+      "moderationCaseId": "mod-e5234e86-4d2b-4965-a4ec-2e031d004137",
+      "status": "reviewed",
+      "createdAt": "2026-04-01T17:02:52.101Z",
+      "updatedAt": "2026-04-01T17:02:52.108Z"
+    },
+    {
+      "id": "report-1",
+      "reporterInstallIdentityId": "install-001",
+      "cityId": "city-munich",
+      "targetType": "post",
+      "targetId": "post-002",
+      "reason": "Manual review for explicit image and payout eligibility",
+      "moderationCaseId": "mod-001",
+      "status": "reviewed",
+      "createdAt": "2026-03-26T12:15:00.000Z",
+      "updatedAt": "2026-04-01T16:29:38.387Z"
+    },
+    {
+      "id": "report-2",
+      "reporterInstallIdentityId": "install-001",
+      "cityId": "city-munich",
+      "targetType": "user",
+      "targetId": "install-suspicious-003",
+      "reason": "Spam and repeated chat requests",
+      "moderationCaseId": "mod-002",
+      "status": "reviewed",
+      "createdAt": "2026-03-26T09:00:00.000Z",
+      "updatedAt": "2026-03-26T09:00:00.000Z"
+    }
+  ],
+  "auditLogs": [
+    {
+      "id": "audit-1deeafbe-a610-4afc-9bc8-11106b3543b3",
+      "actorType": "admin",
+      "actorId": "admin-ops",
+      "actorRole": "admin",
+      "action": "security.restriction.clear",
+      "entityType": "install_restriction",
+      "entityId": "install-001",
+      "summary": "Cleared 1 active restriction(s) for install-001",
+      "metadata": {
+        "actorId": "admin-ops",
+        "actorRole": "admin",
+        "clearedCount": 1,
+        "installIdentityId": "install-001",
+        "note": "clear smoke",
+        "restrictionType": "read_only"
+      },
+      "createdAt": "2026-04-03T15:00:07.998Z"
+    },
+    {
+      "id": "audit-ab199e0b-cddb-4ba8-86c2-73f0447bb5e8",
+      "actorType": "admin",
+      "actorId": "admin-ops",
+      "actorRole": "admin",
+      "action": "security.restriction.apply",
+      "entityType": "install_restriction",
+      "entityId": "restriction-ed010a38-929c-4891-b24e-17002cd19b09",
+      "summary": "Applied read_only to install-001",
+      "metadata": {
+        "actorId": "admin-ops",
+        "actorRole": "admin",
+        "durationMinutes": 30,
+        "installIdentityId": "install-001",
+        "note": "read-only smoke",
+        "restrictionType": "read_only"
+      },
+      "createdAt": "2026-04-03T14:59:53.690Z"
+    },
+    {
+      "id": "audit-0f4bf328-362a-41ae-8cdb-4ae355bef734",
+      "actorType": "install",
+      "actorId": "install-001",
+      "action": "install.register",
+      "entityType": "identity",
+      "entityId": "install-001",
+      "summary": "install.register -> identity:install-001",
+      "metadata": {
+        "cityId": "city-munich",
+        "adultGateAccepted": true
+      },
+      "createdAt": "2026-04-03T14:59:51.649Z"
+    },
+    {
+      "id": "audit-f31c03a6-8bbf-43ab-88a6-9d0e1d3c8915",
+      "actorType": "admin",
+      "actorId": "admin-ops",
+      "actorRole": "admin",
+      "action": "security.restriction.clear",
+      "entityType": "install_restriction",
+      "entityId": "install-001",
+      "summary": "Cleared 1 active restriction(s) for install-001",
+      "metadata": {
+        "actorId": "admin-ops",
+        "actorRole": "admin",
+        "clearedCount": 1,
+        "installIdentityId": "install-001",
+        "note": "clear smoke",
+        "restrictionType": "read_only"
+      },
+      "createdAt": "2026-04-03T14:59:13.473Z"
+    },
+    {
+      "id": "audit-a9abc344-ab9b-4116-a400-529b3f2dc7b8",
+      "actorType": "admin",
+      "actorId": "admin-ops",
+      "actorRole": "admin",
+      "action": "security.restriction.apply",
+      "entityType": "install_restriction",
+      "entityId": "restriction-610b00b8-6899-45b0-a6f8-3d2ffa3698ec",
+      "summary": "Applied read_only to install-001",
+      "metadata": {
+        "actorId": "admin-ops",
+        "actorRole": "admin",
+        "durationMinutes": 30,
+        "installIdentityId": "install-001",
+        "note": "read-only smoke",
+        "restrictionType": "read_only"
+      },
+      "createdAt": "2026-04-03T14:58:59.132Z"
+    },
+    {
+      "id": "audit-93a3ad78-068a-4b61-af41-b0afa383d5c2",
+      "actorType": "install",
+      "actorId": "install-001",
+      "action": "install.register",
+      "entityType": "identity",
+      "entityId": "install-001",
+      "summary": "install.register -> identity:install-001",
+      "metadata": {
+        "cityId": "city-munich",
+        "adultGateAccepted": true
+      },
+      "createdAt": "2026-04-03T14:58:57.084Z"
+    },
+    {
+      "id": "audit-4935b8bc-3967-4588-a983-295eab2b5636",
+      "actorType": "admin",
+      "actorId": "admin-owner-001",
+      "actorRole": "owner",
+      "action": "security.restriction.clear",
+      "entityType": "install_restriction",
+      "entityId": "install-001",
+      "summary": "Cleared 1 active restriction(s) for install-001",
+      "metadata": {
+        "actorId": "admin-owner-001",
+        "actorRole": "owner",
+        "clearedCount": 1,
+        "installIdentityId": "install-001",
+        "note": "b3 smoke clear",
+        "restrictionType": "read_only"
+      },
+      "createdAt": "2026-04-03T14:57:55.149Z"
+    },
+    {
+      "id": "audit-3e4938f3-2efc-4c78-9559-0130c6303d86",
+      "actorType": "admin",
+      "actorId": "admin-owner-001",
+      "actorRole": "owner",
+      "action": "security.restriction.apply",
+      "entityType": "install_restriction",
+      "entityId": "restriction-06af9b77-5eee-46a3-89fe-ed8e2ce379ee",
+      "summary": "Applied read_only to install-001",
+      "metadata": {
+        "actorId": "admin-owner-001",
+        "actorRole": "owner",
+        "durationMinutes": 10,
+        "installIdentityId": "install-001",
+        "note": "b3 smoke read_only",
+        "restrictionType": "read_only"
+      },
+      "createdAt": "2026-04-03T14:57:51.040Z"
+    },
+    {
+      "id": "audit-c2be2f05-59b1-443b-aa7b-ac43e64191b7",
+      "actorType": "install",
+      "actorId": "install-001",
+      "action": "install.register",
+      "entityType": "identity",
+      "entityId": "install-001",
+      "summary": "install.register -> identity:install-001",
+      "metadata": {
+        "cityId": "city-munich",
+        "adultGateAccepted": true
+      },
+      "createdAt": "2026-04-03T14:57:48.949Z"
+    },
+    {
+      "id": "audit-54c76258-af13-445d-9353-5dee97d08450",
+      "actorType": "admin",
+      "actorId": "admin-owner-001",
+      "actorRole": "owner",
+      "action": "security.restriction.clear",
+      "entityType": "install_restriction",
+      "entityId": "install-001",
+      "summary": "Cleared 1 active restriction(s) for install-001",
+      "metadata": {
+        "actorId": "admin-owner-001",
+        "actorRole": "owner",
+        "clearedCount": 1,
+        "installIdentityId": "install-001",
+        "note": "b3 smoke clear",
+        "restrictionType": "read_only"
+      },
+      "createdAt": "2026-04-03T14:57:30.457Z"
+    },
+    {
+      "id": "audit-391e0eaa-e9aa-46ab-8fec-50a34227792a",
+      "actorType": "admin",
+      "actorId": "admin-owner-001",
+      "actorRole": "owner",
+      "action": "security.restriction.apply",
+      "entityType": "install_restriction",
+      "entityId": "restriction-61f71454-5042-4340-bbb8-d4bec8c83378",
+      "summary": "Applied read_only to install-001",
+      "metadata": {
+        "actorId": "admin-owner-001",
+        "actorRole": "owner",
+        "durationMinutes": 10,
+        "installIdentityId": "install-001",
+        "note": "b3 smoke read_only",
+        "restrictionType": "read_only"
+      },
+      "createdAt": "2026-04-03T14:57:26.224Z"
+    },
+    {
+      "id": "audit-efc06d03-19b6-40e4-b996-6dc2dfa9852b",
+      "actorType": "install",
+      "actorId": "install-001",
+      "action": "install.register",
+      "entityType": "identity",
+      "entityId": "install-001",
+      "summary": "install.register -> identity:install-001",
+      "metadata": {
+        "cityId": "city-munich",
+        "adultGateAccepted": true
+      },
+      "createdAt": "2026-04-03T14:57:24.155Z"
+    },
+    {
+      "id": "audit-37ab0c76-67df-48b5-95df-22cdfe76b8c6",
+      "actorType": "install",
+      "actorId": "install-001",
+      "action": "vote.update",
+      "entityType": "post",
+      "entityId": "post-001",
+      "summary": "vote.update -> post:post-001",
+      "metadata": {
+        "aggregateScore": 43,
+        "value": 1
+      },
+      "createdAt": "2026-04-03T14:44:59.964Z"
+    },
+    {
+      "id": "audit-35cca813-01d5-48ff-81c9-4973244c1e50",
+      "actorType": "install",
+      "actorId": "install-001",
+      "action": "vote.update",
+      "entityType": "post",
+      "entityId": "post-001",
+      "summary": "vote.update -> post:post-001",
+      "metadata": {
+        "aggregateScore": 43,
+        "value": 1
+      },
+      "createdAt": "2026-04-03T14:44:57.936Z"
+    },
+    {
+      "id": "audit-37a6dc28-63bf-43b7-9f6d-584ba193f085",
+      "actorType": "install",
+      "actorId": "install-001",
+      "action": "vote.update",
+      "entityType": "post",
+      "entityId": "post-001",
+      "summary": "vote.update -> post:post-001",
+      "metadata": {
+        "aggregateScore": 43,
+        "value": 1
+      },
+      "createdAt": "2026-04-03T14:44:55.905Z"
+    },
+    {
+      "id": "audit-fc6764c8-cf36-49ba-9ff2-f53b873f7af5",
+      "actorType": "install",
+      "actorId": "install-001",
+      "action": "vote.update",
+      "entityType": "post",
+      "entityId": "post-001",
+      "summary": "vote.update -> post:post-001",
+      "metadata": {
+        "aggregateScore": 43,
+        "value": 1
+      },
+      "createdAt": "2026-04-03T14:44:53.890Z"
+    },
+    {
+      "id": "audit-575c306e-11da-469f-b6fe-a4803089ba2c",
+      "actorType": "install",
+      "actorId": "install-001",
+      "action": "vote.update",
+      "entityType": "post",
+      "entityId": "post-001",
+      "summary": "vote.update -> post:post-001",
+      "metadata": {
+        "aggregateScore": 43,
+        "value": 1
+      },
+      "createdAt": "2026-04-03T14:44:51.860Z"
+    },
+    {
+      "id": "audit-f9b995f2-6529-4f7e-a739-18369e932f2f",
+      "actorType": "install",
+      "actorId": "install-001",
+      "action": "vote.update",
+      "entityType": "post",
+      "entityId": "post-001",
+      "summary": "vote.update -> post:post-001",
+      "metadata": {
+        "aggregateScore": 43,
+        "value": 1
+      },
+      "createdAt": "2026-04-03T14:44:49.828Z"
+    },
+    {
+      "id": "audit-474bc92a-32c2-49de-9c6b-7e76b90499fe",
+      "actorType": "install",
+      "actorId": "install-001",
+      "action": "vote.update",
+      "entityType": "post",
+      "entityId": "post-001",
+      "summary": "vote.update -> post:post-001",
+      "metadata": {
+        "aggregateScore": 43,
+        "value": 1
+      },
+      "createdAt": "2026-04-03T14:44:47.803Z"
+    },
+    {
+      "id": "audit-e2b80584-9215-4d06-84c0-04039d7fe277",
+      "actorType": "install",
+      "actorId": "install-001",
+      "action": "vote.update",
+      "entityType": "post",
+      "entityId": "post-001",
+      "summary": "vote.update -> post:post-001",
+      "metadata": {
+        "aggregateScore": 43,
+        "value": 1
+      },
+      "createdAt": "2026-04-03T14:44:45.766Z"
+    },
+    {
+      "id": "audit-b52d6139-e14d-4867-826a-cec066183cbb",
+      "actorType": "install",
+      "actorId": "install-001",
+      "action": "vote.update",
+      "entityType": "post",
+      "entityId": "post-001",
+      "summary": "vote.update -> post:post-001",
+      "metadata": {
+        "aggregateScore": 43,
+        "value": 1
+      },
+      "createdAt": "2026-04-03T14:44:43.738Z"
+    },
+    {
+      "id": "audit-482bd890-1484-4825-9da4-f7b662d25882",
+      "actorType": "install",
+      "actorId": "install-001",
+      "action": "vote.update",
+      "entityType": "post",
+      "entityId": "post-001",
+      "summary": "vote.update -> post:post-001",
+      "metadata": {
+        "aggregateScore": 43,
+        "value": 1
+      },
+      "createdAt": "2026-04-03T14:44:41.703Z"
+    },
+    {
+      "id": "audit-5e3a3b7c-3f74-49eb-8bfb-f853bd68aeb5",
+      "actorType": "install",
+      "actorId": "install-001",
+      "action": "install.register",
+      "entityType": "identity",
+      "entityId": "install-001",
+      "summary": "install.register -> identity:install-001",
+      "metadata": {
+        "cityId": "city-munich",
+        "adultGateAccepted": true
+      },
+      "createdAt": "2026-04-03T14:44:39.651Z"
+    },
+    {
+      "id": "audit-c032449f-f0a4-4c08-b972-bd283a70f346",
+      "actorType": "install",
+      "actorId": "install-001",
+      "action": "install.register",
+      "entityType": "identity",
+      "entityId": "install-001",
+      "summary": "install.register -> identity:install-001",
+      "metadata": {
+        "cityId": "city-munich",
+        "adultGateAccepted": true
+      },
+      "createdAt": "2026-04-03T14:43:46.846Z"
+    },
+    {
+      "id": "audit-e8da7871-68fd-42c7-8ad6-d39bd134654f",
+      "actorType": "admin",
+      "actorId": "admin-ops",
+      "actorRole": "admin",
+      "action": "security.restriction.clear",
+      "entityType": "install_restriction",
+      "entityId": "install-001",
+      "summary": "Cleared 1 active restriction(s) for install-001",
+      "metadata": {
+        "actorId": "admin-ops",
+        "actorRole": "admin",
+        "clearedCount": 1,
+        "installIdentityId": "install-001",
+        "note": "manual clear smoke",
+        "restrictionType": "posting_block"
+      },
+      "createdAt": "2026-04-03T14:43:24.918Z"
+    },
+    {
+      "id": "audit-050a16b2-2495-49b0-b03e-16a7bf3eca98",
+      "actorType": "admin",
+      "actorId": "admin-ops",
+      "actorRole": "admin",
+      "action": "security.restriction.apply",
+      "entityType": "install_restriction",
+      "entityId": "restriction-889f2fc6-eef6-41b6-b6e9-5c7729d800b7",
+      "summary": "Applied posting_block to install-001",
+      "metadata": {
+        "actorId": "admin-ops",
+        "actorRole": "admin",
+        "durationMinutes": 30,
+        "installIdentityId": "install-001",
+        "note": "manual smoke",
+        "restrictionType": "posting_block"
+      },
+      "createdAt": "2026-04-03T14:43:20.844Z"
+    },
+    {
+      "id": "audit-3f000c5c-b073-4f9d-a066-02a37831d89f",
+      "actorType": "install",
+      "actorId": "install-001",
+      "action": "post.create",
+      "entityType": "post",
+      "entityId": "post-5e8fafb9-09ef-41c4-9fd8-e6d4130bcf06",
+      "summary": "post.create -> post:post-5e8fafb9-09ef-41c4-9fd8-e6d4130bcf06",
+      "metadata": {
+        "cityId": "city-munich",
+        "channelId": null,
+        "tags": []
+      },
+      "createdAt": "2026-04-03T14:43:20.797Z"
+    },
+    {
+      "id": "audit-f3af0fa5-4892-4ab2-aa16-e25244c23741",
+      "actorType": "install",
+      "actorId": "install-001",
+      "action": "install.register",
+      "entityType": "identity",
+      "entityId": "install-001",
+      "summary": "install.register -> identity:install-001",
+      "metadata": {
+        "cityId": "city-munich",
+        "adultGateAccepted": true
+      },
+      "createdAt": "2026-04-03T14:43:05.871Z"
+    },
+    {
+      "id": "audit-b45cc3bb-90ea-4e6c-9a0f-be44db467d47",
+      "actorType": "install",
+      "actorId": "install-001",
+      "action": "auth.refresh",
+      "entityType": "install_session",
+      "entityId": "session-d8a1ff77-490f-4c0e-89e3-dbfacac58d92",
+      "summary": "auth.refresh -> install_session:session-d8a1ff77-490f-4c0e-89e3-dbfacac58d92",
+      "metadata": {
+        "installSessionId": "session-d8a1ff77-490f-4c0e-89e3-dbfacac58d92",
+        "refreshTokenFamilyId": "refresh-family-2f617b22-880d-4dad-9bc9-1f5520dd6fbc"
+      },
+      "createdAt": "2026-04-02T10:52:14.824Z"
+    },
+    {
+      "id": "audit-fd22f99e-603d-42a2-8327-7b67a350591a",
+      "actorType": "install",
+      "actorId": "install-001",
+      "action": "auth.refresh",
+      "entityType": "install_session",
+      "entityId": "session-d8a1ff77-490f-4c0e-89e3-dbfacac58d92",
+      "summary": "auth.refresh -> install_session:session-d8a1ff77-490f-4c0e-89e3-dbfacac58d92",
+      "metadata": {
+        "installSessionId": "session-d8a1ff77-490f-4c0e-89e3-dbfacac58d92",
+        "refreshTokenFamilyId": "refresh-family-2f617b22-880d-4dad-9bc9-1f5520dd6fbc"
+      },
+      "createdAt": "2026-04-02T10:52:12.771Z"
+    },
+    {
+      "id": "audit-35f4840b-f716-4e99-9f5b-87841fbc09a2",
+      "actorType": "install",
+      "actorId": "install-001",
+      "action": "auth.refresh",
+      "entityType": "install_session",
+      "entityId": "session-d8a1ff77-490f-4c0e-89e3-dbfacac58d92",
+      "summary": "auth.refresh -> install_session:session-d8a1ff77-490f-4c0e-89e3-dbfacac58d92",
+      "metadata": {
+        "installSessionId": "session-d8a1ff77-490f-4c0e-89e3-dbfacac58d92",
+        "refreshTokenFamilyId": "refresh-family-2f617b22-880d-4dad-9bc9-1f5520dd6fbc"
+      },
+      "createdAt": "2026-04-02T10:52:10.734Z"
+    },
+    {
+      "id": "audit-7fa608b1-4059-4009-9ef6-d6bf54a8a461",
+      "actorType": "install",
+      "actorId": "install-001",
+      "action": "auth.refresh",
+      "entityType": "install_session",
+      "entityId": "session-d8a1ff77-490f-4c0e-89e3-dbfacac58d92",
+      "summary": "auth.refresh -> install_session:session-d8a1ff77-490f-4c0e-89e3-dbfacac58d92",
+      "metadata": {
+        "installSessionId": "session-d8a1ff77-490f-4c0e-89e3-dbfacac58d92",
+        "refreshTokenFamilyId": "refresh-family-2f617b22-880d-4dad-9bc9-1f5520dd6fbc"
+      },
+      "createdAt": "2026-04-02T10:52:08.681Z"
+    },
+    {
+      "id": "audit-c748e8a2-8a15-4ba1-a931-715cf215a90b",
+      "actorType": "install",
+      "actorId": "install-001",
+      "action": "install.register",
+      "entityType": "identity",
+      "entityId": "install-001",
+      "summary": "install.register -> identity:install-001",
+      "metadata": {
+        "cityId": "city-munich",
+        "adultGateAccepted": true
+      },
+      "createdAt": "2026-04-02T10:52:06.639Z"
+    },
+    {
+      "id": "audit-ba6e675a-d458-42be-9508-c9e021629bbb",
+      "actorType": "install",
+      "actorId": "install-001",
+      "action": "install.register",
+      "entityType": "identity",
+      "entityId": "install-001",
+      "summary": "install.register -> identity:install-001",
+      "metadata": {
+        "cityId": "city-munich",
+        "adultGateAccepted": true
+      },
+      "createdAt": "2026-04-02T10:50:31.868Z"
+    },
+    {
+      "id": "audit-9dfc74d0-be18-498c-9433-c866e229f5ac",
+      "actorType": "install",
+      "actorId": "install-001",
+      "action": "install.register",
+      "entityType": "identity",
+      "entityId": "install-001",
+      "summary": "install.register -> identity:install-001",
+      "metadata": {
+        "cityId": "city-munich",
+        "adultGateAccepted": true
+      },
+      "createdAt": "2026-04-02T10:49:48.277Z"
+    },
+    {
+      "id": "audit-83c54fc1-04a3-495c-b207-ca9a1f261560",
+      "actorType": "install",
+      "actorId": "install-001",
+      "action": "post.create",
+      "entityType": "post",
+      "entityId": "post-0a45d2d0-d851-49d1-8a3d-36065d3a1e68",
+      "summary": "post.create -> post:post-0a45d2d0-d851-49d1-8a3d-36065d3a1e68",
+      "metadata": {
+        "cityId": "city-munich",
+        "channelId": null,
+        "tags": [
+          "a",
+          "b",
+          "c",
+          "d",
+          "e",
+          "f"
+        ]
+      },
+      "createdAt": "2026-04-02T10:48:21.232Z"
+    },
+    {
+      "id": "audit-7244a1f9-5a0b-48bb-bdc2-29d68f071309",
+      "actorType": "install",
+      "actorId": "install-001",
+      "action": "install.register",
+      "entityType": "identity",
+      "entityId": "install-001",
+      "summary": "install.register -> identity:install-001",
+      "metadata": {
+        "cityId": "city-munich",
+        "adultGateAccepted": true
+      },
+      "createdAt": "2026-04-02T10:47:54.557Z"
+    },
+    {
+      "id": "audit-8c51b65d-20d9-4b25-88be-e41b2e399bc4",
+      "actorType": "install",
+      "actorId": "install-001",
+      "action": "auth.refresh",
+      "entityType": "install_session",
+      "entityId": "session-20a24ed8-1f5b-406b-81c7-82dbda3a27ce",
+      "summary": "auth.refresh -> install_session:session-20a24ed8-1f5b-406b-81c7-82dbda3a27ce",
+      "metadata": {
+        "installSessionId": "session-20a24ed8-1f5b-406b-81c7-82dbda3a27ce",
+        "refreshTokenFamilyId": "refresh-family-5011738f-2518-4ca7-9f64-d8d11ff8ae4e"
+      },
+      "createdAt": "2026-04-02T10:35:40.712Z"
+    },
+    {
+      "id": "audit-0027d901-0ad7-44fa-acd7-cd68e889bc8c",
+      "actorType": "install",
+      "actorId": "install-001",
+      "action": "install.register",
+      "entityType": "identity",
+      "entityId": "install-001",
+      "summary": "install.register -> identity:install-001",
+      "metadata": {
+        "cityId": "city-munich",
+        "adultGateAccepted": true
+      },
+      "createdAt": "2026-04-02T10:35:40.686Z"
+    },
+    {
+      "id": "audit-2b5468f7-da88-4bf9-a090-1352688ea3ad",
+      "actorType": "install",
+      "actorId": "install-001",
+      "action": "install.register",
+      "entityType": "identity",
+      "entityId": "install-001",
+      "summary": "install.register -> identity:install-001",
+      "metadata": {
+        "cityId": "city-munich",
+        "adultGateAccepted": true
+      },
+      "createdAt": "2026-04-02T10:35:20.689Z"
+    },
+    {
+      "id": "audit-ec02413e-072d-45b8-b909-68e0cc6b6569",
+      "actorType": "install",
+      "actorId": "install-001",
+      "action": "auth.refresh",
+      "entityType": "install_session",
+      "entityId": "session-66583808-0254-45af-8795-bdbff12e560d",
+      "summary": "auth.refresh -> install_session:session-66583808-0254-45af-8795-bdbff12e560d",
+      "metadata": {
+        "installSessionId": "session-66583808-0254-45af-8795-bdbff12e560d",
+        "refreshTokenFamilyId": "refresh-family-06703adc-533d-488a-ae0a-245ab33e3ba0"
+      },
+      "createdAt": "2026-04-02T10:35:15.238Z"
+    },
+    {
+      "id": "audit-633a7cce-a821-4867-bf4d-e086f86c1114",
+      "actorType": "install",
+      "actorId": "install-001",
+      "action": "install.register",
+      "entityType": "identity",
+      "entityId": "install-001",
+      "summary": "install.register -> identity:install-001",
+      "metadata": {
+        "cityId": "city-munich",
+        "adultGateAccepted": true
+      },
+      "createdAt": "2026-04-02T10:35:15.220Z"
+    },
+    {
+      "id": "audit-5ee277fc-36a5-448a-8ac8-5698a95feebf",
+      "actorType": "install",
+      "actorId": "install-001",
+      "action": "auth.refresh",
+      "entityType": "install_session",
+      "entityId": "session-8f24caff-628d-462f-b05b-515eeb262991",
+      "summary": "auth.refresh -> install_session:session-8f24caff-628d-462f-b05b-515eeb262991",
+      "metadata": {
+        "installSessionId": "session-8f24caff-628d-462f-b05b-515eeb262991",
+        "refreshTokenFamilyId": "refresh-family-8353575c-b668-4286-8758-44fe778d406d"
+      },
+      "createdAt": "2026-04-02T10:35:13.055Z"
+    },
+    {
+      "id": "audit-691ed465-232e-4cc6-9fe7-9ebb99c253a3",
+      "actorType": "install",
+      "actorId": "install-001",
+      "action": "install.register",
+      "entityType": "identity",
+      "entityId": "install-001",
+      "summary": "install.register -> identity:install-001",
+      "metadata": {
+        "cityId": "city-munich",
+        "adultGateAccepted": true
+      },
+      "createdAt": "2026-04-02T10:35:13.035Z"
+    },
+    {
+      "id": "audit-026913f8-3c3f-4195-9515-cb207d377928",
+      "actorType": "install",
+      "actorId": "install-001",
+      "action": "install.register",
+      "entityType": "identity",
+      "entityId": "install-001",
+      "summary": "install.register -> identity:install-001",
+      "metadata": {
+        "cityId": "city-munich",
+        "adultGateAccepted": true
+      },
+      "createdAt": "2026-04-02T10:34:28.561Z"
+    },
+    {
+      "id": "audit-9dd3da09-f375-479c-939f-a96f5af534ea",
+      "actorType": "install",
+      "actorId": "install-001",
+      "action": "install.register",
+      "entityType": "identity",
+      "entityId": "install-001",
+      "summary": "install.register -> identity:install-001",
+      "metadata": {
+        "cityId": "city-munich",
+        "adultGateAccepted": true
+      },
+      "createdAt": "2026-04-02T10:33:34.238Z"
+    },
+    {
+      "id": "audit-4481a1f1-6a58-47e2-be27-6312d7f7d76b",
+      "actorType": "install",
+      "actorId": "install-001",
+      "action": "install.register",
+      "entityType": "identity",
+      "entityId": "install-001",
+      "summary": "install.register -> identity:install-001",
+      "metadata": {
+        "cityId": "city-munich",
+        "adultGateAccepted": true
+      },
+      "createdAt": "2026-04-02T10:29:05.828Z"
+    },
+    {
+      "id": "audit-df820e82-a260-4c0d-b991-02efb961bd57",
+      "actorType": "install",
+      "actorId": "install-001",
+      "action": "install.register",
+      "entityType": "identity",
+      "entityId": "install-001",
+      "summary": "install.register -> identity:install-001",
+      "metadata": {
+        "cityId": "city-munich",
+        "adultGateAccepted": true
+      },
+      "createdAt": "2026-04-02T10:14:49.402Z"
+    },
+    {
+      "id": "audit-5bcb1e98-e951-4b27-83bc-3cf6a15888a5",
+      "actorType": "install",
+      "actorId": "install-001",
+      "action": "install.register",
+      "entityType": "identity",
+      "entityId": "install-001",
+      "summary": "install.register -> identity:install-001",
+      "metadata": {
+        "cityId": "city-munich",
+        "adultGateAccepted": true
+      },
+      "createdAt": "2026-04-02T10:13:22.368Z"
+    },
+    {
+      "id": "audit-90c372d6-ec0a-4d8a-b53f-d2e8670bfd12",
+      "actorType": "install",
+      "actorId": "install-001",
+      "action": "install.register",
+      "entityType": "identity",
+      "entityId": "install-001",
+      "summary": "install.register -> identity:install-001",
+      "metadata": {
+        "cityId": "city-munich",
+        "adultGateAccepted": true
+      },
+      "createdAt": "2026-04-02T10:10:01.406Z"
+    },
+    {
+      "id": "audit-3a3c8305-9128-415f-acdd-e0192163ada8",
+      "actorType": "install",
+      "actorId": "install-001",
+      "action": "install.register",
+      "entityType": "identity",
+      "entityId": "install-001",
+      "summary": "install.register -> identity:install-001",
+      "metadata": {
+        "cityId": "city-munich",
+        "adultGateAccepted": true
+      },
+      "createdAt": "2026-04-02T10:09:38.469Z"
+    },
+    {
+      "id": "audit-15d41af6-2e59-479d-8fe8-1ef21df66c77",
+      "actorType": "install",
+      "actorId": "install-001",
+      "action": "install.register",
+      "entityType": "identity",
+      "entityId": "install-001",
+      "summary": "install.register -> identity:install-001",
+      "metadata": {
+        "cityId": "city-munich",
+        "adultGateAccepted": true
+      },
+      "createdAt": "2026-04-02T10:09:01.076Z"
+    },
+    {
+      "id": "audit-b46be28d-0e1b-4830-b679-d16aa0e3041c",
+      "actorType": "install",
+      "actorId": "install-001",
+      "action": "install.register",
+      "entityType": "identity",
+      "entityId": "install-001",
+      "summary": "install.register -> identity:install-001",
+      "metadata": {
+        "cityId": "city-munich",
+        "adultGateAccepted": true
+      },
+      "createdAt": "2026-04-02T09:58:56.657Z"
+    },
+    {
+      "id": "audit-09c74424-022b-417d-9a2d-fc2548940063",
+      "actorType": "admin",
+      "actorId": "backoffice-mod-001",
+      "actorRole": "moderator",
+      "action": "moderation.flag",
+      "entityType": "moderation_case",
+      "entityId": "mod-3045868c-0463-4d54-a39f-1cbe88f1f6d0",
+      "summary": "Moderation case mod-3045868c-0463-4d54-a39f-1cbe88f1f6d0 -> flag",
+      "metadata": {
+        "actorId": "backoffice-mod-001",
+        "actorRole": "moderator",
+        "caseStatus": "reviewed",
+        "note": "beta verify action",
+        "targetId": "post-36e130a4-a5e1-4d21-8216-749168669cfa",
+        "targetType": "post"
+      },
+      "createdAt": "2026-04-02T09:58:48.385Z"
+    },
+    {
+      "id": "audit-2dbcf389-5fd0-49f2-a9ef-658d26719ab0",
+      "actorType": "install",
+      "actorId": "install-001",
+      "action": "report.create",
+      "entityType": "report",
+      "entityId": "report-0e1ca14e-0532-4f5b-b723-56f4eea3ba84",
+      "summary": "report.create -> report:report-0e1ca14e-0532-4f5b-b723-56f4eea3ba84",
+      "metadata": {
+        "moderationCaseId": "mod-3045868c-0463-4d54-a39f-1cbe88f1f6d0",
+        "targetType": "post",
+        "targetId": "post-36e130a4-a5e1-4d21-8216-749168669cfa"
+      },
+      "createdAt": "2026-04-02T09:58:46.341Z"
+    },
+    {
+      "id": "audit-a63a49fb-a625-4d19-9226-77e8b0aab870",
+      "actorType": "install",
+      "actorId": "install-001",
+      "action": "reply.create",
+      "entityType": "reply",
+      "entityId": "reply-3f830e78-aacf-45cf-bedb-d2078d9a0ae3",
+      "summary": "reply.create -> reply:reply-3f830e78-aacf-45cf-bedb-d2078d9a0ae3",
+      "metadata": {
+        "postId": "post-36e130a4-a5e1-4d21-8216-749168669cfa"
+      },
+      "createdAt": "2026-04-02T09:58:44.313Z"
+    },
+    {
+      "id": "audit-ea87ec40-f0d1-4adc-8101-9c0f98e62361",
+      "actorType": "install",
+      "actorId": "install-001",
+      "action": "post.create",
+      "entityType": "post",
+      "entityId": "post-36e130a4-a5e1-4d21-8216-749168669cfa",
+      "summary": "post.create -> post:post-36e130a4-a5e1-4d21-8216-749168669cfa",
+      "metadata": {
+        "cityId": "city-munich",
+        "channelId": "channel-main",
+        "tags": []
+      },
+      "createdAt": "2026-04-02T09:58:42.258Z"
+    },
+    {
+      "id": "audit-d797d189-3271-4961-addc-782d8e78521b",
+      "actorType": "install",
+      "actorId": "install-001",
+      "action": "media.upload",
+      "entityType": "media_asset",
+      "entityId": "media-6541567c-c113-42b6-98ba-aa34e88b8173",
+      "summary": "Media uploaded: media-6541567c-c113-42b6-98ba-aa34e88b8173.png",
+      "metadata": {
+        "byteLength": 68,
+        "contentType": "image/png",
+        "fileName": "media-6541567c-c113-42b6-98ba-aa34e88b8173.png",
+        "originalFileName": "beta-verify.png"
+      },
+      "createdAt": "2026-04-02T09:58:40.214Z"
+    },
+    {
+      "id": "audit-eff2f942-d219-424e-ba44-2706f7896548",
+      "actorType": "install",
+      "actorId": "install-001",
+      "action": "install.register",
+      "entityType": "identity",
+      "entityId": "install-001",
+      "summary": "install.register -> identity:install-001",
+      "metadata": {
+        "cityId": "city-munich",
+        "adultGateAccepted": true
+      },
+      "createdAt": "2026-04-02T09:58:36.099Z"
+    },
+    {
+      "id": "audit-42231745-eba0-4b39-af31-0efedeaa3cf6",
+      "actorType": "admin",
+      "actorId": "backoffice-mod-001",
+      "actorRole": "moderator",
+      "action": "moderation.flag",
+      "entityType": "moderation_case",
+      "entityId": "mod-3188c2b7-487e-44e9-8fd1-d6a7f27a5c69",
+      "summary": "Moderation case mod-3188c2b7-487e-44e9-8fd1-d6a7f27a5c69 -> flag",
+      "metadata": {
+        "actorId": "backoffice-mod-001",
+        "actorRole": "moderator",
+        "caseStatus": "reviewed",
+        "note": "beta verify action",
+        "targetId": "post-816b5a13-755f-466a-be20-39447447fa7d",
+        "targetType": "post"
+      },
+      "createdAt": "2026-04-02T09:55:21.724Z"
+    },
+    {
+      "id": "audit-2ef2226a-2d88-4343-ad8c-0d7cda3a451f",
+      "actorType": "install",
+      "actorId": "install-001",
+      "action": "report.create",
+      "entityType": "report",
+      "entityId": "report-2d04e422-b786-4798-bbb8-b417f9d0935d",
+      "summary": "report.create -> report:report-2d04e422-b786-4798-bbb8-b417f9d0935d",
+      "metadata": {
+        "moderationCaseId": "mod-3188c2b7-487e-44e9-8fd1-d6a7f27a5c69",
+        "targetType": "post",
+        "targetId": "post-816b5a13-755f-466a-be20-39447447fa7d"
+      },
+      "createdAt": "2026-04-02T09:55:19.680Z"
+    },
+    {
+      "id": "audit-d6b5ed8e-df25-4532-8e72-44c58e1c9cca",
+      "actorType": "install",
+      "actorId": "install-001",
+      "action": "reply.create",
+      "entityType": "reply",
+      "entityId": "reply-171f2a0c-af2b-4e18-bcbd-a9c79c7e4aea",
+      "summary": "reply.create -> reply:reply-171f2a0c-af2b-4e18-bcbd-a9c79c7e4aea",
+      "metadata": {
+        "postId": "post-816b5a13-755f-466a-be20-39447447fa7d"
+      },
+      "createdAt": "2026-04-02T09:55:17.631Z"
+    },
+    {
+      "id": "audit-6e505a2d-37b8-4164-98bf-7f90640eb8e3",
+      "actorType": "install",
+      "actorId": "install-001",
+      "action": "post.create",
+      "entityType": "post",
+      "entityId": "post-816b5a13-755f-466a-be20-39447447fa7d",
+      "summary": "post.create -> post:post-816b5a13-755f-466a-be20-39447447fa7d",
+      "metadata": {
+        "cityId": "city-munich",
+        "channelId": "channel-main",
+        "tags": []
+      },
+      "createdAt": "2026-04-02T09:55:15.595Z"
+    },
+    {
+      "id": "audit-779368bd-c2f0-479b-b8ec-9863ecda3cb0",
+      "actorType": "install",
+      "actorId": "install-001",
+      "action": "media.upload",
+      "entityType": "media_asset",
+      "entityId": "media-42b05cc3-faa8-41d8-9b9c-f4273c17fd32",
+      "summary": "Media uploaded: media-42b05cc3-faa8-41d8-9b9c-f4273c17fd32.png",
+      "metadata": {
+        "byteLength": 68,
+        "contentType": "image/png",
+        "fileName": "media-42b05cc3-faa8-41d8-9b9c-f4273c17fd32.png",
+        "originalFileName": "beta-verify.png"
+      },
+      "createdAt": "2026-04-02T09:55:13.552Z"
+    },
+    {
+      "id": "audit-18bba559-cbd5-4c15-b7e7-be0e5840b657",
+      "actorType": "install",
+      "actorId": "install-001",
+      "action": "install.register",
+      "entityType": "identity",
+      "entityId": "install-001",
+      "summary": "install.register -> identity:install-001",
+      "metadata": {
+        "cityId": "city-munich",
+        "adultGateAccepted": true
+      },
+      "createdAt": "2026-04-02T09:55:09.441Z"
+    },
+    {
+      "id": "audit-73b21fcc-f9c9-42cc-b91a-4249225ef840",
+      "actorType": "admin",
+      "actorId": "backoffice-mod-001",
+      "actorRole": "moderator",
+      "action": "moderation.flag",
+      "entityType": "moderation_case",
+      "entityId": "mod-e5234e86-4d2b-4965-a4ec-2e031d004137",
+      "summary": "Moderation case mod-e5234e86-4d2b-4965-a4ec-2e031d004137 -> flag",
+      "metadata": {
+        "actorId": "backoffice-mod-001",
+        "actorRole": "moderator",
+        "caseStatus": "reviewed",
+        "note": "beta smoke review",
+        "targetId": "post-0254fe9b-5c56-4a4b-94a3-bbee2efd9a41",
+        "targetType": "post"
+      },
+      "createdAt": "2026-04-01T17:02:52.108Z"
+    },
+    {
+      "id": "audit-81aea7da-a79e-4063-b994-db856b42227d",
+      "actorType": "install",
+      "actorId": "install-001",
+      "action": "report.create",
+      "entityType": "report",
+      "entityId": "report-a67378bd-babf-40f5-a833-d4e6033d1cb9",
+      "summary": "report.create -> report:report-a67378bd-babf-40f5-a833-d4e6033d1cb9",
+      "metadata": {
+        "moderationCaseId": "mod-e5234e86-4d2b-4965-a4ec-2e031d004137",
+        "targetType": "post",
+        "targetId": "post-0254fe9b-5c56-4a4b-94a3-bbee2efd9a41"
+      },
+      "createdAt": "2026-04-01T17:02:52.101Z"
+    },
+    {
+      "id": "audit-5170479d-4281-4ecf-be1f-5e7b4e72daf8",
+      "actorType": "install",
+      "actorId": "install-001",
+      "action": "chat.message.create",
+      "entityType": "chat_message",
+      "entityId": "chat-message-86e2f04d-9448-4702-9698-9d1522273a9d",
+      "summary": "chat.message.create -> chat_message:chat-message-86e2f04d-9448-4702-9698-9d1522273a9d",
+      "metadata": {
+        "chatRequestId": "chat-request-6e592547-4218-43d1-b8c7-5789bdc9d908"
+      },
+      "createdAt": "2026-04-01T17:02:52.093Z"
+    },
+    {
+      "id": "audit-e5719436-7b8b-4a63-aa3c-780cd68512ba",
+      "actorType": "install",
+      "actorId": "install-001",
+      "action": "chat.request.accepted",
+      "entityType": "chat_request",
+      "entityId": "chat-request-6e592547-4218-43d1-b8c7-5789bdc9d908",
+      "summary": "chat.request.accepted -> chat_request:chat-request-6e592547-4218-43d1-b8c7-5789bdc9d908",
+      "metadata": {
+        "fromInstallIdentityId": "install-001",
+        "postId": "post-001"
+      },
+      "createdAt": "2026-04-01T17:02:52.090Z"
+    },
+    {
+      "id": "audit-9b857734-83ef-444a-b71f-d6eac77efe1e",
+      "actorType": "install",
+      "actorId": "install-001",
+      "action": "chat.request",
+      "entityType": "chat_request",
+      "entityId": "chat-request-6e592547-4218-43d1-b8c7-5789bdc9d908",
+      "summary": "chat.request -> chat_request:chat-request-6e592547-4218-43d1-b8c7-5789bdc9d908",
+      "metadata": {
+        "postId": "post-001",
+        "toInstallIdentityId": "install-creator-017"
+      },
+      "createdAt": "2026-04-01T17:02:52.088Z"
+    },
+    {
+      "id": "audit-ae03b4d2-95a3-4fb8-bf0e-367066c50597",
+      "actorType": "install",
+      "actorId": "install-001",
+      "action": "reply.create",
+      "entityType": "reply",
+      "entityId": "reply-c04f06da-0634-4335-8738-5a9ddc8a4387",
+      "summary": "reply.create -> reply:reply-c04f06da-0634-4335-8738-5a9ddc8a4387",
+      "metadata": {
+        "postId": "post-0254fe9b-5c56-4a4b-94a3-bbee2efd9a41"
+      },
+      "createdAt": "2026-04-01T17:02:52.069Z"
+    },
+    {
+      "id": "audit-eeacdecb-369e-4a76-aa81-c589d8adaae5",
+      "actorType": "install",
+      "actorId": "install-001",
+      "action": "post.create",
+      "entityType": "post",
+      "entityId": "post-0254fe9b-5c56-4a4b-94a3-bbee2efd9a41",
+      "summary": "post.create -> post:post-0254fe9b-5c56-4a4b-94a3-bbee2efd9a41",
+      "metadata": {
+        "cityId": "city-munich",
+        "channelId": "channel-main",
+        "tags": []
+      },
+      "createdAt": "2026-04-01T17:02:52.062Z"
+    },
+    {
+      "id": "audit-3dff2aa3-a47f-440e-8bd2-5d9de57025ce",
+      "actorType": "install",
+      "actorId": "install-001",
+      "action": "media.upload",
+      "entityType": "media_asset",
+      "entityId": "media-8f225be7-885f-4933-a5f9-c6a064912f59",
+      "summary": "Media uploaded: media-8f225be7-885f-4933-a5f9-c6a064912f59.png",
+      "metadata": {
+        "byteLength": 68,
+        "contentType": "image/png",
+        "fileName": "media-8f225be7-885f-4933-a5f9-c6a064912f59.png",
+        "originalFileName": "beta-smoke.png"
+      },
+      "createdAt": "2026-04-01T17:02:52.030Z"
+    },
+    {
+      "id": "audit-c1a09074-e824-4d16-bc22-733d918e66b0",
+      "actorType": "install",
+      "actorId": "install-001",
+      "action": "install.register",
+      "entityType": "identity",
+      "entityId": "install-001",
+      "summary": "install.register -> identity:install-001",
+      "metadata": {
+        "cityId": "city-munich",
+        "adultGateAccepted": true
+      },
+      "createdAt": "2026-04-01T17:02:51.988Z"
+    },
+    {
+      "id": "audit-eda45f55-5add-4369-a3fb-8993eff01614",
+      "actorType": "install",
+      "actorId": "install-001",
+      "action": "install.register",
+      "entityType": "identity",
+      "entityId": "install-001",
+      "summary": "install.register -> identity:install-001",
+      "metadata": {
+        "cityId": "city-munich",
+        "adultGateAccepted": true
+      },
+      "createdAt": "2026-04-01T17:01:51.487Z"
+    },
+    {
+      "id": "audit-6b24621b-8f79-43e4-be73-bd464bb3913b",
+      "actorType": "install",
+      "actorId": "install-001",
+      "action": "install.register",
+      "entityType": "identity",
+      "entityId": "install-001",
+      "summary": "install.register -> identity:install-001",
+      "metadata": {
+        "cityId": "city-munich",
+        "adultGateAccepted": true
+      },
+      "createdAt": "2026-04-01T16:51:22.373Z"
+    },
+    {
+      "id": "audit-fd4bbf31-8a44-475e-80d0-505c127e4a81",
+      "actorType": "install",
+      "actorId": "install-001",
+      "action": "install.register",
+      "entityType": "identity",
+      "entityId": "install-001",
+      "summary": "install.register -> identity:install-001",
+      "metadata": {
+        "cityId": "city-munich",
+        "adultGateAccepted": true
+      },
+      "createdAt": "2026-04-01T16:51:18.047Z"
+    },
+    {
+      "id": "audit-d59af5c4-59d3-4ae3-ad8f-9619a9eb7e10",
+      "actorType": "install",
+      "actorId": "install-001",
+      "action": "media.upload",
+      "entityType": "media_asset",
+      "entityId": "media-1b945502-9d67-4c03-b8ab-d16a0ef21ff5",
+      "summary": "Media uploaded: media-1b945502-9d67-4c03-b8ab-d16a0ef21ff5.png",
+      "metadata": {
+        "byteLength": 68,
+        "contentType": "image/png",
+        "fileName": "media-1b945502-9d67-4c03-b8ab-d16a0ef21ff5.png",
+        "originalFileName": "tiny.png"
+      },
+      "createdAt": "2026-04-01T16:46:09.498Z"
+    },
+    {
+      "id": "audit-c525c677-339d-4548-b9f9-320bc5addee7",
+      "actorType": "install",
+      "actorId": "install-001",
+      "action": "media.upload",
+      "entityType": "media_asset",
+      "entityId": "media-764356f1-54ce-4e43-b4df-5c229823a223",
+      "summary": "Media uploaded: media-764356f1-54ce-4e43-b4df-5c229823a223.png",
+      "metadata": {
+        "byteLength": 68,
+        "contentType": "image/png",
+        "fileName": "media-764356f1-54ce-4e43-b4df-5c229823a223.png",
+        "originalFileName": "tiny.png"
+      },
+      "createdAt": "2026-04-01T16:45:53.052Z"
+    },
+    {
+      "id": "audit-57ebb33b-6d73-42b9-980a-cd021999f4ce",
+      "actorType": "install",
+      "actorId": "install-001",
+      "action": "media.upload",
+      "entityType": "media_asset",
+      "entityId": "media-23c59a9b-fbbe-4aea-bae4-54378215da3b",
+      "summary": "Media uploaded: media-23c59a9b-fbbe-4aea-bae4-54378215da3b.png",
+      "metadata": {
+        "byteLength": 68,
+        "contentType": "image/png",
+        "fileName": "media-23c59a9b-fbbe-4aea-bae4-54378215da3b.png",
+        "originalFileName": "tiny.png"
+      },
+      "createdAt": "2026-04-01T16:45:52.960Z"
+    },
+    {
+      "id": "audit-88d66609-a36b-43c5-86e0-70c604e76394",
+      "actorType": "install",
+      "actorId": "install-001",
+      "action": "install.register",
+      "entityType": "identity",
+      "entityId": "install-001",
+      "summary": "install.register -> identity:install-001",
+      "metadata": {
+        "cityId": "city-munich",
+        "adultGateAccepted": true
+      },
+      "createdAt": "2026-04-01T16:45:07.472Z"
+    },
+    {
+      "id": "audit-1972060b-977c-4952-be56-a0ccc574fb57",
+      "actorType": "install",
+      "actorId": "install-001",
+      "action": "install.register",
+      "entityType": "identity",
+      "entityId": "install-001",
+      "summary": "install.register -> identity:install-001",
+      "metadata": {
+        "cityId": "city-munich",
+        "adultGateAccepted": true
+      },
+      "createdAt": "2026-04-01T16:43:08.308Z"
+    },
+    {
+      "id": "audit-22eb86ae-f59e-4870-870f-5e71d04a617a",
+      "actorType": "install",
+      "actorId": "install-001",
+      "action": "install.register",
+      "entityType": "identity",
+      "entityId": "install-001",
+      "summary": "install.register -> identity:install-001",
+      "metadata": {
+        "cityId": "city-munich",
+        "adultGateAccepted": true
+      },
+      "createdAt": "2026-04-01T16:42:43.636Z"
+    },
+    {
+      "id": "audit-7cba4b79-48c3-400f-8ef4-d93fe218b17c",
+      "actorType": "install",
+      "actorId": "install-001",
+      "action": "media.upload",
+      "entityType": "media_asset",
+      "entityId": "media-7506c97b-14ac-4fb3-b9af-4ec5cfcd8eac",
+      "summary": "Media uploaded: media-7506c97b-14ac-4fb3-b9af-4ec5cfcd8eac.png",
+      "metadata": {
+        "byteLength": 68,
+        "contentType": "image/png",
+        "fileName": "media-7506c97b-14ac-4fb3-b9af-4ec5cfcd8eac.png",
+        "originalFileName": "test.png"
+      },
+      "createdAt": "2026-04-01T16:41:41.964Z"
+    },
+    {
+      "id": "audit-455ac58e-2cf7-401a-b703-46b7ef7c519d",
+      "actorType": "install",
+      "actorId": "install-001",
+      "action": "reply.create",
+      "entityType": "reply",
+      "entityId": "reply-e49ee68c-c0ff-4baf-85c7-d05f2d99dfac",
+      "summary": "reply.create -> reply:reply-e49ee68c-c0ff-4baf-85c7-d05f2d99dfac",
+      "metadata": {
+        "postId": "post-001"
+      },
+      "createdAt": "2026-04-01T16:38:38.895Z"
+    },
+    {
+      "id": "audit-b20c51a3-ca3a-47e2-9c2e-645f216e5abb",
+      "actorType": "install",
+      "actorId": "install-001",
+      "action": "reply.create",
+      "entityType": "reply",
+      "entityId": "reply-189327ea-7967-4926-98f6-1dca14ca84f8",
+      "summary": "reply.create -> reply:reply-189327ea-7967-4926-98f6-1dca14ca84f8",
+      "metadata": {
+        "postId": "post-001"
+      },
+      "createdAt": "2026-04-01T16:38:35.705Z"
+    },
+    {
+      "id": "audit-d60f2d10-a34f-46d2-a3b5-6350f3529d58",
+      "actorType": "install",
+      "actorId": "install-001",
+      "action": "reply.create",
+      "entityType": "reply",
+      "entityId": "reply-9caf8bcb-268c-4d86-a0a1-8e0a90d2ce07",
+      "summary": "reply.create -> reply:reply-9caf8bcb-268c-4d86-a0a1-8e0a90d2ce07",
+      "metadata": {
+        "postId": "post-001"
+      },
+      "createdAt": "2026-04-01T16:38:33.292Z"
+    },
+    {
+      "id": "audit-c83df363-6bb4-4ffc-a3a1-abb71e0a3d65",
+      "actorType": "install",
+      "actorId": "install-001",
+      "action": "install.register",
+      "entityType": "identity",
+      "entityId": "install-001",
+      "summary": "install.register -> identity:install-001",
+      "metadata": {
+        "cityId": "city-munich",
+        "adultGateAccepted": true
+      },
+      "createdAt": "2026-04-01T16:38:19.518Z"
+    },
+    {
+      "id": "audit-d6de303d-6b0d-4568-a3f5-9507a752684a",
+      "actorType": "admin",
+      "actorId": "mod-7",
+      "actorRole": "moderator",
+      "action": "moderation.flag",
+      "entityType": "moderation_case",
+      "entityId": "mod-001",
+      "summary": "Moderation case mod-001 -> flag",
+      "metadata": {
+        "actorId": "mod-7",
+        "actorRole": "moderator",
+        "caseStatus": "reviewed",
+        "note": "phase-a smoke",
+        "targetId": "post-002",
+        "targetType": "post"
+      },
+      "createdAt": "2026-04-01T16:29:38.388Z"
+    },
+    {
+      "id": "audit-6490d6c3-e580-453a-81bd-b6fcd4987f11",
+      "actorType": "admin",
+      "actorId": "mod-7",
+      "action": "moderation.flag",
+      "entityType": "moderation_case",
+      "entityId": "mod-001",
+      "summary": "moderation.flag -> moderation_case:mod-001",
+      "metadata": {
+        "actorId": "mod-7",
+        "actorRole": "moderator",
+        "caseStatus": "reviewed",
+        "note": "phase-a smoke",
+        "targetId": "post-002",
+        "targetType": "post"
+      },
+      "createdAt": "2026-04-01T16:27:54.791Z"
+    }
+  ],
+  "backofficeActions": [
+    {
+      "id": "backoffice-action-fd1278ba-b975-4e24-9665-b5936e9cb24b",
+      "actorId": "admin-ops",
+      "actorRole": "admin",
+      "action": "security.restriction.clear",
+      "entityType": "install_restriction",
+      "entityId": "install-001",
+      "metadata": {
+        "actorId": "admin-ops",
+        "actorRole": "admin",
+        "clearedCount": 1,
+        "note": "clear smoke",
+        "restrictionType": "read_only"
+      },
+      "createdAt": "2026-04-03T15:00:07.998Z"
+    },
+    {
+      "id": "backoffice-action-ea4a3169-0965-42c2-8de9-6996a0707abc",
+      "actorId": "admin-ops",
+      "actorRole": "admin",
+      "action": "security.restriction.apply",
+      "entityType": "install_restriction",
+      "entityId": "restriction-ed010a38-929c-4891-b24e-17002cd19b09",
+      "metadata": {
+        "actorId": "admin-ops",
+        "actorRole": "admin",
+        "durationMinutes": 30,
+        "installIdentityId": "install-001",
+        "note": "read-only smoke",
+        "restrictionType": "read_only"
+      },
+      "createdAt": "2026-04-03T14:59:53.690Z"
+    },
+    {
+      "id": "backoffice-action-ced2e056-5ba4-4e33-ae3d-b58fbfd2243a",
+      "actorId": "admin-ops",
+      "actorRole": "admin",
+      "action": "security.restriction.clear",
+      "entityType": "install_restriction",
+      "entityId": "install-001",
+      "metadata": {
+        "actorId": "admin-ops",
+        "actorRole": "admin",
+        "clearedCount": 1,
+        "note": "clear smoke",
+        "restrictionType": "read_only"
+      },
+      "createdAt": "2026-04-03T14:59:13.474Z"
+    },
+    {
+      "id": "backoffice-action-e0094dbf-9e57-4acd-a9e2-6e7c86a8619c",
+      "actorId": "admin-ops",
+      "actorRole": "admin",
+      "action": "security.restriction.apply",
+      "entityType": "install_restriction",
+      "entityId": "restriction-610b00b8-6899-45b0-a6f8-3d2ffa3698ec",
+      "metadata": {
+        "actorId": "admin-ops",
+        "actorRole": "admin",
+        "durationMinutes": 30,
+        "installIdentityId": "install-001",
+        "note": "read-only smoke",
+        "restrictionType": "read_only"
+      },
+      "createdAt": "2026-04-03T14:58:59.132Z"
+    },
+    {
+      "id": "backoffice-action-60bbe45b-2a7f-439c-b255-034b4f6166f5",
+      "actorId": "admin-owner-001",
+      "actorRole": "owner",
+      "action": "security.restriction.clear",
+      "entityType": "install_restriction",
+      "entityId": "install-001",
+      "metadata": {
+        "actorId": "admin-owner-001",
+        "actorRole": "owner",
+        "clearedCount": 1,
+        "note": "b3 smoke clear",
+        "restrictionType": "read_only"
+      },
+      "createdAt": "2026-04-03T14:57:55.150Z"
+    },
+    {
+      "id": "backoffice-action-fd1fd09d-ef94-41a8-bbf8-9cc4edfecdca",
+      "actorId": "admin-owner-001",
+      "actorRole": "owner",
+      "action": "security.restriction.apply",
+      "entityType": "install_restriction",
+      "entityId": "restriction-06af9b77-5eee-46a3-89fe-ed8e2ce379ee",
+      "metadata": {
+        "actorId": "admin-owner-001",
+        "actorRole": "owner",
+        "durationMinutes": 10,
+        "installIdentityId": "install-001",
+        "note": "b3 smoke read_only",
+        "restrictionType": "read_only"
+      },
+      "createdAt": "2026-04-03T14:57:51.040Z"
+    },
+    {
+      "id": "backoffice-action-a08627ee-6071-4a50-b56f-1a30d8c88644",
+      "actorId": "admin-owner-001",
+      "actorRole": "owner",
+      "action": "security.restriction.clear",
+      "entityType": "install_restriction",
+      "entityId": "install-001",
+      "metadata": {
+        "actorId": "admin-owner-001",
+        "actorRole": "owner",
+        "clearedCount": 1,
+        "note": "b3 smoke clear",
+        "restrictionType": "read_only"
+      },
+      "createdAt": "2026-04-03T14:57:30.458Z"
+    },
+    {
+      "id": "backoffice-action-6fa1bcae-3fb4-4241-a5bd-b5e8e66c7ca9",
+      "actorId": "admin-owner-001",
+      "actorRole": "owner",
+      "action": "security.restriction.apply",
+      "entityType": "install_restriction",
+      "entityId": "restriction-61f71454-5042-4340-bbb8-d4bec8c83378",
+      "metadata": {
+        "actorId": "admin-owner-001",
+        "actorRole": "owner",
+        "durationMinutes": 10,
+        "installIdentityId": "install-001",
+        "note": "b3 smoke read_only",
+        "restrictionType": "read_only"
+      },
+      "createdAt": "2026-04-03T14:57:26.225Z"
+    },
+    {
+      "id": "backoffice-action-e27091f1-493d-44f8-a24f-bee415a1b653",
+      "actorId": "admin-ops",
+      "actorRole": "admin",
+      "action": "security.restriction.clear",
+      "entityType": "install_restriction",
+      "entityId": "install-001",
+      "metadata": {
+        "actorId": "admin-ops",
+        "actorRole": "admin",
+        "clearedCount": 1,
+        "note": "manual clear smoke",
+        "restrictionType": "posting_block"
+      },
+      "createdAt": "2026-04-03T14:43:24.918Z"
+    },
+    {
+      "id": "backoffice-action-8d1292ba-c890-4ddd-b6f9-87f2e38e1928",
+      "actorId": "admin-ops",
+      "actorRole": "admin",
+      "action": "security.restriction.apply",
+      "entityType": "install_restriction",
+      "entityId": "restriction-889f2fc6-eef6-41b6-b6e9-5c7729d800b7",
+      "metadata": {
+        "actorId": "admin-ops",
+        "actorRole": "admin",
+        "durationMinutes": 30,
+        "installIdentityId": "install-001",
+        "note": "manual smoke",
+        "restrictionType": "posting_block"
+      },
+      "createdAt": "2026-04-03T14:43:20.844Z"
+    },
+    {
+      "id": "backoffice-action-c68f2adb-426c-4346-9c10-3bbdb0048f57",
+      "actorId": "backoffice-mod-001",
+      "actorRole": "moderator",
+      "action": "moderation.flag",
+      "entityType": "moderation_case",
+      "entityId": "mod-3045868c-0463-4d54-a39f-1cbe88f1f6d0",
+      "metadata": {
+        "actorId": "backoffice-mod-001",
+        "actorRole": "moderator",
+        "caseStatus": "reviewed",
+        "note": "beta verify action",
+        "targetId": "post-36e130a4-a5e1-4d21-8216-749168669cfa",
+        "targetType": "post"
+      },
+      "createdAt": "2026-04-02T09:58:48.385Z"
+    },
+    {
+      "id": "backoffice-action-a87e17b4-1f59-441c-8fbd-7509656e2509",
+      "actorId": "backoffice-mod-001",
+      "actorRole": "moderator",
+      "action": "moderation.flag",
+      "entityType": "moderation_case",
+      "entityId": "mod-3188c2b7-487e-44e9-8fd1-d6a7f27a5c69",
+      "metadata": {
+        "actorId": "backoffice-mod-001",
+        "actorRole": "moderator",
+        "caseStatus": "reviewed",
+        "note": "beta verify action",
+        "targetId": "post-816b5a13-755f-466a-be20-39447447fa7d",
+        "targetType": "post"
+      },
+      "createdAt": "2026-04-02T09:55:21.724Z"
+    },
+    {
+      "id": "backoffice-action-cc10f559-662b-434c-b4f1-49adbf980a15",
+      "actorId": "backoffice-mod-001",
+      "actorRole": "moderator",
+      "action": "moderation.flag",
+      "entityType": "moderation_case",
+      "entityId": "mod-e5234e86-4d2b-4965-a4ec-2e031d004137",
+      "metadata": {
+        "actorId": "backoffice-mod-001",
+        "actorRole": "moderator",
+        "caseStatus": "reviewed",
+        "note": "beta smoke review",
+        "targetId": "post-0254fe9b-5c56-4a4b-94a3-bbee2efd9a41",
+        "targetType": "post"
+      },
+      "createdAt": "2026-04-01T17:02:52.108Z"
+    },
+    {
+      "id": "backoffice-action-7bcc230a-1607-46e0-8716-5cdd805f8684",
+      "actorId": "mod-7",
+      "actorRole": "moderator",
+      "action": "moderation.flag",
+      "entityType": "moderation_case",
+      "entityId": "mod-001",
+      "metadata": {
+        "actorId": "mod-7",
+        "actorRole": "moderator",
+        "caseStatus": "reviewed",
+        "note": "phase-a smoke",
+        "targetId": "post-002",
+        "targetType": "post"
+      },
+      "createdAt": "2026-04-01T16:29:38.388Z"
+    },
+    {
+      "id": "backoffice-action-eacf6b23-c07b-4b25-9998-dfc2167c858c",
+      "actorId": "mod-7",
+      "actorRole": "moderator",
+      "action": "moderation.flag",
+      "entityType": "moderation_case",
+      "entityId": "mod-001",
+      "metadata": {
+        "actorId": "mod-7",
+        "actorRole": "moderator",
+        "caseStatus": "reviewed",
+        "note": "phase-a smoke",
+        "targetId": "post-002",
+        "targetType": "post"
+      },
+      "createdAt": "2026-04-01T16:27:54.791Z"
+    }
+  ],
+  "idempotencyRecords": {
+    "POST /admin/moderation/actions:phasea-mod-2": {
+      "id": "POST /admin/moderation/actions:phasea-mod-2",
+      "scope": "POST /admin/moderation/actions",
+      "idempotencyKey": "phasea-mod-2",
+      "bodySignature": "02622e09636dfefc959c562da186d85df7a418ef3cdaf72a90a882215f289dd2",
+      "statusCode": 200,
+      "response": {
+        "actor": {
+          "id": "mod-7",
+          "role": "moderator"
+        },
+        "caseItem": {
+          "id": "mod-001",
+          "cityId": "city-munich",
+          "targetType": "post",
+          "targetId": "post-002",
+          "reason": "Manual review for explicit image and payout eligibility | action: flag | note: phase-a smoke | action: flag | note: phase-a smoke",
+          "status": "reviewed",
+          "createdAt": "2026-03-26T12:15:00.000Z"
+        },
+        "reports": [
+          {
+            "id": "report-1",
+            "reporterInstallIdentityId": "install-001",
+            "cityId": "city-munich",
+            "targetType": "post",
+            "targetId": "post-002",
+            "reason": "Manual review for explicit image and payout eligibility",
+            "moderationCaseId": "mod-001",
+            "status": "reviewed",
+            "createdAt": "2026-03-26T12:15:00.000Z",
+            "updatedAt": "2026-04-01T16:29:38.387Z"
+          }
+        ]
+      },
+      "createdAt": "2026-04-01T16:29:38.390Z"
+    },
+    "POST /install/register:-install-register-7db4c208-c1db-4886-84a8-755fc01c0bf5": {
+      "id": "POST /install/register:-install-register-7db4c208-c1db-4886-84a8-755fc01c0bf5",
+      "scope": "POST /install/register",
+      "idempotencyKey": "-install-register-7db4c208-c1db-4886-84a8-755fc01c0bf5",
+      "bodySignature": "d182ec31051ce87469ef980b32bfffdfa9636962e8d9649a41f73a550842a7fe",
+      "statusCode": 200,
+      "response": {
+        "cityContext": {
+          "id": "city-munich",
+          "slug": "muenchen",
+          "label": "Muenchen",
+          "countryCode": "DE",
+          "lat": 48.137154,
+          "lng": 11.576124,
+          "isExplorerEnabled": true
+        },
+        "installIdentity": {
+          "id": "install-001",
+          "installKey": "install-demo-001",
+          "accessToken": "nuudl-demo-token",
+          "cityId": "city-munich",
+          "cityLabel": "Muenchen",
+          "adultGateAccepted": true,
+          "adultVerified": false,
+          "plus": {
+            "active": true,
+            "explorer": true,
+            "imageChat": true,
+            "noAds": true,
+            "weeklyBoosts": 3,
+            "weeklyColorDrops": 3
+          },
+          "createdAt": "2026-03-26T12:00:00.000Z"
+        }
+      },
+      "createdAt": "2026-04-01T16:38:19.518Z"
+    },
+    "POST /replies:-replies-7fd7ffff-b51f-4b42-9e3d-2c6773fb39cd": {
+      "id": "POST /replies:-replies-7fd7ffff-b51f-4b42-9e3d-2c6773fb39cd",
+      "scope": "POST /replies",
+      "idempotencyKey": "-replies-7fd7ffff-b51f-4b42-9e3d-2c6773fb39cd",
+      "bodySignature": "537ce71857e02f4d410b61026c287fe38d933444c8a76904cf72443c0a295691",
+      "statusCode": 201,
+      "response": {
+        "id": "reply-9caf8bcb-268c-4d86-a0a1-8e0a90d2ce07",
+        "postId": "post-001",
+        "recipientInstallIdentityId": "install-001",
+        "body": "asdfasd",
+        "authorLabel": "Anon 55",
+        "score": 0,
+        "createdAt": "2026-04-01T16:38:33.291Z",
+        "tipTotalCents": 0,
+        "canTip": false,
+        "moderation": "visible"
+      },
+      "createdAt": "2026-04-01T16:38:33.292Z"
+    },
+    "POST /replies:-replies-1ce64772-ea79-42ab-9722-cf27ffb09c9a": {
+      "id": "POST /replies:-replies-1ce64772-ea79-42ab-9722-cf27ffb09c9a",
+      "scope": "POST /replies",
+      "idempotencyKey": "-replies-1ce64772-ea79-42ab-9722-cf27ffb09c9a",
+      "bodySignature": "3e257a23dee2e842e1ad9770cbfee1627f3d69b9e9eb4fd8deeeb5fdf362d6ca",
+      "statusCode": 201,
+      "response": {
+        "id": "reply-189327ea-7967-4926-98f6-1dca14ca84f8",
+        "postId": "post-001",
+        "recipientInstallIdentityId": "install-001",
+        "body": "wasdf",
+        "authorLabel": "Anon 55",
+        "score": 0,
+        "createdAt": "2026-04-01T16:38:35.704Z",
+        "tipTotalCents": 0,
+        "canTip": false,
+        "moderation": "visible"
+      },
+      "createdAt": "2026-04-01T16:38:35.705Z"
+    },
+    "POST /replies:-replies-4048a92a-e384-4d7b-923f-53bea6e7f659": {
+      "id": "POST /replies:-replies-4048a92a-e384-4d7b-923f-53bea6e7f659",
+      "scope": "POST /replies",
+      "idempotencyKey": "-replies-4048a92a-e384-4d7b-923f-53bea6e7f659",
+      "bodySignature": "91c5da453cc650cd325b4f4ee7b7b24f88fb7fd168094042ddceeff6c8437875",
+      "statusCode": 201,
+      "response": {
+        "id": "reply-e49ee68c-c0ff-4baf-85c7-d05f2d99dfac",
+        "postId": "post-001",
+        "recipientInstallIdentityId": "install-001",
+        "body": "gert",
+        "authorLabel": "Anon 55",
+        "score": 0,
+        "createdAt": "2026-04-01T16:38:38.895Z",
+        "tipTotalCents": 0,
+        "canTip": false,
+        "moderation": "visible"
+      },
+      "createdAt": "2026-04-01T16:38:38.895Z"
+    },
+    "POST /install/register:-install-register-1ac0d7e5-4a42-4864-982d-09542a454b13": {
+      "id": "POST /install/register:-install-register-1ac0d7e5-4a42-4864-982d-09542a454b13",
+      "scope": "POST /install/register",
+      "idempotencyKey": "-install-register-1ac0d7e5-4a42-4864-982d-09542a454b13",
+      "bodySignature": "d182ec31051ce87469ef980b32bfffdfa9636962e8d9649a41f73a550842a7fe",
+      "statusCode": 200,
+      "response": {
+        "cityContext": {
+          "id": "city-munich",
+          "slug": "muenchen",
+          "label": "Muenchen",
+          "countryCode": "DE",
+          "lat": 48.137154,
+          "lng": 11.576124,
+          "isExplorerEnabled": true
+        },
+        "installIdentity": {
+          "id": "install-001",
+          "installKey": "install-demo-001",
+          "accessToken": "nuudl-demo-token",
+          "cityId": "city-munich",
+          "cityLabel": "Muenchen",
+          "adultGateAccepted": true,
+          "adultVerified": false,
+          "plus": {
+            "active": true,
+            "explorer": true,
+            "imageChat": true,
+            "noAds": true,
+            "weeklyBoosts": 3,
+            "weeklyColorDrops": 3
+          },
+          "createdAt": "2026-03-26T12:00:00.000Z"
+        }
+      },
+      "createdAt": "2026-04-01T16:42:43.637Z"
+    },
+    "POST /install/register:-install-register-34126819-7bac-493f-b0b8-057c000d05b9": {
+      "id": "POST /install/register:-install-register-34126819-7bac-493f-b0b8-057c000d05b9",
+      "scope": "POST /install/register",
+      "idempotencyKey": "-install-register-34126819-7bac-493f-b0b8-057c000d05b9",
+      "bodySignature": "d182ec31051ce87469ef980b32bfffdfa9636962e8d9649a41f73a550842a7fe",
+      "statusCode": 200,
+      "response": {
+        "cityContext": {
+          "id": "city-munich",
+          "slug": "muenchen",
+          "label": "Muenchen",
+          "countryCode": "DE",
+          "lat": 48.137154,
+          "lng": 11.576124,
+          "isExplorerEnabled": true
+        },
+        "installIdentity": {
+          "id": "install-001",
+          "installKey": "install-demo-001",
+          "accessToken": "nuudl-demo-token",
+          "cityId": "city-munich",
+          "cityLabel": "Muenchen",
+          "adultGateAccepted": true,
+          "adultVerified": false,
+          "plus": {
+            "active": true,
+            "explorer": true,
+            "imageChat": true,
+            "noAds": true,
+            "weeklyBoosts": 3,
+            "weeklyColorDrops": 3
+          },
+          "createdAt": "2026-03-26T12:00:00.000Z"
+        }
+      },
+      "createdAt": "2026-04-01T16:43:08.308Z"
+    },
+    "POST /install/register:-install-register-203f5619-4e60-4068-a771-644dd744ea21": {
+      "id": "POST /install/register:-install-register-203f5619-4e60-4068-a771-644dd744ea21",
+      "scope": "POST /install/register",
+      "idempotencyKey": "-install-register-203f5619-4e60-4068-a771-644dd744ea21",
+      "bodySignature": "d182ec31051ce87469ef980b32bfffdfa9636962e8d9649a41f73a550842a7fe",
+      "statusCode": 200,
+      "response": {
+        "cityContext": {
+          "id": "city-munich",
+          "slug": "muenchen",
+          "label": "Muenchen",
+          "countryCode": "DE",
+          "lat": 48.137154,
+          "lng": 11.576124,
+          "isExplorerEnabled": true
+        },
+        "installIdentity": {
+          "id": "install-001",
+          "installKey": "install-demo-001",
+          "accessToken": "nuudl-demo-token",
+          "cityId": "city-munich",
+          "cityLabel": "Muenchen",
+          "adultGateAccepted": true,
+          "adultVerified": false,
+          "plus": {
+            "active": true,
+            "explorer": true,
+            "imageChat": true,
+            "noAds": true,
+            "weeklyBoosts": 3,
+            "weeklyColorDrops": 3
+          },
+          "createdAt": "2026-03-26T12:00:00.000Z"
+        }
+      },
+      "createdAt": "2026-04-01T16:45:07.472Z"
+    },
+    "POST /install/register:-install-register-8b8e6ab2-1a6a-4fc9-af29-12443183ffe8": {
+      "id": "POST /install/register:-install-register-8b8e6ab2-1a6a-4fc9-af29-12443183ffe8",
+      "scope": "POST /install/register",
+      "idempotencyKey": "-install-register-8b8e6ab2-1a6a-4fc9-af29-12443183ffe8",
+      "bodySignature": "d182ec31051ce87469ef980b32bfffdfa9636962e8d9649a41f73a550842a7fe",
+      "statusCode": 200,
+      "response": {
+        "cityContext": {
+          "id": "city-munich",
+          "slug": "muenchen",
+          "label": "Muenchen",
+          "countryCode": "DE",
+          "lat": 48.137154,
+          "lng": 11.576124,
+          "isExplorerEnabled": true
+        },
+        "installIdentity": {
+          "id": "install-001",
+          "installKey": "install-demo-001",
+          "accessToken": "nuudl-demo-token",
+          "cityId": "city-munich",
+          "cityLabel": "Muenchen",
+          "adultGateAccepted": true,
+          "adultVerified": false,
+          "plus": {
+            "active": true,
+            "explorer": true,
+            "imageChat": true,
+            "noAds": true,
+            "weeklyBoosts": 3,
+            "weeklyColorDrops": 3
+          },
+          "createdAt": "2026-03-26T12:00:00.000Z"
+        }
+      },
+      "createdAt": "2026-04-01T16:51:18.048Z"
+    },
+    "POST /install/register:-install-register-99565050-488a-45b6-a913-a0747b0dcd0f": {
+      "id": "POST /install/register:-install-register-99565050-488a-45b6-a913-a0747b0dcd0f",
+      "scope": "POST /install/register",
+      "idempotencyKey": "-install-register-99565050-488a-45b6-a913-a0747b0dcd0f",
+      "bodySignature": "d182ec31051ce87469ef980b32bfffdfa9636962e8d9649a41f73a550842a7fe",
+      "statusCode": 200,
+      "response": {
+        "cityContext": {
+          "id": "city-munich",
+          "slug": "muenchen",
+          "label": "Muenchen",
+          "countryCode": "DE",
+          "lat": 48.137154,
+          "lng": 11.576124,
+          "isExplorerEnabled": true
+        },
+        "installIdentity": {
+          "id": "install-001",
+          "installKey": "install-demo-001",
+          "accessToken": "nuudl-demo-token",
+          "cityId": "city-munich",
+          "cityLabel": "Muenchen",
+          "adultGateAccepted": true,
+          "adultVerified": false,
+          "plus": {
+            "active": true,
+            "explorer": true,
+            "imageChat": true,
+            "noAds": true,
+            "weeklyBoosts": 3,
+            "weeklyColorDrops": 3
+          },
+          "createdAt": "2026-03-26T12:00:00.000Z"
+        }
+      },
+      "createdAt": "2026-04-01T16:51:22.374Z"
+    },
+    "POST /install/register:-install-register-a0a294d7-f34d-4540-8135-309bc72c9dcc": {
+      "id": "POST /install/register:-install-register-a0a294d7-f34d-4540-8135-309bc72c9dcc",
+      "scope": "POST /install/register",
+      "idempotencyKey": "-install-register-a0a294d7-f34d-4540-8135-309bc72c9dcc",
+      "bodySignature": "d182ec31051ce87469ef980b32bfffdfa9636962e8d9649a41f73a550842a7fe",
+      "statusCode": 200,
+      "response": {
+        "cityContext": {
+          "id": "city-munich",
+          "slug": "muenchen",
+          "label": "Muenchen",
+          "countryCode": "DE",
+          "lat": 48.137154,
+          "lng": 11.576124,
+          "isExplorerEnabled": true
+        },
+        "installIdentity": {
+          "id": "install-001",
+          "installKey": "install-demo-001",
+          "accessToken": "nuudl-demo-token",
+          "cityId": "city-munich",
+          "cityLabel": "Muenchen",
+          "adultGateAccepted": true,
+          "adultVerified": false,
+          "plus": {
+            "active": true,
+            "explorer": true,
+            "imageChat": true,
+            "noAds": true,
+            "weeklyBoosts": 3,
+            "weeklyColorDrops": 3
+          },
+          "createdAt": "2026-03-26T12:00:00.000Z"
+        }
+      },
+      "createdAt": "2026-04-02T09:58:56.658Z"
+    },
+    "POST /install/register:-install-register-50a1ebef-2946-4c70-a1c9-a7e0c1ff6133": {
+      "id": "POST /install/register:-install-register-50a1ebef-2946-4c70-a1c9-a7e0c1ff6133",
+      "scope": "POST /install/register",
+      "idempotencyKey": "-install-register-50a1ebef-2946-4c70-a1c9-a7e0c1ff6133",
+      "bodySignature": "d182ec31051ce87469ef980b32bfffdfa9636962e8d9649a41f73a550842a7fe",
+      "statusCode": 200,
+      "response": {
+        "cityContext": {
+          "id": "city-munich",
+          "slug": "muenchen",
+          "label": "Muenchen",
+          "countryCode": "DE",
+          "lat": 48.137154,
+          "lng": 11.576124,
+          "isExplorerEnabled": true
+        },
+        "installIdentity": {
+          "id": "install-001",
+          "installKey": "install-demo-001",
+          "accessToken": "nuudl-demo-token",
+          "cityId": "city-munich",
+          "cityLabel": "Muenchen",
+          "adultGateAccepted": true,
+          "adultVerified": false,
+          "plus": {
+            "active": true,
+            "explorer": true,
+            "imageChat": true,
+            "noAds": true,
+            "weeklyBoosts": 3,
+            "weeklyColorDrops": 3
+          },
+          "createdAt": "2026-03-26T12:00:00.000Z"
+        }
+      },
+      "createdAt": "2026-04-02T10:09:01.077Z"
+    },
+    "POST /install/register:-install-register-a2cb0b21-dc05-4bdd-8331-0ba2ceaf2b2c": {
+      "id": "POST /install/register:-install-register-a2cb0b21-dc05-4bdd-8331-0ba2ceaf2b2c",
+      "scope": "POST /install/register",
+      "idempotencyKey": "-install-register-a2cb0b21-dc05-4bdd-8331-0ba2ceaf2b2c",
+      "bodySignature": "d182ec31051ce87469ef980b32bfffdfa9636962e8d9649a41f73a550842a7fe",
+      "statusCode": 200,
+      "response": {
+        "cityContext": {
+          "id": "city-munich",
+          "slug": "muenchen",
+          "label": "Muenchen",
+          "countryCode": "DE",
+          "lat": 48.137154,
+          "lng": 11.576124,
+          "isExplorerEnabled": true
+        },
+        "installIdentity": {
+          "id": "install-001",
+          "installKey": "install-demo-001",
+          "accessToken": "nuudl-demo-token",
+          "cityId": "city-munich",
+          "cityLabel": "Muenchen",
+          "adultGateAccepted": true,
+          "adultVerified": false,
+          "plus": {
+            "active": true,
+            "explorer": true,
+            "imageChat": true,
+            "noAds": true,
+            "weeklyBoosts": 3,
+            "weeklyColorDrops": 3
+          },
+          "createdAt": "2026-03-26T12:00:00.000Z"
+        }
+      },
+      "createdAt": "2026-04-02T10:09:38.469Z"
+    },
+    "POST /install/register:-install-register-61e64634-37d3-4d8c-a2e0-2fa94fe253a8": {
+      "id": "POST /install/register:-install-register-61e64634-37d3-4d8c-a2e0-2fa94fe253a8",
+      "scope": "POST /install/register",
+      "idempotencyKey": "-install-register-61e64634-37d3-4d8c-a2e0-2fa94fe253a8",
+      "bodySignature": "d182ec31051ce87469ef980b32bfffdfa9636962e8d9649a41f73a550842a7fe",
+      "statusCode": 200,
+      "response": {
+        "cityContext": {
+          "id": "city-munich",
+          "slug": "muenchen",
+          "label": "Muenchen",
+          "countryCode": "DE",
+          "lat": 48.137154,
+          "lng": 11.576124,
+          "isExplorerEnabled": true
+        },
+        "installIdentity": {
+          "id": "install-001",
+          "installKey": "install-demo-001",
+          "accessToken": "nuudl-demo-token",
+          "cityId": "city-munich",
+          "cityLabel": "Muenchen",
+          "adultGateAccepted": true,
+          "adultVerified": false,
+          "plus": {
+            "active": true,
+            "explorer": true,
+            "imageChat": true,
+            "noAds": true,
+            "weeklyBoosts": 3,
+            "weeklyColorDrops": 3
+          },
+          "createdAt": "2026-03-26T12:00:00.000Z"
+        }
+      },
+      "createdAt": "2026-04-02T10:10:01.406Z"
+    },
+    "POST /install/register:-install-register-0b290eab-9740-446d-8f93-6f6410cdbd47": {
+      "id": "POST /install/register:-install-register-0b290eab-9740-446d-8f93-6f6410cdbd47",
+      "scope": "POST /install/register",
+      "idempotencyKey": "-install-register-0b290eab-9740-446d-8f93-6f6410cdbd47",
+      "bodySignature": "d182ec31051ce87469ef980b32bfffdfa9636962e8d9649a41f73a550842a7fe",
+      "statusCode": 200,
+      "response": {
+        "cityContext": {
+          "id": "city-munich",
+          "slug": "muenchen",
+          "label": "Muenchen",
+          "countryCode": "DE",
+          "lat": 48.137154,
+          "lng": 11.576124,
+          "isExplorerEnabled": true
+        },
+        "installIdentity": {
+          "id": "install-001",
+          "installKey": "install-demo-001",
+          "accessToken": "nuudl-demo-token",
+          "cityId": "city-munich",
+          "cityLabel": "Muenchen",
+          "adultGateAccepted": true,
+          "adultVerified": false,
+          "plus": {
+            "active": true,
+            "explorer": true,
+            "imageChat": true,
+            "noAds": true,
+            "weeklyBoosts": 3,
+            "weeklyColorDrops": 3
+          },
+          "createdAt": "2026-03-26T12:00:00.000Z"
+        }
+      },
+      "createdAt": "2026-04-02T10:14:49.404Z"
+    },
+    "POST /install/register:-install-register-8f22a0fd-d9a8-4d22-986c-cf180e3609d0": {
+      "id": "POST /install/register:-install-register-8f22a0fd-d9a8-4d22-986c-cf180e3609d0",
+      "scope": "POST /install/register",
+      "idempotencyKey": "-install-register-8f22a0fd-d9a8-4d22-986c-cf180e3609d0",
+      "bodySignature": "d182ec31051ce87469ef980b32bfffdfa9636962e8d9649a41f73a550842a7fe",
+      "statusCode": 200,
+      "response": {
+        "cityContext": {
+          "id": "city-munich",
+          "slug": "muenchen",
+          "label": "Muenchen",
+          "countryCode": "DE",
+          "lat": 48.137154,
+          "lng": 11.576124,
+          "isExplorerEnabled": true
+        },
+        "installIdentity": {
+          "id": "install-001",
+          "installKey": "install-demo-001",
+          "accessToken": "nuudl-demo-token",
+          "cityId": "city-munich",
+          "cityLabel": "Muenchen",
+          "adultGateAccepted": true,
+          "adultVerified": false,
+          "plus": {
+            "active": true,
+            "explorer": true,
+            "imageChat": true,
+            "noAds": true,
+            "weeklyBoosts": 3,
+            "weeklyColorDrops": 3
+          },
+          "createdAt": "2026-03-26T12:00:00.000Z"
+        }
+      },
+      "createdAt": "2026-04-02T10:29:05.828Z"
+    },
+    "POST /install/register:-install-register-27182ed3-2621-41a9-b629-c70eb1f98052": {
+      "id": "POST /install/register:-install-register-27182ed3-2621-41a9-b629-c70eb1f98052",
+      "scope": "POST /install/register",
+      "idempotencyKey": "-install-register-27182ed3-2621-41a9-b629-c70eb1f98052",
+      "bodySignature": "d182ec31051ce87469ef980b32bfffdfa9636962e8d9649a41f73a550842a7fe",
+      "statusCode": 200,
+      "response": {
+        "cityContext": {
+          "id": "city-munich",
+          "slug": "muenchen",
+          "label": "Muenchen",
+          "countryCode": "DE",
+          "lat": 48.137154,
+          "lng": 11.576124,
+          "isExplorerEnabled": true
+        },
+        "installIdentity": {
+          "id": "install-001",
+          "installKey": "install-demo-001",
+          "accessToken": "nuudl_at_wDKxlRrKH9mEnArjXdDo_bII7gT_Xr5g",
+          "cityId": "city-munich",
+          "cityLabel": "Muenchen",
+          "adultGateAccepted": true,
+          "adultVerified": false,
+          "plus": {
+            "active": true,
+            "explorer": true,
+            "imageChat": true,
+            "noAds": true,
+            "weeklyBoosts": 3,
+            "weeklyColorDrops": 3
+          },
+          "createdAt": "2026-03-26T12:00:00.000Z"
+        },
+        "session": {
+          "sessionId": "session-bcee9454-7691-424d-8e3e-45263f652cea",
+          "accessToken": "nuudl_at_wDKxlRrKH9mEnArjXdDo_bII7gT_Xr5g",
+          "accessTokenExpiresAt": "2026-04-02T10:50:20.689Z",
+          "refreshToken": "nuudl_rt_CUmyqU0efLQnaMaHd2jfedwQTDyBGcOZ",
+          "refreshTokenExpiresAt": "2026-05-02T10:35:20.689Z"
+        }
+      },
+      "createdAt": "2026-04-02T10:35:20.690Z"
+    }
+  },
+  "installSessions": [
+    {
+      "id": "session-7c750f15-93a9-4b5c-ba77-1965c933afa1",
+      "installIdentityId": "install-001",
+      "accessTokenHash": "52d73d9deaf3b06166e7d2729278316306c6deb3996dcc3423a4ff3a4e34fa74",
+      "tokenFamilyId": "refresh-family-21dac7b3-2f9d-414f-8629-00e15b40424b",
+      "createdAt": "2026-04-03T14:59:51.649Z",
+      "accessTokenExpiresAt": "2026-04-03T15:14:51.649Z",
+      "status": "active",
+      "lastRefreshedAt": "2026-04-03T14:59:51.649Z",
+      "lastSeenAt": "2026-04-03T15:00:05.954Z"
+    },
+    {
+      "id": "session-5ffea133-b98a-449b-aac8-9a9609ab3b34",
+      "installIdentityId": "install-001",
+      "accessTokenHash": "61259842785733d06f461cd03538b8c17f77b19e4597248a3403e56cf97b9fb9",
+      "tokenFamilyId": "refresh-family-f54e971c-1dc7-4404-8e0d-4483ce35ca30",
+      "createdAt": "2026-04-03T14:58:57.085Z",
+      "accessTokenExpiresAt": "2026-04-03T15:13:57.085Z",
+      "status": "active",
+      "lastRefreshedAt": "2026-04-03T14:58:57.085Z",
+      "lastSeenAt": "2026-04-03T14:59:11.444Z"
+    },
+    {
+      "id": "session-0c373ffd-c1a0-4ff8-ad1d-1b4b6441ccf4",
+      "installIdentityId": "install-001",
+      "accessTokenHash": "adb5d7f6cb00358b2796666f3f881d469d71e5d0df72e9ae243d100584e99061",
+      "tokenFamilyId": "refresh-family-090a5388-839c-4c08-971a-892dc63bd797",
+      "createdAt": "2026-04-03T14:57:48.949Z",
+      "accessTokenExpiresAt": "2026-04-03T15:12:48.949Z",
+      "status": "active",
+      "lastRefreshedAt": "2026-04-03T14:57:48.949Z",
+      "lastSeenAt": "2026-04-03T14:57:53.090Z"
+    },
+    {
+      "id": "session-d0c5c0f3-f56c-495e-898b-f645b3e1dc09",
+      "installIdentityId": "install-001",
+      "accessTokenHash": "ff5be818cea925c9158fdc9eeed989a81892814bb19c29f915479696ba0222ea",
+      "tokenFamilyId": "refresh-family-1435d18e-bb30-485f-9d61-1742a0a33f5c",
+      "createdAt": "2026-04-03T14:57:24.156Z",
+      "accessTokenExpiresAt": "2026-04-03T15:12:24.156Z",
+      "status": "revoked",
+      "lastRefreshedAt": "2026-04-03T14:57:24.156Z",
+      "lastSeenAt": "2026-04-03T14:57:28.266Z",
+      "revokedAt": "2026-04-03T14:59:51.649Z",
+      "revocationReason": "session_limit"
+    },
+    {
+      "id": "session-50ba9185-581d-4a73-a9f0-7eeab9a70059",
+      "installIdentityId": "install-001",
+      "accessTokenHash": "8d1f39331bb4dd4af8d537713a3c648c8c21871df13d773f53554958c250940f",
+      "tokenFamilyId": "refresh-family-34f50490-ccdd-4f95-b014-ea167a8e28ce",
+      "createdAt": "2026-04-03T14:44:39.651Z",
+      "accessTokenExpiresAt": "2026-04-03T14:59:39.651Z",
+      "status": "revoked",
+      "lastRefreshedAt": "2026-04-03T14:44:39.651Z",
+      "lastSeenAt": "2026-04-03T14:45:02.003Z",
+      "revokedAt": "2026-04-03T14:58:57.085Z",
+      "revocationReason": "session_limit"
+    },
+    {
+      "id": "session-70def0a0-b041-4eec-b51d-30ec09238900",
+      "installIdentityId": "install-001",
+      "accessTokenHash": "d57aaffda9f201eb8bf361f4c521321d06277585fd8689d56fdbe8967b1b32bd",
+      "tokenFamilyId": "refresh-family-a28c2507-0a2f-4d84-8ab2-dd0365cb80a0",
+      "createdAt": "2026-04-03T14:43:46.847Z",
+      "accessTokenExpiresAt": "2026-04-03T14:58:46.847Z",
+      "status": "revoked",
+      "lastRefreshedAt": "2026-04-03T14:43:46.847Z",
+      "lastSeenAt": "2026-04-03T14:43:57.032Z",
+      "revokedAt": "2026-04-03T14:57:48.950Z",
+      "revocationReason": "session_limit"
+    },
+    {
+      "id": "session-a3234356-5887-470e-838d-df59984ec9a8",
+      "installIdentityId": "install-001",
+      "accessTokenHash": "f60d4fae998c5aa03258d6e37bff38044f8bf82a9470c0b873684eb15f64d938",
+      "tokenFamilyId": "refresh-family-59b8c89d-d7be-4ac0-acbc-8a828b92d0f4",
+      "createdAt": "2026-04-03T14:43:05.871Z",
+      "accessTokenExpiresAt": "2026-04-03T14:58:05.871Z",
+      "status": "revoked",
+      "lastRefreshedAt": "2026-04-03T14:43:05.871Z",
+      "lastSeenAt": "2026-04-03T14:43:20.797Z",
+      "revokedAt": "2026-04-03T14:57:24.156Z",
+      "revocationReason": "session_limit"
+    },
+    {
+      "id": "session-d8a1ff77-490f-4c0e-89e3-dbfacac58d92",
+      "installIdentityId": "install-001",
+      "accessTokenHash": "50c2a5420af51b964ab5a4b1fe250755e6b2195fb82edc5fdd1da6ad396fb164",
+      "tokenFamilyId": "refresh-family-2f617b22-880d-4dad-9bc9-1f5520dd6fbc",
+      "createdAt": "2026-04-02T10:52:06.639Z",
+      "accessTokenExpiresAt": "2026-04-02T11:07:14.824Z",
+      "status": "revoked",
+      "lastRefreshedAt": "2026-04-02T10:52:14.824Z",
+      "lastSeenAt": "2026-04-02T10:52:14.824Z",
+      "revokedAt": "2026-04-03T14:44:39.652Z",
+      "revocationReason": "session_limit"
+    },
+    {
+      "id": "session-f6a5b7f2-85d0-4ca6-8564-1a9e76247c51",
+      "installIdentityId": "install-001",
+      "accessTokenHash": "b126bd8793745206cbbdeb61b11f2f46912ad836c9b8c7456590469c4a958615",
+      "tokenFamilyId": "refresh-family-bc7c930f-5d23-4d5b-adad-052dfa080c9e",
+      "createdAt": "2026-04-02T10:50:31.868Z",
+      "accessTokenExpiresAt": "2026-04-02T11:05:31.868Z",
+      "status": "revoked",
+      "lastRefreshedAt": "2026-04-02T10:50:31.868Z",
+      "lastSeenAt": "2026-04-02T10:51:43.508Z",
+      "revokedAt": "2026-04-03T14:43:46.847Z",
+      "revocationReason": "session_limit"
+    },
+    {
+      "id": "session-e90ae4f7-036c-4c94-88c8-e1f7fc8dfbe0",
+      "installIdentityId": "install-001",
+      "accessTokenHash": "da6c689c61187de25f25beb8ce49ffe9e5c9cf6b5ccfd76aed5aa0228709293a",
+      "tokenFamilyId": "refresh-family-d8c4e795-ff44-4146-b2c8-7f2292cb3b15",
+      "createdAt": "2026-04-02T10:49:48.277Z",
+      "accessTokenExpiresAt": "2026-04-02T11:04:48.277Z",
+      "status": "revoked",
+      "lastRefreshedAt": "2026-04-02T10:49:48.277Z",
+      "lastSeenAt": "2026-04-02T10:50:14.933Z",
+      "revokedAt": "2026-04-03T14:43:05.872Z",
+      "revocationReason": "session_limit"
+    },
+    {
+      "id": "session-2c6af1c6-4898-49f5-9537-ce9be5a52482",
+      "installIdentityId": "install-001",
+      "accessTokenHash": "f17f57932d5f3eae927dc996746a23c21388bbef886a7aff879a0efe17eaa4b5",
+      "tokenFamilyId": "refresh-family-6ecf006c-55d0-402c-b559-2d404e7b5528",
+      "createdAt": "2026-04-02T10:47:54.558Z",
+      "accessTokenExpiresAt": "2026-04-02T11:02:54.558Z",
+      "status": "revoked",
+      "lastRefreshedAt": "2026-04-02T10:47:54.558Z",
+      "lastSeenAt": "2026-04-02T10:48:21.231Z",
+      "revokedAt": "2026-04-02T10:52:06.639Z",
+      "revocationReason": "session_limit"
+    },
+    {
+      "id": "session-20a24ed8-1f5b-406b-81c7-82dbda3a27ce",
+      "installIdentityId": "install-001",
+      "accessTokenHash": "b3b8e29a83d13e7e9605a5df6259bafaf6d7c33447ec3b5afefa92d95997ca34",
+      "tokenFamilyId": "refresh-family-5011738f-2518-4ca7-9f64-d8d11ff8ae4e",
+      "createdAt": "2026-04-02T10:35:40.686Z",
+      "accessTokenExpiresAt": "2026-04-02T10:50:40.711Z",
+      "status": "revoked",
+      "lastRefreshedAt": "2026-04-02T10:35:40.711Z",
+      "lastSeenAt": "2026-04-02T10:35:40.717Z",
+      "revokedAt": "2026-04-02T10:35:40.721Z",
+      "revocationReason": "refresh_reuse"
+    },
+    {
+      "id": "session-bcee9454-7691-424d-8e3e-45263f652cea",
+      "installIdentityId": "install-001",
+      "accessTokenHash": "c6ec9fb3bdbb0a584d317e50f0526e35a60b04f38ee4728b96e0f3882485959d",
+      "tokenFamilyId": "refresh-family-ad8ee214-bbf4-43c1-b3df-f630b360d140",
+      "createdAt": "2026-04-02T10:35:20.689Z",
+      "accessTokenExpiresAt": "2026-04-02T10:50:20.689Z",
+      "status": "revoked",
+      "lastRefreshedAt": "2026-04-02T10:35:20.689Z",
+      "lastSeenAt": "2026-04-02T10:35:20.723Z",
+      "revokedAt": "2026-04-02T10:50:31.868Z",
+      "revocationReason": "session_limit"
+    },
+    {
+      "id": "session-66583808-0254-45af-8795-bdbff12e560d",
+      "installIdentityId": "install-001",
+      "accessTokenHash": "23c6e79a29ef542f6182d7e2fcd32c402874007c3bc4ac3238876a6d1ba02423",
+      "tokenFamilyId": "refresh-family-06703adc-533d-488a-ae0a-245ab33e3ba0",
+      "createdAt": "2026-04-02T10:35:15.221Z",
+      "accessTokenExpiresAt": "2026-04-02T10:50:15.238Z",
+      "status": "revoked",
+      "lastRefreshedAt": "2026-04-02T10:35:15.238Z",
+      "lastSeenAt": "2026-04-02T10:35:15.241Z",
+      "revokedAt": "2026-04-02T10:49:48.277Z",
+      "revocationReason": "session_limit"
+    },
+    {
+      "id": "session-8f24caff-628d-462f-b05b-515eeb262991",
+      "installIdentityId": "install-001",
+      "accessTokenHash": "c2128df04de952be198ffb8c7f66d9f60a18da8becdd27164493daf3c019919e",
+      "tokenFamilyId": "refresh-family-8353575c-b668-4286-8758-44fe778d406d",
+      "createdAt": "2026-04-02T10:35:13.036Z",
+      "accessTokenExpiresAt": "2026-04-02T10:50:13.055Z",
+      "status": "revoked",
+      "lastRefreshedAt": "2026-04-02T10:35:13.055Z",
+      "lastSeenAt": "2026-04-02T10:35:13.061Z",
+      "revokedAt": "2026-04-02T10:35:13.065Z",
+      "revocationReason": "refresh_reuse"
+    }
+  ],
+  "refreshTokens": [
+    {
+      "id": "refresh-b548a3eb-20f9-4eca-bdb1-fdea5df712df",
+      "installIdentityId": "install-001",
+      "installSessionId": "session-7c750f15-93a9-4b5c-ba77-1965c933afa1",
+      "tokenHash": "065df3ac8713adf3dd189a6c7e830babdc81633f6d0946f507b929aebc09fe0e",
+      "tokenFamilyId": "refresh-family-21dac7b3-2f9d-414f-8629-00e15b40424b",
+      "createdAt": "2026-04-03T14:59:51.649Z",
+      "expiresAt": "2026-05-03T14:59:51.649Z"
+    },
+    {
+      "id": "refresh-cc724922-f67f-41fa-97ff-3280bcbeca71",
+      "installIdentityId": "install-001",
+      "installSessionId": "session-5ffea133-b98a-449b-aac8-9a9609ab3b34",
+      "tokenHash": "6df6bc68f75db93d9f2a913c279824b9e34d6257f4b60e389d9275ccfb4b5824",
+      "tokenFamilyId": "refresh-family-f54e971c-1dc7-4404-8e0d-4483ce35ca30",
+      "createdAt": "2026-04-03T14:58:57.085Z",
+      "expiresAt": "2026-05-03T14:58:57.085Z"
+    },
+    {
+      "id": "refresh-25ab6ae1-c682-42f7-8e94-7f3f1f88988e",
+      "installIdentityId": "install-001",
+      "installSessionId": "session-0c373ffd-c1a0-4ff8-ad1d-1b4b6441ccf4",
+      "tokenHash": "617059cf35741352b13d413082ea7d521255f6feb4e3880adce5378feb537664",
+      "tokenFamilyId": "refresh-family-090a5388-839c-4c08-971a-892dc63bd797",
+      "createdAt": "2026-04-03T14:57:48.949Z",
+      "expiresAt": "2026-05-03T14:57:48.949Z"
+    },
+    {
+      "id": "refresh-bdb49af7-db83-47bb-8928-9ccd6556f8bc",
+      "installIdentityId": "install-001",
+      "installSessionId": "session-d0c5c0f3-f56c-495e-898b-f645b3e1dc09",
+      "tokenHash": "95beee4b019149ec4c7eccc26d79593f950f8adec2f7004d2f9d694259c7a250",
+      "tokenFamilyId": "refresh-family-1435d18e-bb30-485f-9d61-1742a0a33f5c",
+      "createdAt": "2026-04-03T14:57:24.156Z",
+      "expiresAt": "2026-05-03T14:57:24.156Z",
+      "revokedAt": "2026-04-03T14:59:51.649Z",
+      "revocationReason": "session_limit"
+    },
+    {
+      "id": "refresh-b8e19861-4c92-47f7-83a7-501baa0c2ad0",
+      "installIdentityId": "install-001",
+      "installSessionId": "session-50ba9185-581d-4a73-a9f0-7eeab9a70059",
+      "tokenHash": "ae49546683448a5b00089dd05ac17b7383b050dde29cef4103e8a4c03c922d87",
+      "tokenFamilyId": "refresh-family-34f50490-ccdd-4f95-b014-ea167a8e28ce",
+      "createdAt": "2026-04-03T14:44:39.651Z",
+      "expiresAt": "2026-05-03T14:44:39.651Z",
+      "revokedAt": "2026-04-03T14:58:57.085Z",
+      "revocationReason": "session_limit"
+    },
+    {
+      "id": "refresh-e395032d-9476-4fbc-99e9-c24a821befc5",
+      "installIdentityId": "install-001",
+      "installSessionId": "session-70def0a0-b041-4eec-b51d-30ec09238900",
+      "tokenHash": "e3c9660c5cd6e81be166d15c60c69422f3c0696b03b7ee442d6dc2ef85f5ff15",
+      "tokenFamilyId": "refresh-family-a28c2507-0a2f-4d84-8ab2-dd0365cb80a0",
+      "createdAt": "2026-04-03T14:43:46.847Z",
+      "expiresAt": "2026-05-03T14:43:46.847Z",
+      "revokedAt": "2026-04-03T14:57:48.950Z",
+      "revocationReason": "session_limit"
+    },
+    {
+      "id": "refresh-01da5737-7275-46a7-8d13-05f452b6eef0",
+      "installIdentityId": "install-001",
+      "installSessionId": "session-a3234356-5887-470e-838d-df59984ec9a8",
+      "tokenHash": "a041eb891829dbf3ad47a5f44197b31acc549e40828ab6148e23d6e897e9ee42",
+      "tokenFamilyId": "refresh-family-59b8c89d-d7be-4ac0-acbc-8a828b92d0f4",
+      "createdAt": "2026-04-03T14:43:05.871Z",
+      "expiresAt": "2026-05-03T14:43:05.871Z",
+      "revokedAt": "2026-04-03T14:57:24.156Z",
+      "revocationReason": "session_limit"
+    },
+    {
+      "id": "refresh-59ebcb91-2e6e-41ff-be2a-68f3b3ddf185",
+      "installIdentityId": "install-001",
+      "installSessionId": "session-d8a1ff77-490f-4c0e-89e3-dbfacac58d92",
+      "tokenHash": "e6692c11272a133cc27bc91f7a95311249e39365d35bb794cc2bd3ef0bc057d9",
+      "tokenFamilyId": "refresh-family-2f617b22-880d-4dad-9bc9-1f5520dd6fbc",
+      "createdAt": "2026-04-02T10:52:14.824Z",
+      "expiresAt": "2026-05-02T10:52:14.824Z",
+      "revokedAt": "2026-04-03T14:44:39.652Z",
+      "revocationReason": "session_limit"
+    },
+    {
+      "id": "refresh-9decf33e-f59c-4639-9110-50638ef86333",
+      "installIdentityId": "install-001",
+      "installSessionId": "session-d8a1ff77-490f-4c0e-89e3-dbfacac58d92",
+      "tokenHash": "57f0ff69eed1edb7251e9dd436777e143d94103a4880bf6e232844b1531ff357",
+      "tokenFamilyId": "refresh-family-2f617b22-880d-4dad-9bc9-1f5520dd6fbc",
+      "createdAt": "2026-04-02T10:52:12.771Z",
+      "expiresAt": "2026-05-02T10:52:12.771Z",
+      "usedAt": "2026-04-02T10:52:14.824Z",
+      "replacedByTokenId": "refresh-59ebcb91-2e6e-41ff-be2a-68f3b3ddf185",
+      "revokedAt": "2026-04-03T14:44:39.652Z",
+      "revocationReason": "session_limit"
+    },
+    {
+      "id": "refresh-17849011-9688-4c45-845d-c054acb245b9",
+      "installIdentityId": "install-001",
+      "installSessionId": "session-d8a1ff77-490f-4c0e-89e3-dbfacac58d92",
+      "tokenHash": "89b0571860f89835d65841a76e6bb509839c1b6a3082c98cae4748206bded7a6",
+      "tokenFamilyId": "refresh-family-2f617b22-880d-4dad-9bc9-1f5520dd6fbc",
+      "createdAt": "2026-04-02T10:52:10.733Z",
+      "expiresAt": "2026-05-02T10:52:10.733Z",
+      "usedAt": "2026-04-02T10:52:12.771Z",
+      "replacedByTokenId": "refresh-9decf33e-f59c-4639-9110-50638ef86333",
+      "revokedAt": "2026-04-03T14:44:39.652Z",
+      "revocationReason": "session_limit"
+    },
+    {
+      "id": "refresh-056e527a-3bd7-4fc7-8c71-cf38436c604a",
+      "installIdentityId": "install-001",
+      "installSessionId": "session-d8a1ff77-490f-4c0e-89e3-dbfacac58d92",
+      "tokenHash": "5895709f2849e36d09812e06fcfa0c6cc2b7e35f38bd3ec4708aee46b77e74ec",
+      "tokenFamilyId": "refresh-family-2f617b22-880d-4dad-9bc9-1f5520dd6fbc",
+      "createdAt": "2026-04-02T10:52:08.680Z",
+      "expiresAt": "2026-05-02T10:52:08.680Z",
+      "usedAt": "2026-04-02T10:52:10.733Z",
+      "replacedByTokenId": "refresh-17849011-9688-4c45-845d-c054acb245b9",
+      "revokedAt": "2026-04-03T14:44:39.652Z",
+      "revocationReason": "session_limit"
+    },
+    {
+      "id": "refresh-4154e9a7-e31d-4d88-abfb-02d62fb0ed3f",
+      "installIdentityId": "install-001",
+      "installSessionId": "session-d8a1ff77-490f-4c0e-89e3-dbfacac58d92",
+      "tokenHash": "ef3a0073baf6ab8304d817b3277d9068f95370065bee4e9a343c9da713711ee2",
+      "tokenFamilyId": "refresh-family-2f617b22-880d-4dad-9bc9-1f5520dd6fbc",
+      "createdAt": "2026-04-02T10:52:06.639Z",
+      "expiresAt": "2026-05-02T10:52:06.639Z",
+      "usedAt": "2026-04-02T10:52:08.680Z",
+      "replacedByTokenId": "refresh-056e527a-3bd7-4fc7-8c71-cf38436c604a",
+      "revokedAt": "2026-04-03T14:44:39.652Z",
+      "revocationReason": "session_limit"
+    },
+    {
+      "id": "refresh-8afc1562-883b-46e0-8289-f6915437a6ec",
+      "installIdentityId": "install-001",
+      "installSessionId": "session-f6a5b7f2-85d0-4ca6-8564-1a9e76247c51",
+      "tokenHash": "7093bc07276b0f4580559fdd9ae9ffebfd47feaa9056870a63c013a0262662a0",
+      "tokenFamilyId": "refresh-family-bc7c930f-5d23-4d5b-adad-052dfa080c9e",
+      "createdAt": "2026-04-02T10:50:31.868Z",
+      "expiresAt": "2026-05-02T10:50:31.868Z",
+      "revokedAt": "2026-04-03T14:43:46.847Z",
+      "revocationReason": "session_limit"
+    },
+    {
+      "id": "refresh-b5dcf7ed-3ccf-4a7b-9d7e-900b6ca35146",
+      "installIdentityId": "install-001",
+      "installSessionId": "session-e90ae4f7-036c-4c94-88c8-e1f7fc8dfbe0",
+      "tokenHash": "3fc6151499532a3aa6411d2167dc94e4b173ecd249760e4e273caa0e48e2c1c9",
+      "tokenFamilyId": "refresh-family-d8c4e795-ff44-4146-b2c8-7f2292cb3b15",
+      "createdAt": "2026-04-02T10:49:48.277Z",
+      "expiresAt": "2026-05-02T10:49:48.277Z",
+      "revokedAt": "2026-04-03T14:43:05.872Z",
+      "revocationReason": "session_limit"
+    },
+    {
+      "id": "refresh-b7a5790f-d3fd-4f9c-8611-16c9538c0ace",
+      "installIdentityId": "install-001",
+      "installSessionId": "session-2c6af1c6-4898-49f5-9537-ce9be5a52482",
+      "tokenHash": "68aaaedd3051a68b26c7cea51aa717e7495e59265206357d73a870eef41c9ba7",
+      "tokenFamilyId": "refresh-family-6ecf006c-55d0-402c-b559-2d404e7b5528",
+      "createdAt": "2026-04-02T10:47:54.558Z",
+      "expiresAt": "2026-05-02T10:47:54.558Z",
+      "revokedAt": "2026-04-02T10:52:06.639Z",
+      "revocationReason": "session_limit"
+    },
+    {
+      "id": "refresh-3b4b45b8-a8f6-4001-b3e1-cc9d9e388059",
+      "installIdentityId": "install-001",
+      "installSessionId": "session-20a24ed8-1f5b-406b-81c7-82dbda3a27ce",
+      "tokenHash": "6922c6f641397234e9205fe833fc58fa95ee0470c6d4c645cd7ad7172d710912",
+      "tokenFamilyId": "refresh-family-5011738f-2518-4ca7-9f64-d8d11ff8ae4e",
+      "createdAt": "2026-04-02T10:35:40.711Z",
+      "expiresAt": "2026-05-02T10:35:40.711Z",
+      "revokedAt": "2026-04-02T10:35:40.721Z",
+      "revocationReason": "refresh_reuse"
+    },
+    {
+      "id": "refresh-08a7c8a8-cb6e-4eac-ab6a-f1e27114a162",
+      "installIdentityId": "install-001",
+      "installSessionId": "session-20a24ed8-1f5b-406b-81c7-82dbda3a27ce",
+      "tokenHash": "ebd7f520f98e07b8eb27de534d9a755e3572a780821b5474f1b12fe12c900118",
+      "tokenFamilyId": "refresh-family-5011738f-2518-4ca7-9f64-d8d11ff8ae4e",
+      "createdAt": "2026-04-02T10:35:40.686Z",
+      "expiresAt": "2026-05-02T10:35:40.686Z",
+      "usedAt": "2026-04-02T10:35:40.711Z",
+      "replacedByTokenId": "refresh-3b4b45b8-a8f6-4001-b3e1-cc9d9e388059",
+      "revokedAt": "2026-04-02T10:35:40.721Z",
+      "revocationReason": "refresh_reuse"
+    },
+    {
+      "id": "refresh-7a66acf8-9bf9-4b05-a564-4b76352d0b29",
+      "installIdentityId": "install-001",
+      "installSessionId": "session-bcee9454-7691-424d-8e3e-45263f652cea",
+      "tokenHash": "68fcc7151dc1e40f3aba49944e16a1b8da409cf8b7177dfc2911a1516236677c",
+      "tokenFamilyId": "refresh-family-ad8ee214-bbf4-43c1-b3df-f630b360d140",
+      "createdAt": "2026-04-02T10:35:20.689Z",
+      "expiresAt": "2026-05-02T10:35:20.689Z",
+      "revokedAt": "2026-04-02T10:50:31.868Z",
+      "revocationReason": "session_limit"
+    },
+    {
+      "id": "refresh-c3c51432-baa6-463d-87a1-8331a8212ff4",
+      "installIdentityId": "install-001",
+      "installSessionId": "session-66583808-0254-45af-8795-bdbff12e560d",
+      "tokenHash": "011f5c12ed671932c82770250aed812457e5903b7b4a14355a3cb8d660e1d6e3",
+      "tokenFamilyId": "refresh-family-06703adc-533d-488a-ae0a-245ab33e3ba0",
+      "createdAt": "2026-04-02T10:35:15.238Z",
+      "expiresAt": "2026-05-02T10:35:15.238Z",
+      "revokedAt": "2026-04-02T10:49:48.277Z",
+      "revocationReason": "session_limit"
+    },
+    {
+      "id": "refresh-7e558913-292c-46cd-b961-08c8659ecb7f",
+      "installIdentityId": "install-001",
+      "installSessionId": "session-66583808-0254-45af-8795-bdbff12e560d",
+      "tokenHash": "04183f556fbb684310fcbefbe9ac8550a50fcd165536b1ab8840b95445aa7923",
+      "tokenFamilyId": "refresh-family-06703adc-533d-488a-ae0a-245ab33e3ba0",
+      "createdAt": "2026-04-02T10:35:15.221Z",
+      "expiresAt": "2026-05-02T10:35:15.221Z",
+      "usedAt": "2026-04-02T10:35:15.238Z",
+      "replacedByTokenId": "refresh-c3c51432-baa6-463d-87a1-8331a8212ff4",
+      "revokedAt": "2026-04-02T10:49:48.277Z",
+      "revocationReason": "session_limit"
+    },
+    {
+      "id": "refresh-fb48eb72-d811-49a4-ac6a-7d2ccd88c19c",
+      "installIdentityId": "install-001",
+      "installSessionId": "session-8f24caff-628d-462f-b05b-515eeb262991",
+      "tokenHash": "57931f412fa506ade203a13f9d6dd7cdc775ca6f7622ba99f9e5d0be4923ead9",
+      "tokenFamilyId": "refresh-family-8353575c-b668-4286-8758-44fe778d406d",
+      "createdAt": "2026-04-02T10:35:13.055Z",
+      "expiresAt": "2026-05-02T10:35:13.055Z",
+      "revokedAt": "2026-04-02T10:35:13.065Z",
+      "revocationReason": "refresh_reuse"
+    },
+    {
+      "id": "refresh-9eb173dc-fc44-4422-a0d4-4f94427d5f63",
+      "installIdentityId": "install-001",
+      "installSessionId": "session-8f24caff-628d-462f-b05b-515eeb262991",
+      "tokenHash": "3f1652b6b63220bb4a3fdf640d17c21b90547f8f51019758107ca664d9957ae6",
+      "tokenFamilyId": "refresh-family-8353575c-b668-4286-8758-44fe778d406d",
+      "createdAt": "2026-04-02T10:35:13.036Z",
+      "expiresAt": "2026-05-02T10:35:13.036Z",
+      "usedAt": "2026-04-02T10:35:13.055Z",
+      "replacedByTokenId": "refresh-fb48eb72-d811-49a4-ac6a-7d2ccd88c19c",
+      "revokedAt": "2026-04-02T10:35:13.065Z",
+      "revocationReason": "refresh_reuse"
+    }
+  ],
+  "installRestrictions": [
+    {
+      "id": "restriction-ed010a38-929c-4891-b24e-17002cd19b09",
+      "installIdentityId": "install-001",
+      "type": "read_only",
+      "reasonCode": "manual_security_override",
+      "triggerSource": "admin.security.override",
+      "metadata": {
+        "actorId": "admin-ops",
+        "actorRole": "admin",
+        "durationMinutes": 30,
+        "note": "read-only smoke",
+        "clearedAt": "2026-04-03T15:00:07.998Z"
+      },
+      "startsAt": "2026-04-03T14:59:53.690Z",
+      "endsAt": "2026-04-03T15:00:07.998Z"
+    },
+    {
+      "id": "restriction-610b00b8-6899-45b0-a6f8-3d2ffa3698ec",
+      "installIdentityId": "install-001",
+      "type": "read_only",
+      "reasonCode": "manual_security_override",
+      "triggerSource": "admin.security.override",
+      "metadata": {
+        "actorId": "admin-ops",
+        "actorRole": "admin",
+        "durationMinutes": 30,
+        "note": "read-only smoke",
+        "clearedAt": "2026-04-03T14:59:13.473Z"
+      },
+      "startsAt": "2026-04-03T14:58:59.132Z",
+      "endsAt": "2026-04-03T14:59:13.473Z"
+    },
+    {
+      "id": "restriction-06af9b77-5eee-46a3-89fe-ed8e2ce379ee",
+      "installIdentityId": "install-001",
+      "type": "read_only",
+      "reasonCode": "manual_security_override",
+      "triggerSource": "admin.security.override",
+      "metadata": {
+        "actorId": "admin-owner-001",
+        "actorRole": "owner",
+        "durationMinutes": 10,
+        "note": "b3 smoke read_only",
+        "clearedAt": "2026-04-03T14:57:55.149Z"
+      },
+      "startsAt": "2026-04-03T14:57:51.040Z",
+      "endsAt": "2026-04-03T14:57:55.149Z"
+    },
+    {
+      "id": "restriction-61f71454-5042-4340-bbb8-d4bec8c83378",
+      "installIdentityId": "install-001",
+      "type": "read_only",
+      "reasonCode": "manual_security_override",
+      "triggerSource": "admin.security.override",
+      "metadata": {
+        "actorId": "admin-owner-001",
+        "actorRole": "owner",
+        "durationMinutes": 10,
+        "note": "b3 smoke read_only",
+        "clearedAt": "2026-04-03T14:57:30.457Z"
+      },
+      "startsAt": "2026-04-03T14:57:26.224Z",
+      "endsAt": "2026-04-03T14:57:30.457Z"
+    },
+    {
+      "id": "restriction-8df069a2-c50b-4231-b1bc-fba24540c72a",
+      "installIdentityId": "install-001",
+      "type": "chat_request_block",
+      "reasonCode": "risk_score_flagged",
+      "triggerSource": "POST /votes",
+      "metadata": {
+        "score": 30,
+        "routeName": "POST /votes",
+        "scope": "install"
+      },
+      "startsAt": "2026-04-03T14:45:02.004Z",
+      "endsAt": "2026-04-03T20:45:02.004Z"
+    },
+    {
+      "id": "restriction-1f4f47ff-02cf-44e0-8c44-7b974dd3a494",
+      "installIdentityId": "install-001",
+      "type": "reply_block",
+      "reasonCode": "risk_score_flagged",
+      "triggerSource": "POST /votes",
+      "metadata": {
+        "score": 30,
+        "routeName": "POST /votes",
+        "scope": "install"
+      },
+      "startsAt": "2026-04-03T14:45:02.004Z",
+      "endsAt": "2026-04-03T20:45:02.004Z"
+    },
+    {
+      "id": "restriction-9e6d7fd3-4d2d-4171-a2a9-c1d1967d2840",
+      "installIdentityId": "install-001",
+      "type": "posting_block",
+      "reasonCode": "risk_score_flagged",
+      "triggerSource": "POST /votes",
+      "metadata": {
+        "score": 30,
+        "routeName": "POST /votes",
+        "scope": "install"
+      },
+      "startsAt": "2026-04-03T14:45:02.004Z",
+      "endsAt": "2026-04-03T20:45:02.004Z"
+    },
+    {
+      "id": "restriction-889f2fc6-eef6-41b6-b6e9-5c7729d800b7",
+      "installIdentityId": "install-001",
+      "type": "posting_block",
+      "reasonCode": "manual_security_override",
+      "triggerSource": "admin.security.override",
+      "metadata": {
+        "actorId": "admin-ops",
+        "actorRole": "admin",
+        "durationMinutes": 30,
+        "note": "manual smoke",
+        "clearedAt": "2026-04-03T14:43:24.918Z"
+      },
+      "startsAt": "2026-04-03T14:43:20.844Z",
+      "endsAt": "2026-04-03T14:43:24.918Z"
+    }
+  ],
+  "abuseEvents": [
+    {
+      "id": "abuse-333b76a9-2a61-4898-b4d7-efd6deb80a9e",
+      "ipHash": "12ca17b49af2289436f303e0",
+      "routeName": "POST /install/register",
+      "kind": "rate_limit_exceeded",
+      "metadata": {
+        "limit": 2,
+        "scope": "ip",
+        "windowMs": 30000
+      },
+      "createdAt": "2026-04-03T14:59:53.411Z"
+    },
+    {
+      "id": "abuse-5cd64e4f-fd59-42a9-a176-85d93903a34b",
+      "ipHash": "12ca17b49af2289436f303e0",
+      "routeName": "POST /install/register",
+      "kind": "rate_limit_exceeded",
+      "metadata": {
+        "limit": 4,
+        "scope": "ip_ua",
+        "windowMs": 600000
+      },
+      "createdAt": "2026-04-03T14:59:53.410Z"
+    },
+    {
+      "id": "abuse-f0528a4c-85a0-4348-9c1e-f88c27790533",
+      "installIdentityId": "install-001",
+      "routeName": "POST /votes",
+      "kind": "risk_escalation_flagged",
+      "metadata": {
+        "score": 30
+      },
+      "createdAt": "2026-04-03T14:45:02.004Z"
+    },
+    {
+      "id": "abuse-b44b6725-b876-4cf1-b2e4-b4dd382e1e9d",
+      "installIdentityId": "install-001",
+      "ipHash": "12ca17b49af2289436f303e0",
+      "routeName": "POST /votes",
+      "kind": "rate_limit_exceeded",
+      "metadata": {
+        "limit": 10,
+        "scope": "install",
+        "windowMs": 60000
+      },
+      "createdAt": "2026-04-03T14:45:02.004Z"
+    },
+    {
+      "id": "abuse-51b34bd3-e737-4983-9a20-ba7fa03e6de8",
+      "installIdentityId": "install-001",
+      "ipHash": "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0",
+      "routeName": "POST /replies",
+      "kind": "reply_link_spam",
+      "metadata": {
+        "urlCount": 2
+      },
+      "createdAt": "2026-04-03T14:43:55.019Z"
+    },
+    {
+      "id": "abuse-8a5bb1ef-c397-4259-88ee-71cc3ca788e9",
+      "installIdentityId": "install-001",
+      "ipHash": "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0",
+      "routeName": "POST /replies",
+      "kind": "reply_link_spam",
+      "metadata": {
+        "urlCount": 2
+      },
+      "createdAt": "2026-04-03T14:43:52.979Z"
+    },
+    {
+      "id": "abuse-cdd0cdb6-5537-461c-9fe4-a7b0c9ed7361",
+      "installIdentityId": "install-001",
+      "ipHash": "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0",
+      "routeName": "POST /replies",
+      "kind": "reply_link_spam",
+      "metadata": {
+        "urlCount": 2
+      },
+      "createdAt": "2026-04-03T14:43:50.939Z"
+    },
+    {
+      "id": "abuse-d0c15a56-331a-46b4-ad17-1dd8b11a7898",
+      "installIdentityId": "install-001",
+      "ipHash": "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0",
+      "routeName": "POST /replies",
+      "kind": "reply_link_spam",
+      "metadata": {
+        "urlCount": 2
+      },
+      "createdAt": "2026-04-03T14:43:48.894Z"
+    },
+    {
+      "id": "abuse-e9ebaa64-ecb9-4bf8-8432-28a1ff1d14c4",
+      "ipHash": "12ca17b49af2289436f303e0",
+      "routeName": "POST /auth/refresh",
+      "kind": "rate_limit_exceeded",
+      "metadata": {
+        "limit": 4,
+        "scope": "ip",
+        "windowMs": 60000
+      },
+      "createdAt": "2026-04-02T10:52:16.871Z"
+    },
+    {
+      "id": "abuse-cd3c588f-b31a-451c-b749-ef0df8464903",
+      "ipHash": "12ca17b49af2289436f303e0",
+      "routeName": "POST /geo/resolve",
+      "kind": "rate_limit_exceeded",
+      "metadata": {
+        "limit": 3,
+        "scope": "ip",
+        "windowMs": 30000
+      },
+      "createdAt": "2026-04-02T10:51:51.667Z"
+    }
+  ],
+  "deviceRiskState": {
+    "install-001": {
+      "installIdentityId": "install-001",
+      "score": 30,
+      "lastUpdatedAt": "2026-04-03T14:45:02.004Z",
+      "flaggedAt": "2026-04-03T14:45:02.004Z"
+    }
+  },
+  "rateLimitCounters": {
+    "rl:GLOBAL:ip:12ca17b49af2289436f303e0:60000": {
+      "key": "rl:GLOBAL:ip:12ca17b49af2289436f303e0:60000",
+      "count": 1,
+      "windowEndsAt": "2026-04-04T11:13:41.731Z"
+    },
+    "rl:POST /install/register:ip:12ca17b49af2289436f303e0:30000": {
+      "key": "rl:POST /install/register:ip:12ca17b49af2289436f303e0:30000",
+      "count": 3,
+      "windowEndsAt": "2026-04-03T15:00:21.649Z",
+      "lastExceededAt": "2026-04-03T14:59:53.411Z",
+      "blockedUntil": "2026-04-03T15:29:53.411Z"
+    },
+    "rl:POST /install/register:ip_ua:12ca17b49af2289436f303e0:6127e8d16a4b300e2ca2953a:600000": {
+      "key": "rl:POST /install/register:ip_ua:12ca17b49af2289436f303e0:6127e8d16a4b300e2ca2953a:600000",
+      "count": 5,
+      "windowEndsAt": "2026-04-03T15:07:24.155Z",
+      "lastExceededAt": "2026-04-03T14:59:53.410Z",
+      "blockedUntil": "2026-04-03T15:29:53.410Z"
+    },
+    "rl:POST /install/register:ip:12ca17b49af2289436f303e0:600000": {
+      "key": "rl:POST /install/register:ip:12ca17b49af2289436f303e0:600000",
+      "count": 4,
+      "windowEndsAt": "2026-04-03T15:07:24.155Z"
+    },
+    "rl:GLOBAL:install:install-001:60000": {
+      "key": "rl:GLOBAL:install:install-001:60000",
+      "count": 3,
+      "windowEndsAt": "2026-04-03T15:01:01.888Z"
+    },
+    "rl:GET /search:install:install-001:10000": {
+      "key": "rl:GET /search:install:install-001:10000",
+      "count": 5,
+      "windowEndsAt": "2026-04-02T10:51:45.324Z"
+    },
+    "rl:GET /search:install:install-001:60000": {
+      "key": "rl:GET /search:install:install-001:60000",
+      "count": 25,
+      "windowEndsAt": "2026-04-02T10:51:54.357Z"
+    },
+    "rl:GET /search:ip:12ca17b49af2289436f303e0:60000": {
+      "key": "rl:GET /search:ip:12ca17b49af2289436f303e0:60000",
+      "count": 25,
+      "windowEndsAt": "2026-04-02T10:51:54.357Z"
+    },
+    "rl:POST /posts:install:install-001:600000": {
+      "key": "rl:POST /posts:install:install-001:600000",
+      "count": 2,
+      "windowEndsAt": "2026-04-03T14:53:20.796Z"
+    },
+    "rl:POST /posts:install:install-001:3600000": {
+      "key": "rl:POST /posts:install:install-001:3600000",
+      "count": 2,
+      "windowEndsAt": "2026-04-03T15:43:20.796Z"
+    },
+    "rl:POST /posts:install:install-001:86400000": {
+      "key": "rl:POST /posts:install:install-001:86400000",
+      "count": 2,
+      "windowEndsAt": "2026-04-04T14:43:20.796Z"
+    },
+    "rl:POST /geo/resolve:ip:12ca17b49af2289436f303e0:30000": {
+      "key": "rl:POST /geo/resolve:ip:12ca17b49af2289436f303e0:30000",
+      "count": 4,
+      "windowEndsAt": "2026-04-02T10:52:15.544Z",
+      "lastExceededAt": "2026-04-02T10:51:51.667Z"
+    },
+    "rl:POST /geo/resolve:ip:12ca17b49af2289436f303e0:600000": {
+      "key": "rl:POST /geo/resolve:ip:12ca17b49af2289436f303e0:600000",
+      "count": 3,
+      "windowEndsAt": "2026-04-02T11:01:45.544Z"
+    },
+    "rl:POST /auth/refresh:ip:12ca17b49af2289436f303e0:60000": {
+      "key": "rl:POST /auth/refresh:ip:12ca17b49af2289436f303e0:60000",
+      "count": 5,
+      "windowEndsAt": "2026-04-02T10:53:08.680Z",
+      "lastExceededAt": "2026-04-02T10:52:16.870Z"
+    },
+    "rl:POST /auth/refresh:ip:12ca17b49af2289436f303e0:600000": {
+      "key": "rl:POST /auth/refresh:ip:12ca17b49af2289436f303e0:600000",
+      "count": 4,
+      "windowEndsAt": "2026-04-02T11:02:08.680Z"
+    },
+    "rl:POST /auth/refresh:install:install-001:15m": {
+      "key": "rl:POST /auth/refresh:install:install-001:15m",
+      "count": 4,
+      "windowEndsAt": "2026-04-02T11:07:08.680Z"
+    },
+    "rl:POST /auth/refresh:install:install-001:1h": {
+      "key": "rl:POST /auth/refresh:install:install-001:1h",
+      "count": 4,
+      "windowEndsAt": "2026-04-02T11:52:08.680Z"
+    },
+    "rl:POST /replies:install:install-001:300000": {
+      "key": "rl:POST /replies:install:install-001:300000",
+      "count": 4,
+      "windowEndsAt": "2026-04-03T14:48:48.893Z"
+    },
+    "rl:POST /replies:install:install-001:3600000": {
+      "key": "rl:POST /replies:install:install-001:3600000",
+      "count": 4,
+      "windowEndsAt": "2026-04-03T15:43:48.893Z"
+    },
+    "rl:POST /replies:install:install-001:86400000": {
+      "key": "rl:POST /replies:install:install-001:86400000",
+      "count": 4,
+      "windowEndsAt": "2026-04-04T14:43:48.894Z"
+    },
+    "rl:POST /votes:install:install-001:60000": {
+      "key": "rl:POST /votes:install:install-001:60000",
+      "count": 11,
+      "windowEndsAt": "2026-04-03T14:45:41.702Z",
+      "lastExceededAt": "2026-04-03T14:45:02.004Z"
+    },
+    "rl:POST /votes:install:install-001:600000": {
+      "key": "rl:POST /votes:install:install-001:600000",
+      "count": 10,
+      "windowEndsAt": "2026-04-03T14:54:41.702Z"
+    },
+    "rl:POST /votes:install:install-001:3600000": {
+      "key": "rl:POST /votes:install:install-001:3600000",
+      "count": 10,
+      "windowEndsAt": "2026-04-03T15:44:41.703Z"
+    }
+  },
+  "votes": {
+    "post:post-001": {
+      "targetId": "post-001",
+      "targetType": "post",
+      "value": 1,
+      "aggregateScore": 43
+    }
+  },
+  "chatRequests": [
+    {
+      "id": "chat-request-6e592547-4218-43d1-b8c7-5789bdc9d908",
+      "fromInstallIdentityId": "install-001",
+      "toInstallIdentityId": "install-creator-017",
+      "postId": "post-001",
+      "status": "accepted",
+      "createdAt": "2026-04-01T17:02:52.088Z"
+    },
+    {
+      "id": "chat-request-001",
+      "fromInstallIdentityId": "install-001",
+      "toInstallIdentityId": "install-creator-002",
+      "postId": "post-002",
+      "status": "accepted",
+      "createdAt": "2026-03-26T12:35:00.000Z"
+    }
+  ],
+  "chatMessages": [
+    {
+      "id": "chat-message-86e2f04d-9448-4702-9698-9d1522273a9d",
+      "chatRequestId": "chat-request-6e592547-4218-43d1-b8c7-5789bdc9d908",
+      "senderInstallIdentityId": "install-001",
+      "body": "Beta smoke chat message",
+      "media": [
+        {
+          "id": "media-1-52751bdd-b40c-43bb-923f-a4540e056887",
+          "kind": "image",
+          "url": "http://localhost:4000/media/media-8f225be7-885f-4933-a5f9-c6a064912f59.png"
+        }
+      ],
+      "createdAt": "2026-04-01T17:02:52.093Z",
+      "readAt": null
+    },
+    {
+      "id": "chat-message-001",
+      "chatRequestId": "chat-request-001",
+      "senderInstallIdentityId": "install-001",
+      "body": "Thanks for the post. Do you offer private image chat tonight?",
+      "media": [],
+      "createdAt": "2026-03-26T12:36:00.000Z",
+      "readAt": "2026-03-26T12:37:10.000Z"
+    },
+    {
+      "id": "chat-message-002",
+      "chatRequestId": "chat-request-001",
+      "senderInstallIdentityId": "install-creator-002",
+      "body": "Yes, but image chat is limited to Plus and only after review passes.",
+      "media": [],
+      "createdAt": "2026-03-26T12:37:20.000Z",
+      "readAt": null
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "/manifest.webmanifest/route": "app/manifest.webmanifest/route.js",
+  "/api/runtime-config/route": "app/api/runtime-config/route.js",
+  "/landing/page": "app/landing/page.js",
+  "/page": "app/page.js",
+  "/post/[postId]/page": "app/post/[postId]/page.js",
+  "/me/page": "app/me/page.js",
+  "/channels/page": "app/channels/page.js"
+}

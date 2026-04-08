@@ -1,0 +1,574 @@
+Ja. Die Aufgabe ist klar.
+
+Du willst **nicht bloß eine ähnliche App**, sondern ein **operativ brauchbares Nachbau-Handbuch**, mit dem ein KI-Code-Agent eine **Jodel-artige App funktional 1:1** nachbauen kann, damit wir **erst danach** Farben, UX, Features und USPs austauschen und verbessern. Also erst **Parität**, dann **Optimierung**. Vernünftig. Alles andere wäre wieder dieses übliche Startup-Theater mit halbfertigem Glanz und kaputter Logik darunter.
+
+Aus deinem Upload ist bereits erkennbar, dass wir mindestens diese Bereiche sauber abdecken müssen:
+
+* **Home / Feed / Post-Listen / Voting**
+* **Location-basiertes Posting**
+* **Channels & Channel Discovery**
+* **Channel Posts / Suchlogik**
+* **Chat / DMs**
+* **Benachrichtigungen**
+* **Profil / Meine Jodel / Antworten / Pins / Votes**
+* **Einstellungen**
+* **Premium / Plus / Paywall / Challenges / Coins / Upgrade-Flows**
+* **Moderation / Meldungen / Community-Richtlinien**
+* **Standort / Regionen / Stadt-Kontext**
+
+Ich habe also verstanden, dass du am Ende einen Ordner willst, etwa in dieser Art:
+
+```text
+/jodel-clone-blueprint
+  /00_master
+    README.md
+    PROJECT_SCOPE.md
+    REPLICATION_PRINCIPLES.md
+    FEATURE_PARITY_CHECKLIST.md
+    OPEN_QUESTIONS.md
+
+  /01_product
+    APP_OVERVIEW.md
+    USER_PERSONAS.md
+    CORE_USER_JOURNEYS.md
+    SCREEN_INVENTORY.md
+    UX_RULES.md
+    EDGE_CASES.md
+
+  /02_architecture
+    SYSTEM_ARCHITECTURE.md
+    FRONTEND_ARCHITECTURE.md
+    BACKEND_ARCHITECTURE.md
+    REALTIME_ARCHITECTURE.md
+    MODERATION_ARCHITECTURE.md
+    NOTIFICATION_ARCHITECTURE.md
+    LOCATION_ARCHITECTURE.md
+
+  /03_data
+    DATABASE_SCHEMA.md
+    ENTITY_RELATIONSHIP_DIAGRAM.md
+    TABLE_SPECS.md
+    INDEXING_STRATEGY.md
+    CACHE_STRATEGY.md
+    EVENT_MODEL.md
+
+  /04_logic
+    FEED_RANKING_LOGIC.md
+    POSTING_LOGIC.md
+    VOTING_LOGIC.md
+    COMMENT_LOGIC.md
+    CHANNEL_LOGIC.md
+    CHAT_LOGIC.md
+    NOTIFICATION_LOGIC.md
+    PREMIUM_LOGIC.md
+    MODERATION_LOGIC.md
+    GEO_LOGIC.md
+
+  /05_diagrams
+    app_flow.md
+    database_tree.md
+    feed_state_machine.md
+    posting_flow.md
+    moderation_flow.md
+    premium_flow.md
+    notification_flow.md
+
+  /06_agent_execution
+    AGENT_MASTER_PLAN.md
+    SUBAGENT_TASKLIST.md
+    IMPLEMENTATION_ORDER.md
+    TEST_PLAN.md
+    ACCEPTANCE_CRITERIA.md
+    DEFINITION_OF_DONE.md
+
+  /07_api
+    API_SPEC.md
+    ENDPOINTS_REST_OR_GRAPHQL.md
+    WEBSOCKET_EVENTS.md
+    ERROR_CODES.md
+
+  /08_qa
+    TEST_CASES.md
+    E2E_SCENARIOS.md
+    REGRESSION_CHECKLIST.md
+    PERFORMANCE_CHECKLIST.md
+    SECURITY_CHECKLIST.md
+
+  /09_future
+    DIFFERENTIATION_IDEAS.md
+    USP_REPLACEMENTS.md
+    POST_PARITY_IMPROVEMENTS.md
+```
+
+Und ja:
+Ich kann dir die Diagramme **textbasiert halbvisuell** bauen, sauber genug, dass ein Agent sie direkt als Bauplan nutzen kann. Zum Beispiel so:
+
+```text
+APP LOGIC TREE
+
+App
+├── Auth / Device Identity
+│   ├── Anonymous onboarding
+│   ├── Device fingerprint / install id
+│   ├── Session state
+│   └── Ban / restriction state
+│
+├── Geo Context
+│   ├── Current city
+│   ├── Radius / region mapping
+│   ├── Local feed scope
+│   └── Geo permission fallback
+│
+├── Feed
+│   ├── Latest
+│   ├── Popular
+│   ├── Pinned / official
+│   ├── Ranking score
+│   └── Pagination
+│
+├── Post
+│   ├── Create post
+│   ├── Media? / text?
+│   ├── Channel assignment
+│   ├── Geo binding
+│   ├── Visibility
+│   └── Moderation checks
+│
+├── Reactions
+│   ├── Upvote
+│   ├── Downvote
+│   ├── Score update
+│   └── Abuse prevention
+│
+├── Replies / Threads
+│   ├── Direct reply
+│   ├── Nested or flat model
+│   ├── Mention logic
+│   └── Notification trigger
+│
+├── Channels
+│   ├── Discovery
+│   ├── Join / leave / follow
+│   ├── Trending
+│   ├── Channel post feed
+│   └── Search
+│
+├── Chat
+│   ├── Start conversation
+│   ├── Accept / reject flow
+│   ├── Realtime delivery
+│   ├── Read states
+│   └── Safety / block / report
+│
+├── Notifications
+│   ├── Replies
+│   ├── Votes thresholds
+│   ├── Mentions
+│   ├── Channel events
+│   └── System / premium promos
+│
+├── Premium
+│   ├── Subscription status
+│   ├── Benefits unlock
+│   ├── Challenges / perks
+│   └── Upsell surfaces
+│
+└── Settings / Profile
+    ├── My posts
+    ├── My replies
+    ├── My votes
+    ├── Privacy
+    ├── Notifications
+    └── Moderation / support
+```
+
+Oder Datenbank so:
+
+```text
+DATABASE TREE
+
+users
+├── id
+├── device_id
+├── handle_system_name
+├── home_geo_id
+├── status
+├── premium_status
+├── created_at
+└── last_active_at
+
+geo_locations
+├── id
+├── city_name
+├── region_name
+├── country_code
+├── lat
+├── lng
+├── radius_km
+└── is_active
+
+channels
+├── id
+├── slug
+├── title
+├── description
+├── type
+├── geo_scope_id
+├── visibility
+└── created_at
+
+posts
+├── id
+├── author_user_id
+├── geo_id
+├── channel_id
+├── post_type
+├── body
+├── media_id
+├── score
+├── reply_count
+├── report_count
+├── ranking_score
+├── moderation_state
+├── visibility_state
+├── created_at
+└── deleted_at
+
+post_votes
+├── id
+├── post_id
+├── user_id
+├── vote_type
+├── created_at
+└── unique(user_id, post_id)
+
+comments
+├── id
+├── post_id
+├── author_user_id
+├── parent_comment_id
+├── body
+├── score
+├── moderation_state
+└── created_at
+
+comment_votes
+├── id
+├── comment_id
+├── user_id
+├── vote_type
+└── unique(user_id, comment_id)
+
+conversations
+├── id
+├── type
+├── created_from_post_id
+├── created_at
+└── status
+
+conversation_members
+├── id
+├── conversation_id
+├── user_id
+├── role
+├── joined_at
+└── last_read_message_id
+
+messages
+├── id
+├── conversation_id
+├── sender_user_id
+├── body
+├── message_type
+├── created_at
+└── deleted_at
+
+notifications
+├── id
+├── recipient_user_id
+├── type
+├── ref_entity_type
+├── ref_entity_id
+├── is_read
+└── created_at
+
+reports
+├── id
+├── reporter_user_id
+├── target_type
+├── target_id
+├── reason_code
+├── status
+└── created_at
+
+subscriptions
+├── id
+├── user_id
+├── provider
+├── product_id
+├── status
+├── started_at
+├── expires_at
+└── renewal_state
+```
+
+Also ja: **verstanden**.
+
+Damit ich daraus wirklich ein brutales, sauberes Rebuild-Handbuch mache, brauche ich von dir jetzt die entscheidenden Rahmeninfos. Nicht weil ich Lust auf Rückfragen habe, sondern weil “mach 1:1” sonst oft bedeutet: Menschen wollen einen Ferrari, liefern aber drei Screenshots und Hoffnung.
+
+Hier die Fragen, die wir klären müssen:
+
+**1. Zielplattform**
+Soll der Blueprint für
+
+* iOS + Android nativ,
+* React Native,
+* Flutter,
+* oder Web + Mobile Wrapper
+  gedacht sein?
+
+**2. Technologiestack**
+Willst du den Agenten technologisch festnageln?
+Zum Beispiel:
+
+* Frontend: React Native / Expo
+* Backend: Supabase / Firebase / Node / NestJS
+* DB: PostgreSQL
+* Realtime: WebSockets / Supabase Realtime
+* Storage: S3
+* Notifications: FCM / APNs
+
+Oder soll ich den **besten realistischen Stack für 1:1-Replikation** selbst festlegen?
+
+**3. Replikationsziel**
+Meinst du mit “1:1”:
+
+* **1:1 für Nutzerverhalten und UX**
+* oder auch **1:1 in interner Struktur**
+* oder sogar **1:1 in Bildschirmreihenfolge, Textarten, Statusübergängen, Fehlermeldungen, Premium-Funnels, Moderation etc.**
+
+Mein Rat:
+Wir sollten als Ziel setzen:
+**“behavioral parity”**
+also:
+Wenn ein Nutzer die App benutzt, fühlt und verhält sie sich wie das Original.
+Die echte proprietäre interne Implementierung kennt ohnehin niemand außer deren Team. Tragisch, aber so funktioniert Realität.
+
+**4. Welche App-Version ist Referenz?**
+Jodel ändert Dinge.
+Wir müssen eine **Referenzversion** definieren:
+
+* exakt die Version aus deinen Screenshots?
+* aktuelle Jodel-Version?
+* oder ein gefrorener Snapshot aus deinem Material?
+
+**5. Was hast du außer den Screenshots noch?**
+Bitte alles nennen, was vorhanden ist:
+
+* weitere Screenshots
+* Screenrecordings
+* eigene Notizen
+* App-Store-Beschreibung
+* Premium-Übersichten
+* beobachtete Fehlermeldungen
+* API-Mitschnitte
+* UX-Details
+* Paywall-Details
+* Login-/Onboarding-Flows
+* Moderationserfahrungen
+* Chat-Verhalten
+* Limits, Cooldowns, Sperren
+
+**6. Was darf bewusst nicht übernommen werden?**
+Du hast gesagt:
+
+* Farben werden geändert
+* einige USP/Features werden ersetzt oder verbessert
+  Aber für Phase 1 sollten wir exakt festhalten:
+  **Was bleibt zwingend gleich?**
+  und
+  **Was wird später bewusst anders?**
+
+**7. Monetarisierung**
+Soll der Agent das Premium-System nur funktional nachbauen oder auch gleich austauschbar und erweiterbar aufbauen?
+Also:
+
+* Feature Flags
+* Entitlements
+* Subscriptions
+* Challenges
+* Coins / Benefits
+* Admin-Config
+
+**8. Admin / Moderation**
+Willst du direkt ein internes Admin-Panel mitplanen?
+Das wäre klug, weil sonst jede soziale App sofort in Richtung Müllcontainer rollt.
+
+**9. Datenschutz / Recht / Standort**
+Soll die Architektur von Anfang an auf
+
+* DSGVO,
+* Anonymität,
+* Abuse Prevention,
+* Standortschutz,
+* Gerätebans,
+* Shadow Restrictions,
+* Rate Limits
+  ausgelegt werden?
+
+Bei so einer App ist das kein Bonus. Das ist Überleben.
+
+**10. Ergebnisformat**
+Wie willst du die erste große Lieferung haben?
+Ich kann sie in mehreren Formaten aufbauen:
+
+* **hier direkt im Chat**
+* **als Canvas-Dokument**
+* **als .md-Struktur zum Export**
+* **als kompletter Ordner mit Markdown-Dateien**
+* **zusätzlich als PDF / DOCX**
+
+Der sinnvollste Weg wäre:
+**erst im Canvas/Markdown die Master-Dokumentation bauen**, danach bei Bedarf **als Ordnerstruktur exportierbar** machen.
+
+Mein Vorschlag für den Arbeitsablauf:
+
+**Phase 1**
+Wir definieren:
+
+* Zielplattform
+* Referenzversion
+* Stack
+* Funktionsumfang
+* Muss-/Kann-Features
+
+**Phase 2**
+Ich erstelle das **Master Blueprint Pack**:
+
+* Produktlogik
+* Datenbankbaum
+* Architektur
+* User Flows
+* State Flows
+* Feed-Logik
+* Channel-Logik
+* Chat-Logik
+* Moderation
+* Premium
+* API-Spec
+* QA-Plan
+* Agenten-Aufgabenstruktur
+
+
+
+__________________________________________________
+
+Das ist ein ehrgeiziges und spannendes Projekt. Um einer KI (oder einem Team von Agenten) einen Auftrag zu geben, der zu einer 1:1-Kopie führt, reicht eine grobe Beschreibung nicht aus. Du musst das „Gehirn“ der App – also die Logik hinter der Fassade – komplett offenlegen.Ich habe die Aufgabe verstanden. Hier ist der Master-Blueprint, den du deinem KI-Agenten als „Source of Truth“ übergeben kannst.Blueprint: Projekt "J-Clone" (Arbeitstitel)1. System-Architektur (The Skeleton)Damit die App flüssig läuft (wie das Original), muss die Architektur auf Echtzeit und Geodaten optimiert sein.Frontend: React Native oder Flutter (Cross-Platform für iOS/Android).Backend: Node.js (Express/Fastify) oder Go (für hohe Performance bei vielen Anfragen).Datenbank: * PostgreSQL mit PostGIS-Erweiterung (Essentiell für die Geodaten-Berechnungen/Radius-Suche).Redis: Für Caching von Feeds und Echtzeit-Voting-Ständen.Echtzeit-Kommunikation: WebSockets (Socket.io) für Chats und Benachrichtigungen.Speicher: AWS S3 oder Google Cloud Storage für Bilder/Videos.2. Datenbank-Schema (The Brain)Hier ist die detaillierte Tabellenstruktur, die der Agent anlegen muss:Code-SnippeterDiagram
+    USER ||--o{ POST : "erstellt"
+    USER ||--o{ VOTE : "gibt ab"
+    USER ||--o{ CHAT : "initiiert"
+    POST ||--o{ COMMENT : "hat"
+    POST ||--o{ VOTE : "erhält"
+    CHANNEL ||--o{ POST : "enthält"
+
+    USER {
+        string device_id PK
+        int karma
+        point last_location
+        timestamp created_at
+        boolean is_plus_member
+        string home_location
+    }
+
+    POST {
+        uuid id PK
+        uuid user_id FK
+        string content
+        string media_url
+        string color_hex
+        point location
+        int vote_count
+        int comment_count
+        uuid channel_id FK
+        timestamp created_at
+    }
+
+    VOTE {
+        uuid id PK
+        uuid user_id FK
+        uuid target_id FK
+        int value "1 oder -1"
+    }
+3. Kern-Logik & Algorithmen (The Nerves)A. Der Standort-Algorithmus (Hyperlocal)Die KI muss eine Funktion schreiben, die nicht einfach alle Posts lädt, sondern:Die device_location des Nutzers nimmt.Innerhalb der Datenbank eine ST_Distance-Abfrage macht (Radius meist 10km).Ergebnisse nach created_at (Neu), vote_count (Lauteste) oder comment_count (Diskutiert) sortiert.B. Das Karma-SystemUpvote: Post-Ersteller bekommt +10 Karma.Downvote: Post-Ersteller verliert -10 Karma.Kommentar: Ersteller bekommt +2 Karma.Logik: Wenn ein Post -5 Stimmen erreicht, wird er automatisch ausgeblendet (Community-Moderation).C. Anonymitäts-LogikKein Login mit Email/Passwort.Die device_id fungiert als Account.Wichtig für den Agenten: Implementierung eines Backup-Systems (z.B. Account-Key), damit Nutzer bei Handywechsel ihr Karma behalten können.4. Feature-Backlog für den Agenten (Task Overview)PrioritätModulBeschreibungP0Geo-FeedPosts im Umkreis anzeigen, erstellen und voten.P0IdentityAnonyme Registrierung via Device-Token.P1CommentsVerschachtelte Antwort-Logik (Thread-Ansicht).P1Channels@Hashtag-System und dedizierte Channel-Feeds.P2ChatEins-zu-eins Chat-Anfragen aus Posts heraus.P2PlusExplorer-Modus (Posts an anderen Orten lesen).P3ModerationMelde-Button, automatischer Ban bei zu viel negativem Karma.5. UI/UX Anweisungen (The Skin)Design-System: Übernimm die Jodel-Komponenten (Karten-Design, Bottom-Navigation).Farb-Logik: Erstelle eine theme.json, in der alle Farben zentral definiert sind. (Hier kannst du später die Änderungen vornehmen).Interaktion: Pull-to-refresh, Swipe-Gesten zum Voten (links/rechts oder Pfeile).
+
+Das ist die perfekte Grundlage. Mit diesen Infos kann ich den „Master-Prompt“ und die Dokumentation so schärfen, dass deine KI-Agenten genau wissen, wo die Reise hingeht: Eine hyperlokale Community, die bereit für NSFW-Content und Monetarisierung ist.Hier ist das vollständige Entwickler-Handbuch & Blueprint, strukturiert als Markdown-Dokument, das du eins zu eins an deinen Code-Agenten übergeben kannst.🏗️ Projekt-Blueprint: "Apex-Jodel" (1:1 Clone & Upgrade)1. System-Architektur & StackAnweisung an den Agenten: Baue ein modulares Microservice-System (oder einen sehr gut strukturierten Monolithen), das auf Skalierbarkeit und Echtzeit ausgelegt ist.Sprache: TypeScript (durchgehend für Front- und Backend).Backend: Node.js mit Fastify (höhere Performance als Express).Datenbank: PostgreSQL + PostGIS (für die Geodaten-Logik).Caching: Redis (für Feeds, Session-Daten und Rate-Limiting).Echtzeit: WebSockets (Socket.io) für Chat-Anfragen und Live-Votes.Mobile: Flutter oder React Native (für 1:1 UI-Matching).2. Datenbank-Erweiterung (Logic Schema)Zusätzlich zum Basis-Schema müssen folgende Felder für NSFW und Monetarisierung implementiert werden:TabelleNeues FeldZweckUsersis_premium (Bool)Schaltet Plus-Features & Werbefreiheit frei.Usersnsfw_enabled (Bool)Toggle für den Nutzer, um NSFW-Content zu sehen.Postsis_nsfw (Bool)Flag durch KI-Moderation oder User-Report.Postsmonetization_typeTyp des Beitrags (Normal, Gesponsert, Premium-Only).Transactionsuser_id, amount, typeHistorie für In-App-Käufe (Credits/Plus).3. Logik-Module (The Core Instructions)🛡️ KI-Moderations-Service (NSFW Focus)Logik: 1. Jeder Bild-Upload wird vor der Veröffentlichung an eine API (z. B. AWS Rekognition oder Google Vision) gesendet.2. Wenn Score > 0.8 für "Explicit Content": Setze is_nsfw = true.3. Wenn User-Einstellung nsfw_enabled = false, wird dieser Post im Feed mit einem Blur-Effekt belegt oder ausgeblendet.📍 Standort-Abfrage (The "Jodel-Magic")SQL-Logik für den Agenten:SQLSELECT * FROM posts 
+WHERE ST_DWithin(location, ST_MakePoint(user_lon, user_lat)::geography, 10000) -- 10km Radius
+AND (is_nsfw = false OR user_nsfw_pref = true)
+ORDER BY created_at DESC;
+💰 Monetarisierungs-HookFeatures für den Agenten:Boost-Funktion: User zahlt (Credits), um die Sichtbarkeit eines Posts im Radius zu verdoppeln.Plus-Abo: Entfernt Ad_Component im Feed und schaltet den "Explorer-Modus" (andere Städte lesen) frei.4. Feature-Backlog für die KI-Sub-AgentenAgent A: Identity & SecurityImplementierung der device_id Anmeldung.Generierung eines 12-Wort-Backup-Keys (für Account-Wiederherstellung).Agent B: Geo-Feed & InteractionEntwicklung des Feed-Algorithmus (Neu, Lauteste, Kommentiert).Upvote/Downvote Logik mit Karma-Anbindung.Agent C: Messaging & NSFWEins-zu-eins Chat-System mit "Accept/Decline" Logik.Integration des Bild-Scanners für automatische NSFW-Erkennung.Agent D: UI/UX & Themes1:1 Nachbau der Jodel-Screens (wie in den Screenshots).Zentrales Theme-Modul: Alle Farben müssen über eine einzige colors.ts Datei steuerbar sein, um sie später mit einem Klick zu ändern.5. Abnahme-Kriterien (Definition of Done)Parität: Die App sieht in der ersten Version exakt so aus wie auf den gelieferten Screenshots.Performance: Der Feed lädt unter 200ms bei 1000+ Posts im Umkreis.Stabilität: Push-Benachrichtigungen (FCM) kommen instant an.Sicherheit: Keine Klarnamen in der DB, Anonymität ist gewahrt.
+
+Das sind super Screenshots – sie decken fast das gesamte Ökosystem von Jodel ab, von den Feeds und Channels über das Karma-System bis hin zu den Plus-Features und Chat-Anfragen.
+
+Hier ist der Entwurf für deine Datenbank-Struktur und die Logik-Pfade, basierend auf den Bildern:
+
+1. Das Datenbank-Schema (ER-Diagramm)
+Um diese App nachzubauen, benötigst du diese zentralen Tabellen und Verknüpfungen:
+
+Kern-Tabellen
+Users: Speichert User_ID, Karma_Punkte, Heimat_Ort, Device_Token, Is_Plus_Member (Boolean) und Join_Date.
+
+Posts (Jodel): Post_ID, User_ID (FK), Content (Text/Bild/Video), Latitude/Longitude, Channel_ID (FK), Color_Hex, Vote_Count, Comment_Count und Expires_At (für Umfragen/Timer).
+
+Comments: Comment_ID, Post_ID (FK), User_ID (FK), Content, Vote_Count und Parent_Comment_ID (für Antworten auf Kommentare).
+
+Interaktions-Tabellen
+Votes: User_ID, Target_ID (Post oder Comment), Vote_Type (Up/Down). Wichtig, um Doppel-Votes zu verhindern.
+
+Channels: Channel_ID, Name, Member_Count, Is_NSFW (Boolean), Is_Verified.
+
+Subscriptions: Verknüpft Users mit Channels (wer hat welchen Channel abonniert).
+
+Chats: Chat_ID, Initiator_ID, Receiver_ID, Status (Anfrage/Aktiv).
+
+2. Die Logik-Diagramme (Flows)
+A. Der Feed-Algorithmus (Location-Based)
+Dieser Prozess läuft ab, wenn du die App öffnest:
+
+Standort-Check: App sendet Lat/Long an den Server.
+
+Radius-Logik: Server berechnet Distanz: SELECT * FROM Posts WHERE distance(User_Loc, Post_Loc) < Dynamic_Radius.
+
+Filter-Anwendung: Sortierung nach Neu, Kommentiert oder Lauteste (höchste Votes).
+
+Channel-Filter: Wenn User in @beichtstuhl ist, zeige nur Posts mit dieser Channel_ID.
+
+B. Das Karma & Voting System
+Das ist dein "Währungssystem" in der App:
+
+Aktion: User klickt "Upvote".
+
+Logik: * Prüfe in Tabelle Votes, ob User bereits gevotet hat.
+
+Wenn Nein: Update Posts SET Vote_Count = Vote_Count + 1.
+
+Karma-Update: Update Users SET Karma = Karma + 1 (beim Ersteller des Posts).
+
+Schwellenwert: Bestimmte Features (wie "Bilder im Chat") werden erst ab einem Karma-Wert in der Users-Tabelle freigeschaltet.
+
+C. Chat-Anfragen Logik
+Basierend auf deinen Screenshots:
+
+Trigger: User A klickt auf "Antworten" bei einem Post von User B.
+
+Anfrage: Eintrag in Chats mit Status = 'Pending'.
+
+Limit-Check: System prüft Users.Daily_Chat_Requests. (Normale User haben ein Limit, Plus-User mehr).
+
+Notification: User B erhält einen Eintrag in der Notifications-Tabelle.
+
+3. Besonderheiten für den Nachbau
+Hashtag-System: Du brauchst eine Tabelle Hashtags und eine Zwischentabelle Post_Hashtags, um die "Trending"-Sektion zu füttern.
+
+Push-Einstellungen: In der Users-Tabelle oder einer Settings-Tabelle müssen die Toggles für jeden Notification-Typ (Votes, Replies, Mentions) gespeichert werden.
+
+Plus-Features: Viele Funktionen sind hinter einem Is_Plus_Member-Flag gesperrt (z. B. "Explorer Modus" oder "Keine Werbung").

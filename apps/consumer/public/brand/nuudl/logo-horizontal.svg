@@ -1,0 +1,11 @@
+<svg width="1320" height="420" viewBox="0 0 1320 420" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="NUUDL horizontal logo">
+  <title>NUUDL horizontal logo</title>
+  <defs>
+    <linearGradient id="nuudlPurple" x1="72" y1="62" x2="252" y2="236" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#B23CFF"/>
+      <stop offset="1" stop-color="#8E27D7"/>
+    </linearGradient>
+  </defs>
+  <path d="M78 176C120 74 198 54 256 111C291 145 295 182 338 182C383 182 395 147 416 108" stroke="url(#nuudlPurple)" stroke-width="44" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="452" y="222" fill="#8E27D7" style="font: 700 132px 'Avenir Next', 'Segoe UI', 'Arial', sans-serif; letter-spacing: -0.07em;">nuudl</text>
+</svg>

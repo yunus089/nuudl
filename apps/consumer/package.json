@@ -1,0 +1,25 @@
+{
+  "name": "@veil/consumer",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node ./scripts/run-next.mjs dev",
+    "build": "node ./scripts/run-next.mjs build",
+    "start": "node ./scripts/run-next.mjs start",
+    "lint": "next lint",
+    "typecheck": "node ./scripts/run-next.mjs typegen && tsc --noEmit"
+  },
+  "dependencies": {
+    "@veil/shared": "file:../../packages/shared",
+    "next": "^15.2.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.10",
+    "@types/react": "^19.0.10",
+    "@types/react-dom": "^19.0.4",
+    "typescript": "^5.8.2"
+  }
+}

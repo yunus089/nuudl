@@ -1,0 +1,17 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="NUUDL app icon">
+  <title>NUUDL app icon</title>
+  <defs>
+    <linearGradient id="bg" x1="128" y1="96" x2="384" y2="416" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#1D1730"/>
+      <stop offset="1" stop-color="#090B12"/>
+    </linearGradient>
+    <linearGradient id="mark" x1="104" y1="176" x2="412" y2="340" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#E5A6FF"/>
+      <stop offset="0.55" stop-color="#B23CFF"/>
+      <stop offset="1" stop-color="#FFFFFF"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="120" fill="url(#bg)"/>
+  <path d="M106 220C146 128 225 106 286 166C319 199 330 233 368 233C405 233 419 201 442 158" stroke="url(#mark)" stroke-width="26" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="104" y="334" fill="#F1DDFF" style="font: 700 112px 'Avenir Next', 'Segoe UI', 'Arial', sans-serif; letter-spacing: -0.08em;">nuudl</text>
+</svg>

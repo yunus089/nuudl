@@ -1,0 +1,468 @@
+.screen {
+  display: grid;
+  gap: 8px;
+  padding: 8px 16px 12px;
+}
+
+.threadColumn {
+  min-height: 0;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+}
+
+.topBar {
+  gap: 6px;
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
+.topBarCenter {
+  gap: 2px;
+}
+
+.topBarSubline {
+  color: var(--text-secondary);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.topBarStatus {
+  min-height: 24px;
+  padding-inline: 8px;
+}
+
+.requestCard,
+.composerCard,
+.emptyThread,
+.messageBubble {
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--bg-surface);
+}
+
+.requestCard {
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+}
+
+.requestCardCompact {
+  gap: 6px;
+  padding: 10px 12px;
+}
+
+.requestTop {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.eyebrow {
+  margin: 0 0 4px;
+  color: var(--accent-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 10px;
+}
+
+.requestTitle {
+  margin: 0;
+  font-size: 18px;
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+
+.requestCopy {
+  margin: 4px 0 0;
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.compactMetaRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.compactMetaLabel,
+.compactMetaTime {
+  color: var(--text-secondary);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.compactMetaBody {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.statusPill {
+  padding: 5px 10px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.statusActive {
+  background: rgba(16, 185, 129, 0.12);
+  color: var(--status-success);
+}
+
+.statusPending {
+  background: rgba(245, 158, 11, 0.14);
+  color: var(--status-warning);
+}
+
+.statusDeclined {
+  background: rgba(239, 68, 68, 0.14);
+  color: var(--status-danger);
+}
+
+.statusMuted {
+  background: var(--bg-surface-elevated);
+  color: var(--text-secondary);
+}
+
+.sourceCard {
+  display: grid;
+  gap: 6px;
+  padding: 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-surface-elevated);
+}
+
+.sourceLabel {
+  color: var(--text-secondary);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.sourceBody {
+  margin: 0;
+  color: var(--text-primary);
+  line-height: 1.45;
+}
+
+.metaRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
+.actionRow {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.chatActionRow {
+  display: flex;
+  justify-content: flex-start;
+  margin-top: 2px;
+}
+
+.inlineAction {
+  min-height: 30px;
+  padding: 0 11px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 999px;
+  background: var(--bg-surface-elevated);
+  color: var(--text-secondary);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.inlineAction:active {
+  transform: scale(0.98);
+}
+
+.chatReportWrap {
+  margin-top: 4px;
+}
+
+.inlineReport,
+.inlineConfirmation {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--bg-surface);
+}
+
+.inlineReportHeader {
+  display: grid;
+  gap: 2px;
+}
+
+.inlineReportHeader strong {
+  font-size: 13px;
+}
+
+.inlineReportHeader span {
+  color: var(--text-secondary);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+}
+
+.inlineReasonList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.inlineReasonButton,
+.inlineReasonButtonActive {
+  min-height: 30px;
+  padding: 0 11px;
+  border-radius: 999px;
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-surface-elevated);
+  color: var(--text-secondary);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.inlineReasonButtonActive {
+  border-color: var(--accent-primary);
+  background: var(--accent-muted);
+  color: var(--text-primary);
+}
+
+.inlineReportActions {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.inlineGhostButton,
+.inlineReportSubmit {
+  min-height: 32px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 0;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.inlineGhostButton {
+  background: transparent;
+  color: var(--text-secondary);
+}
+
+.inlineReportSubmit {
+  background: var(--accent-primary);
+  color: var(--text-primary);
+}
+
+.inlineReportSubmit:disabled {
+  opacity: 0.56;
+}
+
+.hintText {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.feedbackText {
+  color: var(--text-primary);
+}
+
+.messageList {
+  display: grid;
+  gap: 8px;
+}
+
+.emptyThread {
+  display: grid;
+  gap: 8px;
+  padding: 14px;
+}
+
+.emptyThread strong {
+  font-size: 16px;
+}
+
+.emptyThread p {
+  margin: 0;
+  color: var(--text-secondary);
+  line-height: 1.45;
+}
+
+.messageBubble {
+  display: grid;
+  gap: 6px;
+  padding: 10px 12px;
+  max-width: 83%;
+}
+
+.messageBubbleSelf {
+  margin-left: auto;
+  border-color: rgba(232, 61, 109, 0.22);
+  background: var(--accent-muted);
+}
+
+.messageHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  color: var(--text-secondary);
+  font-size: 11px;
+}
+
+.messageHead strong {
+  color: var(--text-primary);
+  font-size: 13px;
+}
+
+.messageBubble p {
+  margin: 0;
+  line-height: 1.5;
+  color: var(--text-primary);
+  font-size: 14px;
+}
+
+.composerDock {
+  display: grid;
+  gap: 8px;
+  padding: 8px 16px 10px;
+  border-top: 1px solid var(--border-subtle);
+  background: var(--bg-surface-elevated);
+}
+
+.composerDockRow {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: end;
+}
+
+.composerInput {
+  min-height: 42px;
+  max-height: 112px;
+  padding: 11px 12px;
+  border-radius: var(--radius-md);
+  resize: none;
+}
+
+.hiddenFileInput {
+  display: none;
+}
+
+.attachButton {
+  min-width: 40px;
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--bg-surface);
+  color: var(--text-secondary);
+}
+
+.attachButton:active {
+  transform: scale(0.98);
+}
+
+.attachIconSvg {
+  width: 18px;
+  height: 18px;
+}
+
+.pendingMediaPreview {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  padding: 8px 10px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--bg-surface);
+}
+
+.pendingMediaImage {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  object-fit: cover;
+}
+
+.pendingMediaMeta {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.pendingMediaMeta strong {
+  font-size: 12px;
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pendingMediaMeta span {
+  color: var(--text-secondary);
+  font-size: 11px;
+}
+
+.pendingMediaRemove {
+  min-height: 30px;
+  padding: 0 11px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 999px;
+  background: var(--bg-surface-elevated);
+  color: var(--text-secondary);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.messageMediaGrid {
+  display: grid;
+  gap: 8px;
+}
+
+.messageMediaFrame {
+  overflow: hidden;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+}
+
+.messageMediaImage {
+  display: block;
+  width: 100%;
+  max-height: 220px;
+  object-fit: cover;
+}
+
+.sendButton {
+  min-width: 84px;
+  min-height: 42px;
+  padding-inline: 14px;
+}
+
+.sendFeedback {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 11px;
+  line-height: 1.4;
+}

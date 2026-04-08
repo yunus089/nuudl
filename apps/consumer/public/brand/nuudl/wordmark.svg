@@ -1,0 +1,7 @@
+<svg width="960" height="320" viewBox="0 0 960 320" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="NUUDL wordmark">
+  <title>NUUDL wordmark</title>
+  <style>
+    .wordmark { font: 700 132px "Avenir Next", "Segoe UI", "Arial", sans-serif; letter-spacing: -0.06em; }
+  </style>
+  <text x="34" y="221" class="wordmark" fill="#8E27D7">nuudl</text>
+</svg>

@@ -1,0 +1,271 @@
+.channelRoute {
+  display: grid;
+  gap: 8px;
+  padding: 8px 0 12px;
+}
+
+.channelTopBar {
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
+.channelTopBarCenter {
+  gap: 2px;
+}
+
+.channelTitle {
+  font-size: 17px;
+  letter-spacing: -0.03em;
+}
+
+.channelSubtitle {
+  color: var(--text-secondary);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.channelTopBarBadge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 0 8px;
+  border-radius: 999px;
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-surface);
+  color: var(--text-secondary);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.channelOverview {
+  margin: 0 16px;
+  padding: 14px 16px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  background: var(--bg-surface);
+}
+
+.channelOverviewTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.channelControls {
+  display: grid;
+  gap: 8px;
+}
+
+.channelControlsCard {
+  display: grid;
+  justify-items: end;
+  gap: 8px;
+}
+
+.channelControlsLabel {
+  color: var(--text-secondary);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.channelEyebrow {
+  margin: 0 0 6px;
+  color: var(--accent-primary);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.channelHeadline {
+  margin: 0;
+  font-size: 21px;
+  line-height: 1;
+  letter-spacing: -0.05em;
+}
+
+.channelDescription {
+  margin: 10px 0 0;
+  color: var(--text-secondary);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.channelMetaRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.channelMetaPill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 0 9px;
+  border-radius: 999px;
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-surface-elevated);
+  color: var(--text-secondary);
+  font-size: 10px;
+  letter-spacing: 0.04em;
+}
+
+.joinButton,
+.favoriteButton {
+  display: grid;
+  justify-items: start;
+  min-width: 124px;
+  min-height: 38px;
+  padding: 8px 10px 7px;
+  border-radius: var(--radius-md);
+  text-align: left;
+}
+
+.joinButton {
+  border: 1px solid transparent;
+  cursor: pointer;
+}
+
+.joinButtonReadOnly {
+  border-color: var(--border-subtle);
+  background: var(--bg-surface-elevated);
+  color: var(--text-secondary);
+}
+
+.joinButtonJoined {
+  border-color: rgba(16, 185, 129, 0.22);
+  background: rgba(16, 185, 129, 0.12);
+  color: var(--status-success);
+}
+
+.favoriteButton {
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-surface-elevated);
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.favoriteButtonActive {
+  border-color: var(--accent-primary);
+  background: var(--accent-muted);
+  color: var(--text-primary);
+}
+
+.controlButtonTitle {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.controlButtonMeta {
+  margin-top: 2px;
+  color: inherit;
+  opacity: 0.8;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.localControlHint {
+  margin: 10px 0 0;
+  color: var(--text-secondary);
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.joinFeedback {
+  margin: 8px 0 0;
+  font-size: 12px;
+}
+
+.postsHeader {
+  padding: 0 16px;
+  margin-top: 2px;
+}
+
+.channelPostsList {
+  display: grid;
+  gap: 0;
+  padding-bottom: 2px;
+}
+
+.channelPostsList :global(.feedCard) {
+  margin: 0 16px;
+  grid-template-columns: minmax(0, 1fr) 40px;
+  padding: 14px 0 16px;
+  border: 0;
+  border-bottom: 1px solid var(--border-subtle);
+  border-radius: 0;
+  background: transparent;
+}
+
+.channelPostsList :global(.feedTop) {
+  margin-bottom: 2px;
+}
+
+.channelPostsList :global(.feedMeta) {
+  gap: 6px;
+  font-size: 11px;
+}
+
+.channelPostsList :global(.feedBody) {
+  margin: 8px 0 0;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.channelPostsList :global(.feedFooterStack) {
+  gap: 8px;
+}
+
+.channelPostsList :global(.quickTipRow) {
+  gap: 6px;
+}
+
+.channelPostsList :global(.quickTipButton) {
+  min-height: 28px;
+  padding-inline: 10px;
+  font-size: 11px;
+}
+
+.channelPostsList :global(.voteRail) {
+  width: 40px;
+  gap: 6px;
+  padding-top: 4px;
+}
+
+.channelPostsList > :last-child :global(.feedCard) {
+  border-bottom: 0;
+}
+
+.channelEmptyState {
+  margin: 0 16px;
+}
+
+@media (max-width: 380px) {
+  .channelOverviewTop {
+    gap: 10px;
+  }
+
+  .channelControlsCard {
+    width: 100%;
+    justify-items: stretch;
+  }
+
+  .channelControls {
+    width: 100%;
+  }
+
+  .joinButton,
+  .favoriteButton {
+    min-width: 0;
+  }
+}

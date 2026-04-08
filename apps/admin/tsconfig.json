@@ -1,0 +1,36 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "jsx": "preserve",
+    "allowJs": false,
+    "incremental": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "types": [
+      "node"
+    ],
+    "baseUrl": ".",
+    "paths": {
+      "@veil/shared": [
+        "../../packages/shared/src/index.ts"
+      ]
+    },
+    "isolatedModules": true
+  },
+  "include": [
+    ".next-dev/types/**/*.ts",
+    ".next/types/**/*.ts",
+    "app/**/*",
+    "components/**/*",
+    "lib/**/*",
+    "next-env.d.ts",
+    "next.config.ts",
+    ".next-build/types/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}

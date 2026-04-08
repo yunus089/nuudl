@@ -1,0 +1,381 @@
+.threadScreen {
+  gap: 8px;
+}
+
+.threadColumn {
+  min-height: 0;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+}
+
+.topBarCompact {
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
+.topBarBackButton {
+  width: 30px;
+  height: 30px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-surface);
+  color: var(--text-secondary);
+}
+
+.topBarTitle {
+  font-size: 17px;
+  letter-spacing: -0.03em;
+}
+
+.topBarCenter {
+  gap: 2px;
+}
+
+.topBarSubline {
+  color: var(--text-secondary);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.replyCountPill {
+  display: grid;
+  justify-items: end;
+  gap: 2px;
+  min-width: 56px;
+}
+
+.replyCountPill strong {
+  font-size: 13px;
+  line-height: 1;
+}
+
+.replyCountPill span {
+  color: var(--text-secondary);
+  font-size: 8px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.threadIntro {
+  padding-bottom: 4px;
+}
+
+.threadIntroMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 6px;
+  color: var(--text-secondary);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.threadIntroMeta span + span::before {
+  content: "•";
+  margin-right: 8px;
+  color: var(--text-tertiary);
+}
+
+.threadIntroCopy {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.threadPostWrap {
+  padding: 0 16px;
+}
+
+.threadPostWrap :global(.feedCard) {
+  margin: 0;
+  padding: 14px 0 16px;
+  grid-template-columns: minmax(0, 1fr) 40px;
+  border: 0;
+  border-bottom: 1px solid var(--border-subtle);
+  border-radius: 0;
+  background: transparent;
+}
+
+.threadPostWrap :global(.feedMain) {
+  min-width: 0;
+}
+
+.threadPostWrap :global(.feedTop) {
+  margin-bottom: 2px;
+}
+
+.threadPostWrap :global(.feedMeta) {
+  gap: 6px;
+  font-size: 11px;
+}
+
+.threadPostWrap :global(.feedBody) {
+  margin: 8px 0 0;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.threadPostWrap :global(.feedMediaButton) {
+  margin: 12px 0 0;
+}
+
+.threadPostWrap :global(.feedFooter) {
+  gap: 8px;
+  font-size: 11px;
+}
+
+.threadPostWrap :global(.feedFooterStack) {
+  gap: 8px;
+}
+
+.threadPostWrap :global(.quickTipRow) {
+  gap: 6px;
+}
+
+.threadPostWrap :global(.quickTipButton) {
+  min-height: 28px;
+  padding: 0 10px;
+  font-size: 11px;
+}
+
+.threadPostWrap :global(.voteRail) {
+  gap: 6px;
+  padding-top: 4px;
+}
+
+.threadPostWrap :global(.voteButton) {
+  width: 32px;
+  height: 32px;
+}
+
+.postActionsRow {
+  display: flex;
+  justify-content: flex-end;
+  margin: 2px 16px 0;
+}
+
+.postReportWrap {
+  margin: 0 16px 4px;
+}
+
+.replyComposerDock {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: end;
+  padding: 8px 16px 10px;
+  border-top: 1px solid var(--border-subtle);
+  background: var(--bg-surface-elevated);
+}
+
+.threadSectionLabel {
+  margin-bottom: 12px;
+}
+
+.actionRowCompact {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.chatButton {
+  min-height: 36px;
+  padding: 0 14px;
+}
+
+.inlineNote {
+  margin: 8px 0 0;
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
+.replyComposerInput {
+  min-height: 42px;
+  max-height: 112px;
+  margin: 0;
+  padding: 11px 12px;
+  border-radius: var(--radius-md);
+  resize: none;
+}
+
+.replyComposerButton {
+  min-width: 84px;
+  min-height: 42px;
+  padding-inline: 14px;
+}
+
+.repliesSection {
+  padding-top: 4px;
+}
+
+.replyListHeading {
+  margin-top: 0;
+  margin-bottom: 0;
+  font-size: 24px;
+  letter-spacing: -0.04em;
+}
+
+.replyList {
+  display: grid;
+  gap: 0;
+  margin: 0 16px 8px;
+}
+
+.replyItemWrap {
+  display: grid;
+}
+
+.replyItemWrap :global(.replyCard) {
+  padding: 12px 0;
+  grid-template-columns: minmax(0, 1fr) 40px;
+  border: 0;
+  border-bottom: 1px solid var(--border-subtle);
+  border-radius: 0;
+  background: transparent;
+}
+
+.replyList > :last-child :global(.replyCard) {
+  border-bottom: 0;
+}
+
+.replyItemWrap :global(.replyMeta) {
+  gap: 8px;
+}
+
+.replyItemWrap :global(.replyMeta strong) {
+  font-size: 13px;
+}
+
+.replyItemWrap :global(.replyBody) {
+  margin: 8px 0 0;
+  font-size: 15px;
+  line-height: 1.48;
+}
+
+.replyItemWrap :global(.replyActionRow) {
+  gap: 8px;
+}
+
+.replyItemWrap :global(.voteButton) {
+  width: 30px;
+  height: 30px;
+}
+
+.replyEmpty {
+  margin: 0 16px;
+}
+
+.inlineAction {
+  min-height: 28px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.inlineReport,
+.inlineReportCompact {
+  display: grid;
+  gap: 10px;
+  margin-top: 8px;
+  padding: 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-surface);
+}
+
+.inlineReportCompact {
+  padding: 10px 12px;
+}
+
+.inlineReportHeader {
+  display: grid;
+  gap: 2px;
+}
+
+.inlineReportHeader strong {
+  font-size: 13px;
+}
+
+.inlineReportHeader span {
+  color: var(--text-secondary);
+  font-size: 11px;
+}
+
+.inlineReasonList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.inlineReasonButton,
+.inlineReasonButtonActive {
+  min-height: 30px;
+  padding: 0 11px;
+  border-radius: 999px;
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-surface-elevated);
+  color: var(--text-secondary);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.inlineReasonButtonActive {
+  border-color: var(--accent-primary);
+  background: var(--accent-muted);
+  color: var(--text-primary);
+}
+
+.inlineReportActions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.inlineGhostButton {
+  min-height: 31px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.inlineReportSubmit {
+  min-height: 34px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--accent-primary);
+  color: var(--text-primary);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.inlineReportSubmit:disabled {
+  opacity: 0.56;
+}
+
+.inlineConfirmation,
+.inlineConfirmationCompact {
+  margin-top: 8px;
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(16, 185, 129, 0.22);
+  background: rgba(16, 185, 129, 0.12);
+  color: var(--text-primary);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.inlineConfirmationCompact {
+  padding: 8px 10px;
+  font-size: 11px;
+}

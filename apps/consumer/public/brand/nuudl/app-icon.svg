@@ -1,0 +1,20 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="NUUDL app icon">
+  <title>NUUDL app icon</title>
+  <defs>
+    <radialGradient id="nuudlGlow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(512 480) rotate(90) scale(420 420)">
+      <stop stop-color="#2C113F"/>
+      <stop offset="1" stop-color="#11091E"/>
+    </radialGradient>
+    <linearGradient id="nuudlNeon" x1="214" y1="302" x2="820" y2="650" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#CF8BFF"/>
+      <stop offset="0.55" stop-color="#B23CFF"/>
+      <stop offset="1" stop-color="#FFFFFF"/>
+    </linearGradient>
+  </defs>
+  <rect width="1024" height="1024" rx="220" fill="url(#nuudlGlow)"/>
+  <rect x="54" y="54" width="916" height="916" rx="186" stroke="rgba(255,255,255,0.05)" stroke-width="2"/>
+  <path d="M214 414C276 230 402 184 508 286C559 336 575 390 636 390C698 390 723 332 760 260" stroke="url(#nuudlNeon)" stroke-width="38" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M214 414C276 230 402 184 508 286C559 336 575 390 636 390C698 390 723 332 760 260" stroke="#C83FFF" stroke-width="82" stroke-linecap="round" stroke-linejoin="round" opacity="0.12"/>
+  <text x="198" y="676" fill="none" stroke="#F2D5FF" stroke-width="22" style="font: 700 188px 'Avenir Next', 'Segoe UI', 'Arial', sans-serif; letter-spacing: -0.08em;">nuudl</text>
+  <text x="198" y="676" fill="#B23CFF" style="font: 700 188px 'Avenir Next', 'Segoe UI', 'Arial', sans-serif; letter-spacing: -0.08em;">nuudl</text>
+</svg>

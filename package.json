@@ -1,0 +1,19 @@
+{
+  "name": "veil-monorepo",
+  "private": true,
+  "packageManager": "npm@11.6.2",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:consumer": "npm run dev --workspace @veil/consumer",
+    "dev:admin": "npm run dev --workspace @veil/admin",
+    "dev:api": "npm run dev --workspace @veil/api",
+    "build": "npm run build --workspaces --if-present",
+    "backup:beta": "node ./scripts/backup-beta-data.mjs",
+    "lint": "npm run lint --workspaces --if-present",
+    "smoke:beta": "node ./scripts/smoke-beta.mjs",
+    "typecheck": "npm run typecheck --workspaces --if-present"
+  }
+}
