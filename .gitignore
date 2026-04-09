@@ -1,9 +1,10 @@
 node_modules/
 .next/
+.next-build/
 dist/
 coverage/
 .DS_Store
 .env
 .turbo/
 *.log
-
+*.tsbuildinfo

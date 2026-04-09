@@ -26,7 +26,25 @@ This repository contains two implementation artifacts for the mobile-only anonym
 
 - `npm run smoke:beta` runs a repeatable closed-beta smoke against the local API, consumer, and admin services
 - `npm run backup:beta` copies the API snapshot and uploaded media into a timestamped local backup under `backups/beta/`
+- `npm run build:deploy` builds `shared`, `api`, and `consumer` in the deploy-safe order
+- `npm run start:api` and `npm run start:consumer` are the root-level launch helpers for Coolify or local testing
 - [blueprint/08_qa/BETA_OPERATIONS_RUNBOOK.md](C:/Users/yunus/Desktop/OJ_neu/blueprint/08_qa/BETA_OPERATIONS_RUNBOOK.md) documents health checks, smoke flow, backup and restore
+- [docs/deploy/COOLIFY_HOSTINGER.md](C:/Users/yunus/Desktop/OJ_neu/docs/deploy/COOLIFY_HOSTINGER.md) contains the minimal first deploy path for Coolify or Hostinger
+
+## Deploy Quickstart
+
+For a first private deploy, use two apps from the repo root:
+
+1. `nuudl-api`
+   - Build: `npm run build:api`
+   - Start: `npm run start:api`
+   - Port: `4000`
+2. `nuudl-consumer`
+   - Build: `npm run build:consumer`
+   - Start: `npm run start:consumer`
+   - Port: `3000`
+
+Before you redeploy from GitHub, run `npm run build:deploy` locally and push a fresh commit.
 
 ## Current state
 
