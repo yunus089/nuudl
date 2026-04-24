@@ -2,10 +2,11 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import type { Post, SearchResults } from "@veil/shared";
+import type { AccountSearchResult, Post, SearchResults } from "@veil/shared";
 import { useConsumerApp } from "./consumer-provider";
 import { goBackOrFallback, openOrCreateChatFromPost } from "./consumer-helpers";
 import {
+  AccountPreviewSheet,
   AlertsScreen,
   ChatScreen,
   ComposerSheet,
@@ -43,6 +44,7 @@ export function ConsumerRoute({ view }: { view: RootView }) {
   const {
     booted,
     accountState,
+    betaInviteRequired,
     demoPaymentsEnabled,
     hydrationMessage,
     hydrationStatus,
@@ -73,7 +75,9 @@ export function ConsumerRoute({ view }: { view: RootView }) {
     startEmailAccountLogin,
     verifyEmailAccountLogin,
     logoutAccount,
+    logoutAccountDevice,
     updateAccountProfile,
+    checkUsernameAvailability,
     loadChannels,
     searchCity,
     loadChatOverview,
@@ -93,6 +97,7 @@ export function ConsumerRoute({ view }: { view: RootView }) {
   const [sheet, setSheet] = useState<SheetView>(null);
   const [activeSort, setActiveSort] = useState<FeedSort>("Neu");
   const [discoverQuery, setDiscoverQuery] = useState("");
+  const [selectedAccountPreview, setSelectedAccountPreview] = useState<AccountSearchResult | null>(null);
   const [discoverResults, setDiscoverResults] = useState<SearchResults>({
     accounts: [],
     channels: [],
@@ -235,7 +240,7 @@ export function ConsumerRoute({ view }: { view: RootView }) {
   }
 
   if (!gateAccepted) {
-    return <ConsumerGateScreen onAcceptGate={acceptGate} />;
+    return <ConsumerGateScreen betaInviteRequired={betaInviteRequired} onAcceptGate={acceptGate} />;
   }
 
   if (location.status !== "ready") {
@@ -305,7 +310,6 @@ export function ConsumerRoute({ view }: { view: RootView }) {
                 onOpenAuthorChat={openAuthorChat}
                 onOpenPost={(postId) => router.push(`/post/${postId}`)}
                 onSortChange={setActiveSort}
-                onTipPost={tipPost}
                 onVotePost={votePost}
                 postVotes={postVotes}
                 posts={feedPosts}
@@ -325,6 +329,10 @@ export function ConsumerRoute({ view }: { view: RootView }) {
                 accounts={discoverQuery.trim() ? discoverResults.accounts ?? [] : []}
                 onOpenChannel={(slug) => router.push(`/channel/${slug}`)}
                 onOpenAuthorChat={openAuthorChat}
+                onOpenAccountPreview={(account) => {
+                  setSelectedAccountPreview(account);
+                  openSheet("profile");
+                }}
                 onOpenPost={(postId) => router.push(`/post/${postId}`)}
                 onQueryChange={setDiscoverQuery}
                 onToggleFavoriteChannel={toggleFavoriteChannel}
@@ -435,12 +443,17 @@ export function ConsumerRoute({ view }: { view: RootView }) {
       {sheet === "settings" ? (
         <SettingsSheet
           accountState={accountState}
+          onCheckUsernameAvailability={checkUsernameAvailability}
           onClose={closeSheet}
           onLogoutAccount={logoutAccount}
+          onLogoutAccountDevice={logoutAccountDevice}
           onStartEmailAccountLogin={startEmailAccountLogin}
           onUpdateAccountProfile={updateAccountProfile}
           onVerifyEmailAccountLogin={verifyEmailAccountLogin}
         />
+      ) : null}
+      {sheet === "profile" && selectedAccountPreview ? (
+        <AccountPreviewSheet account={selectedAccountPreview} onClose={closeSheet} />
       ) : null}
       {sheet === "composer" ? (
         <ComposerSheet

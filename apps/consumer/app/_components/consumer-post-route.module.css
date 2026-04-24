@@ -127,20 +127,6 @@
   font-size: 11px;
 }
 
-.threadPostWrap :global(.feedFooterStack) {
-  gap: 8px;
-}
-
-.threadPostWrap :global(.quickTipRow) {
-  gap: 6px;
-}
-
-.threadPostWrap :global(.quickTipButton) {
-  min-height: 28px;
-  padding: 0 10px;
-  font-size: 11px;
-}
-
 .threadPostWrap :global(.voteRail) {
   gap: 6px;
   padding-top: 4px;
@@ -151,14 +137,57 @@
   height: 32px;
 }
 
+.postUtilityStack {
+  display: grid;
+  gap: 10px;
+  margin: 8px 16px 0;
+}
+
+.tipActionRow {
+  display: grid;
+  gap: 8px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.tipActionLabel {
+  color: var(--text-secondary);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.tipButtonRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tipButton {
+  min-height: 30px;
+  padding: 0 12px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 11px;
+  font-weight: 700;
+}
+
 .postActionsRow {
   display: flex;
   justify-content: flex-end;
-  margin: 2px 16px 0;
 }
 
 .postReportWrap {
   margin: 0 16px 4px;
+}
+
+.tipFeedback {
+  margin: 0 16px;
+  color: var(--text-secondary);
+  font-size: 12px;
 }
 
 .replyComposerDock {
@@ -166,7 +195,7 @@
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 8px;
   align-items: end;
-  padding: 8px 16px 10px;
+  padding: 8px 16px calc(10px + var(--safe-area-bottom));
   border-top: 1px solid var(--border-subtle);
   background: var(--bg-surface-elevated);
 }

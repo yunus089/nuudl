@@ -1,17 +1,22 @@
 import { createReadStream } from "node:fs";
 import { mkdir, stat, writeFile } from "node:fs/promises";
 import { createHash } from "node:crypto";
-import { basename, dirname, extname, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { basename, extname, resolve } from "node:path";
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import type {
   Account,
   AccountProfile,
+  AccountSearchResult,
   ChatMessage,
   ChatRequest,
   Channel,
+  CreatorReview,
+  FeatureFlag,
   LedgerEntry,
   ModerationCase,
+  ModerationAction,
+  Payout,
+  PayoutAccount,
   Post,
   Reply,
   NotificationItem,
@@ -38,9 +43,12 @@ import {
   validationError,
   installHttpGuards,
 } from "./http.js";
-import { getOpsStatus } from "./ops.js";
+import { getApiUploadsPath, getMediaUploadMaxBytes, getOpsStatus } from "./ops.js";
+import { createRateLimitStore, initializeRateLimitStore } from "./rate-limit-store.js";
 import {
+  type BackofficeAuthMode,
   type BackofficeRole,
+  type RestrictionType,
   applyInstallRestriction,
   authenticateInstallSession,
   clearInstallRestrictions,
@@ -49,6 +57,8 @@ import {
   createId,
   createReportRecord,
   createStore,
+  ensureBackofficeSession,
+  ensureBackofficeUser,
   ensureInstallIdentity,
   findAccountByEmail,
   findAccountByUsername,
@@ -56,9 +66,9 @@ import {
   getAccountById,
   getAccountForInstallIdentity,
   getAccountProfile,
+  getBackofficeUserById,
   getInstallIdentityById,
   getOrCreateRiskState,
-  getRateLimitCounter,
   getWallet,
   getWalletOwnerId,
   incrementRiskScore,
@@ -70,7 +80,10 @@ import {
   recordAbuseEvent,
   recordAudit,
   recordBackofficeAction,
+  recordGeoEvent,
+  revokeBackofficeSessions,
   rotateInstallRefreshToken,
+  revokeInstallSessions,
   startAccountLoginCode,
   setCurrentInstallIdentity,
   getAccountChannelPreferencesForCity,
@@ -82,6 +95,7 @@ import {
   applyAccountChannelPreferencesToChannels,
   type ApiStore,
   type AccountLoginCodeRecord,
+  type BackofficeUserRecord,
   type CreatorApplicationRecord,
   type ReportRecord,
   type SessionTokenBundle,
@@ -106,6 +120,7 @@ type StoredMediaAsset = {
 
 type RegisterBody = {
   adultGateAccepted?: boolean;
+  betaInviteCode?: string;
   cityId?: string;
   citySlug?: string;
   lat?: number;
@@ -144,6 +159,7 @@ type AccountEmailVerifyBody = {
 
 type AccountProfilePatchBody = {
   displayName?: string;
+  bio?: string;
   discoverable?: boolean;
   channelPreferences?: Array<{
     cityId?: string;
@@ -232,14 +248,53 @@ type PlusCheckoutBody = {
   provider?: "fake" | "stripe";
 };
 
-const API_DATA_DIR = resolve(dirname(fileURLToPath(import.meta.url)), "..", ".data");
-const MEDIA_UPLOADS_DIR = resolve(API_DATA_DIR, "uploads");
-
 const MEDIA_EXTENSIONS: Record<string, string> = {
   "image/gif": ".gif",
   "image/jpeg": ".jpg",
   "image/png": ".png",
   "image/webp": ".webp",
+};
+
+const truthyEnv = (value: string | undefined) => {
+  const normalized = value?.trim().toLowerCase();
+  return normalized === "1" || normalized === "true" || normalized === "yes";
+};
+
+const normalizeInviteCode = (value: unknown) =>
+  typeof value === "string" ? value.trim().toUpperCase().replace(/\s+/g, "-") : "";
+
+const getConfiguredInviteCodes = () =>
+  (process.env.BETA_INVITE_CODES ?? "")
+    .split(",")
+    .map((code) => normalizeInviteCode(code))
+    .filter((code) => code.length > 0);
+
+const isBetaInviteRequired = () => truthyEnv(process.env.BETA_INVITE_REQUIRED);
+
+const inviteCodeHash = (code: string) => createHash("sha256").update(code).digest("hex").slice(0, 16);
+
+const assertBetaInviteCode = (value: unknown) => {
+  if (!isBetaInviteRequired()) {
+    return {
+      codeHash: undefined as string | undefined,
+      required: false,
+    };
+  }
+
+  const configuredCodes = new Set(getConfiguredInviteCodes());
+  if (configuredCodes.size === 0) {
+    throw forbidden("Closed beta invite gate is enabled, but no invite codes are configured.");
+  }
+
+  const normalizedCode = normalizeInviteCode(value);
+  if (!normalizedCode || !configuredCodes.has(normalizedCode)) {
+    throw forbidden("Dieser Beta-Code ist nicht gültig.");
+  }
+
+  return {
+    codeHash: inviteCodeHash(normalizedCode),
+    required: true,
+  };
 };
 
 type ModerationActionBody = {
@@ -272,9 +327,51 @@ type SecurityInstallResetBody = {
   note?: string;
 };
 
+type AdminChannelPatchBody = {
+  description?: string;
+  isAdultOnly?: boolean;
+  isExclusive?: boolean;
+  isVerified?: boolean;
+  memberCount?: number;
+  title?: string;
+};
+
+type AdminFeatureFlagPatchBody = {
+  audience?: FeatureFlag["audience"];
+  description?: string;
+  enabled?: boolean;
+  label?: string;
+};
+
+type BackofficeUserPatchBody = {
+  disabled?: boolean;
+  displayName?: string;
+  note?: string;
+  revokeSessions?: boolean;
+  role?: BackofficeRole;
+};
+
 type BackofficeActor = {
+  authMode: BackofficeAuthMode;
   id: string;
   role: BackofficeRole;
+  requestId: string;
+  session: {
+    authMode: BackofficeAuthMode;
+    createdAt: string;
+    id: string;
+    lastSeenAt: string;
+    roleAtIssue: BackofficeRole;
+    status: "active" | "revoked";
+  };
+  user: {
+    createdAt: string;
+    disabledAt?: string;
+    displayName: string;
+    id: string;
+    lastSeenAt: string;
+    role: BackofficeRole;
+  };
 };
 
 const clampText = (value: unknown, fallback = "") => {
@@ -337,7 +434,9 @@ const resolveCityFromCoordinates = (store: ApiStore, lat: number | undefined, ln
 };
 
 const feedForCity = (store: ApiStore, cityId: string) =>
-  store.posts.filter((post) => post.cityId === cityId && post.moderation === "visible");
+  store.posts
+    .filter((post) => post.cityId === cityId && post.moderation === "visible")
+    .map((post) => decoratePublicPost(store, post));
 
 const replyCountForPost = (store: ApiStore, postId: string) =>
   store.replies.filter((reply) => reply.postId === postId && reply.moderation === "visible").length;
@@ -345,7 +444,8 @@ const replyCountForPost = (store: ApiStore, postId: string) =>
 const visibleRepliesForPost = (store: ApiStore, postId: string) =>
   store.replies
     .filter((reply) => reply.postId === postId && reply.moderation === "visible")
-    .sort((left, right) => right.createdAt.localeCompare(left.createdAt));
+    .sort((left, right) => right.createdAt.localeCompare(left.createdAt))
+    .map((reply) => decoratePublicReply(store, reply));
 
 const notificationsForActor = (store: ApiStore, installIdentityId: string) => {
   const linkedInstallIds = new Set(getLinkedInstallIdentities(store, installIdentityId).map((entry) => entry.id));
@@ -398,7 +498,157 @@ const resolveAccountInstallContext = (
   };
 };
 
-const auditEntryContext = (store: ApiStore, entry: { actorType: string; actorId: string; metadata?: Record<string, unknown> }) => {
+type AuditContextCandidate = {
+  accountId?: string | null;
+  installIdentityId?: string | null;
+};
+
+const resolveAuditEntityContextCandidates = (
+  store: ApiStore,
+  entityType?: string,
+  entityId?: string,
+): AuditContextCandidate[] => {
+  if (!entityType || !entityId) {
+    return [];
+  }
+
+  if (entityType === "account") {
+    return [{ accountId: entityId, installIdentityId: null }];
+  }
+
+  if (entityType === "install_identity") {
+    return [{ accountId: null, installIdentityId: entityId }];
+  }
+
+  if (entityType === "install_session") {
+    const session = store.installSessions.find((entry) => entry.id === entityId);
+    return session ? [{ accountId: null, installIdentityId: session.installIdentityId }] : [];
+  }
+
+  if (entityType === "install_restriction") {
+    const restriction = store.installRestrictions.find((entry) => entry.id === entityId);
+    if (restriction) {
+      return [{ accountId: null, installIdentityId: restriction.installIdentityId }];
+    }
+
+    return getInstallIdentityById(store, entityId) ? [{ accountId: null, installIdentityId: entityId }] : [];
+  }
+
+  if (entityType === "post") {
+    const post = store.posts.find((entry) => entry.id === entityId);
+    return post
+      ? [{ accountId: post.accountId ?? null, installIdentityId: post.recipientInstallIdentityId ?? null }]
+      : [];
+  }
+
+  if (entityType === "reply") {
+    const reply = store.replies.find((entry) => entry.id === entityId);
+    return reply
+      ? [{ accountId: reply.accountId ?? null, installIdentityId: reply.recipientInstallIdentityId ?? null }]
+      : [];
+  }
+
+  if (entityType === "report") {
+    const report = store.reports.find((entry) => entry.id === entityId);
+    return report
+      ? [{ accountId: report.accountId ?? null, installIdentityId: report.reporterInstallIdentityId ?? null }]
+      : [];
+  }
+
+  if (entityType === "moderation_case") {
+    const moderationCase = store.moderationCases.find((entry) => entry.id === entityId);
+    if (!moderationCase) {
+      return [];
+    }
+
+    const targetType =
+      moderationCase.targetType === "chat"
+        ? "chat"
+        : moderationCase.targetType === "post"
+          ? "post"
+          : moderationCase.targetType === "reply"
+            ? "reply"
+            : moderationCase.targetType === "user"
+              ? "install_identity"
+              : moderationCase.targetType;
+
+    return [
+      { accountId: moderationCase.accountId ?? null, installIdentityId: null },
+      ...resolveAuditEntityContextCandidates(store, targetType, moderationCase.targetId),
+    ];
+  }
+
+  if (entityType === "chat") {
+    return [
+      ...resolveAuditEntityContextCandidates(store, "chat_request", entityId),
+      ...resolveAuditEntityContextCandidates(store, "chat_message", entityId),
+    ];
+  }
+
+  if (entityType === "chat_request") {
+    const chatRequest = store.chatRequests.find((entry) => entry.id === entityId);
+    return chatRequest
+      ? [
+          { accountId: chatRequest.fromAccountId ?? null, installIdentityId: chatRequest.fromInstallIdentityId ?? null },
+          { accountId: chatRequest.toAccountId ?? null, installIdentityId: chatRequest.toInstallIdentityId ?? null },
+        ]
+      : [];
+  }
+
+  if (entityType === "chat_message") {
+    const message = store.chatMessages.find((entry) => entry.id === entityId);
+    if (!message) {
+      return [];
+    }
+
+    return [
+      { accountId: message.accountId ?? null, installIdentityId: message.senderInstallIdentityId ?? null },
+      ...resolveAuditEntityContextCandidates(store, "chat_request", message.chatRequestId),
+    ];
+  }
+
+  if (entityType === "ledger_entry") {
+    const ledgerEntry = store.ledger.find((entry) => entry.id === entityId);
+    return ledgerEntry
+      ? [
+          {
+            accountId: ledgerEntry.accountId ?? null,
+            installIdentityId: ledgerEntry.installIdentityId === "platform" ? null : ledgerEntry.installIdentityId ?? null,
+          },
+        ]
+      : [];
+  }
+
+  if (entityType === "tip") {
+    const tip = store.tips.find((entry) => entry.id === entityId);
+    return tip
+      ? [
+          { accountId: tip.senderAccountId ?? null, installIdentityId: tip.senderInstallIdentityId ?? null },
+          { accountId: tip.recipientAccountId ?? null, installIdentityId: tip.recipientInstallIdentityId ?? null },
+        ]
+      : [];
+  }
+
+  if (entityType === "creator_application") {
+    const application = store.creatorApplication.id === entityId ? store.creatorApplication : null;
+    return application
+      ? [{ accountId: application.accountId ?? null, installIdentityId: application.installIdentityId ?? null }]
+      : [];
+  }
+
+  return [];
+};
+
+const auditEntryContext = (
+  store: ApiStore,
+  entry: {
+    actorType: string;
+    actorId: string;
+    entityId?: string;
+    entityType?: string;
+    metadata?: Record<string, unknown>;
+  },
+) => {
   const actorContext =
     entry.actorType === "install"
       ? resolveAccountInstallContext(store, null, entry.actorId)
@@ -420,6 +670,7 @@ const auditEntryContext = (store: ApiStore, entry: { actorType: string; actorId:
 
   const metadata = entry.metadata ?? {};
   const targetContexts = [
+    ...resolveAuditEntityContextCandidates(store, entry.entityType, entry.entityId),
     {
       accountId:
         typeof metadata.targetAccountId === "string"
@@ -468,12 +719,184 @@ const auditEntryContext = (store: ApiStore, entry: { actorType: string; actorId:
   };
 };
 
+const auditContextSearchText = (context: ReturnType<typeof resolveAccountInstallContext>) =>
+  [
+    context.accountDisplayName,
+    context.accountId,
+    context.accountUsername,
+    context.accountUsername ? `@${context.accountUsername}` : null,
+    context.installIdentityId,
+    context.installLabel,
+  ]
+    .filter(Boolean)
+    .join(" ");
+
+const buildAuditMetadataSearchText = (metadata?: Record<string, unknown>) => {
+  const flattenValue = (value: unknown): string[] => {
+    if (value === null || value === undefined) {
+      return [];
+    }
+    if (Array.isArray(value)) {
+      return value.flatMap((item) => flattenValue(item));
+    }
+    if (typeof value === "object") {
+      return Object.values(value as Record<string, unknown>).flatMap((item) => flattenValue(item));
+    }
+    return [String(value)];
+  };
+
+  return flattenValue(metadata ?? {}).join(" ");
+};
+
+const auditContextListMatchesFilters = (
+  params: {
+    accountId?: string;
+    installIdentityId?: string;
+  },
+  contexts: Array<ReturnType<typeof resolveAccountInstallContext>>,
+) => {
+  if (params.accountId && !contexts.some((context) => context.accountId === params.accountId)) {
+    return false;
+  }
+
+  if (params.installIdentityId && !contexts.some((context) => context.installIdentityId === params.installIdentityId)) {
+    return false;
+  }
+
+  return true;
+};
+
+const auditLogMatchesQuery = (
+  query: string | undefined,
+  entry: {
+    action: string;
+    actorId?: string;
+    actorType: string;
+    actorRole?: string;
+    entityId: string;
+    entityType: string;
+    metadata?: Record<string, unknown>;
+    summary?: string;
+  },
+  resolved: ReturnType<typeof auditEntryContext>,
+) => {
+  const normalizedQuery = clampText(query).toLowerCase();
+  if (!normalizedQuery) {
+    return true;
+  }
+
+  const haystack = [
+    entry.action,
+    entry.actorId,
+    entry.actorType,
+    entry.actorRole,
+    entry.entityId,
+    entry.entityType,
+    entry.summary,
+    buildAuditMetadataSearchText(entry.metadata),
+    auditContextSearchText(resolved.actorContext),
+    auditContextSearchText(resolved.targetContext),
+    ...resolved.relatedTargetContexts.map((context) => auditContextSearchText(context)),
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+
+  return haystack.includes(normalizedQuery);
+};
+
+const parseAuditLimit = (requestedLimit: string | undefined, actorRole: BackofficeRole) => {
+  const parsed = Number.parseInt(requestedLimit ?? "", 10);
+  const safeLimit = Number.isFinite(parsed) && parsed > 0 ? Math.min(parsed, 200) : undefined;
+
+  if (actorRole === "moderator") {
+    return Math.min(safeLimit ?? 8, 8);
+  }
+
+  return safeLimit;
+};
+
 const isNotificationRecipientActor = (
   actor: { accountId?: string | null; installIdentityId: string },
   recipient: { accountId?: string | null; installIdentityId?: string | null },
 ) =>
   (Boolean(actor.accountId) && Boolean(recipient.accountId) && actor.accountId === recipient.accountId) ||
   recipient.installIdentityId === actor.installIdentityId;
+
+const buildPublicCreatorIdentity = (
+  store: ApiStore,
+  identity?: string | {
+    accountId?: string | null;
+    accountUsername?: string | null;
+  } | null
+) => {
+  if (!identity) {
+    return null;
+  }
+
+  if (typeof identity !== "string" && !identity.accountUsername) {
+    return null;
+  }
+
+  const account = getAccountById(store, typeof identity === "string" ? identity : identity.accountId);
+  if (!account) {
+    return null;
+  }
+
+  const profile = getAccountProfile(store, account.id);
+  if (!profile?.isCreator) {
+    return null;
+  }
+
+  return {
+    avatarUrl: profile.avatarUrl ?? null,
+    displayName: profile.displayName || account.username,
+    isCreator: true,
+    username: account.username,
+  };
+};
+
+const decoratePublicPost = (store: ApiStore, post: Post): Post => {
+  const creatorIdentity = buildPublicCreatorIdentity(store, post);
+  if (!creatorIdentity) {
+    return {
+      ...post,
+      accountId: undefined,
+      accountDisplayName: undefined,
+      accountIsCreator: undefined,
+      accountUsername: undefined,
+    };
+  }
+
+  return {
+    ...post,
+    accountId: undefined,
+    accountDisplayName: creatorIdentity.displayName,
+    accountIsCreator: true,
+    accountUsername: creatorIdentity.username,
+  };
+};
+
+const decoratePublicReply = (store: ApiStore, reply: Reply): Reply => {
+  const creatorIdentity = buildPublicCreatorIdentity(store, reply);
+  if (!creatorIdentity) {
+    return {
+      ...reply,
+      accountId: undefined,
+      accountDisplayName: undefined,
+      accountIsCreator: undefined,
+      accountUsername: undefined,
+    };
+  }
+
+  return {
+    ...reply,
+    accountId: undefined,
+    accountDisplayName: creatorIdentity.displayName,
+    accountIsCreator: true,
+    accountUsername: creatorIdentity.username,
+  };
+};
 
 const buildSearchResults = (
   store: ApiStore,
@@ -493,21 +916,8 @@ const buildSearchResults = (
           profile?.displayName.toLowerCase().includes(normalized))
       );
     })
-    .map((account) => {
-      const profile = getAccountProfile(store, account.id);
-      const linkedInstall = getPrimaryLinkedInstallForAccountId(store, account.id);
-      const city = linkedInstall ? getCityById(store, linkedInstall.cityId) : null;
-
-      return {
-        accountId: account.id,
-        username: account.username,
-        displayName: profile?.displayName ?? account.username,
-        discoverable: account.discoverable,
-        isCreator: profile?.isCreator ?? false,
-        cityId: city?.id,
-        cityLabel: city?.label,
-      };
-    });
+    .map((account) => buildAccountSearchResult(store, account))
+    .filter((entry): entry is AccountSearchResult => Boolean(entry));
 
   if (!normalized) {
     return {
@@ -540,12 +950,17 @@ const buildSearchResults = (
           .filter((tag) => tag.toLowerCase().includes(normalized))
       )
     ),
-    posts: store.posts.filter((post) =>
-      post.cityId === cityId &&
-      (post.body.toLowerCase().includes(normalized) ||
-        post.tags.some((tag) => tag.toLowerCase().includes(normalized)) ||
-        post.authorLabel.toLowerCase().includes(normalized))
-    ),
+    posts: store.posts
+      .map((post) => decoratePublicPost(store, post))
+      .filter((post) =>
+        post.cityId === cityId &&
+        (post.body.toLowerCase().includes(normalized) ||
+          post.tags.some((tag) => tag.toLowerCase().includes(normalized)) ||
+          post.authorLabel.toLowerCase().includes(normalized) ||
+          (post.accountIsCreator === true &&
+            (post.accountDisplayName?.toLowerCase().includes(normalized) ||
+              post.accountUsername?.toLowerCase().includes(normalized))))
+      ),
   };
 };
 
@@ -570,13 +985,24 @@ const extensionForContentType = (contentType: string) => MEDIA_EXTENSIONS[normal
 
 const createMediaUrl = (fileName: string) => `/media/${fileName}`;
 
+const getConfiguredApiPublicBaseUrl = () =>
+  clampText(process.env.API_PUBLIC_BASE_URL ?? process.env.NUUDL_API_BASE_URL).replace(/\/$/, "");
+
 const createAbsoluteMediaUrl = (request: FastifyRequest, fileName: string) => {
-  const host = clampText(getHeaderValue(request.headers["host"]));
+  const configuredBaseUrl = getConfiguredApiPublicBaseUrl();
+  if (configuredBaseUrl) {
+    return `${configuredBaseUrl}${createMediaUrl(fileName)}`;
+  }
+
+  const forwardedHost = clampText(getHeaderValue(request.headers["x-forwarded-host"])).split(",")[0] ?? "";
+  const host = forwardedHost || clampText(getHeaderValue(request.headers["host"]));
   if (!host) {
     return createMediaUrl(fileName);
   }
 
-  return `${request.protocol}://${host}${createMediaUrl(fileName)}`;
+  const forwardedProto = clampText(getHeaderValue(request.headers["x-forwarded-proto"])).split(",")[0] ?? "";
+  const protocol = forwardedProto || request.protocol || "http";
+  return `${protocol}://${host}${createMediaUrl(fileName)}`;
 };
 
 const safeMediaFileName = (fileName: string) => {
@@ -612,6 +1038,10 @@ const persistMediaUpload = async (input: {
   if (!buffer.length) {
     throw badRequest("Uploaded media cannot be empty.");
   }
+  const maxUploadBytes = getMediaUploadMaxBytes();
+  if (buffer.byteLength > maxUploadBytes) {
+    throw badRequest(`Uploaded media exceeds the size limit of ${maxUploadBytes} bytes.`);
+  }
 
   const headerContentType = normalizeContentType(input.contentType);
   const embeddedContentType = Buffer.isBuffer(input.body) ? "" : normalizeContentType(input.body.contentType);
@@ -626,9 +1056,10 @@ const persistMediaUpload = async (input: {
 
   const mediaId = createId("media");
   const fileName = `${mediaId}${extension}`;
-  const filePath = resolve(MEDIA_UPLOADS_DIR, fileName);
+  const uploadsPath = getApiUploadsPath();
+  const filePath = resolve(uploadsPath, fileName);
 
-  await mkdir(MEDIA_UPLOADS_DIR, { recursive: true });
+  await mkdir(uploadsPath, { recursive: true });
   await writeFile(filePath, buffer);
 
   const asset: StoredMediaAsset = {
@@ -735,7 +1166,37 @@ const normalizeBackofficeRole = (value: string | undefined): BackofficeRole | nu
   return null;
 };
 
-const requireBackofficeActor = (
+const normalizeHostname = (value: string | undefined) =>
+  (value ?? "")
+    .split(",")[0]
+    .split(":")[0]
+    .trim()
+    .toLowerCase();
+
+const isLoopbackBackofficeHost = (value: string) =>
+  value === "localhost" || value === "127.0.0.1" || value === "[::1]";
+
+const isLoopbackBackofficeRequest = (request: FastifyRequest) => {
+  const forwardedHost = getHeaderValue(request.headers["x-forwarded-host"]);
+  const host = getHeaderValue(request.headers.host);
+  const hostname = normalizeHostname(forwardedHost || host || request.hostname);
+  return isLoopbackBackofficeHost(hostname);
+};
+
+const getConfiguredBackofficeSharedSecret = () =>
+  clampText(process.env.BACKOFFICE_SHARED_SECRET ?? process.env.NUUDL_BACKOFFICE_SHARED_SECRET);
+
+const normalizeBackofficeSessionId = (value: string) => {
+  const normalized = value.trim();
+  if (!normalized) {
+    return "";
+  }
+
+  return /^[a-zA-Z0-9:_-]{8,120}$/.test(normalized) ? normalized : "";
+};
+
+const resolveBackofficeActor = (
+  store: ApiStore,
   request: FastifyRequest,
   minimumRole: BackofficeRole = "moderator"
 ): BackofficeActor => {
@@ -751,35 +1212,161 @@ const requireBackofficeActor = (
     });
   }
 
-  if (BACKOFFICE_ROLE_LEVEL[role] < BACKOFFICE_ROLE_LEVEL[minimumRole]) {
-    throw forbidden("Backoffice role is not allowed for this action.", {
-      minimumRole,
-      role,
+  const configuredSecret = getConfiguredBackofficeSharedSecret();
+  const providedSecret = clampText(getHeaderValue(request.headers["x-backoffice-secret"]));
+  const baseAuthMode = configuredSecret
+    ? providedSecret === configuredSecret
+      ? "trusted_proxy"
+      : null
+    : isLoopbackBackofficeRequest(request)
+      ? "loopback_dev_headers"
+      : null;
+
+  if (!baseAuthMode) {
+    throw unauthorized("Backoffice operator session is not trusted.", {
+      expectedHeaders: ["x-admin-id", "x-admin-role", "x-backoffice-secret"],
+      loopbackFallback: "Loopback fallback only works without BACKOFFICE_SHARED_SECRET.",
+      requiredEnv: "BACKOFFICE_SHARED_SECRET",
     });
   }
 
-  return { id, role };
+  const now = new Date().toISOString();
+  const requestedSessionId = normalizeBackofficeSessionId(
+    clampText(getHeaderValue(request.headers["x-backoffice-session-id"]))
+  );
+  const authMode: BackofficeAuthMode =
+    baseAuthMode === "trusted_proxy" && requestedSessionId ? "trusted_proxy_session" : baseAuthMode;
+  const user = ensureBackofficeUser(store, {
+    id,
+    lastSeenAt: now,
+    role,
+  });
+
+  if (BACKOFFICE_ROLE_LEVEL[user.role] < BACKOFFICE_ROLE_LEVEL[minimumRole]) {
+    throw forbidden("Backoffice role is not allowed for this action.", {
+      minimumRole,
+      role: user.role,
+    });
+  }
+
+  if (user.disabledAt) {
+    throw forbidden("Backoffice user is disabled.", {
+      actorId: user.id,
+      actorRole: user.role,
+    });
+  }
+
+  const session = ensureBackofficeSession(store, {
+    authMode,
+    backofficeUserId: user.id,
+    id: requestedSessionId || createId("backoffice-session"),
+    lastSeenAt: now,
+    metadata: compactMetadata({
+      requestId: request.id,
+      sessionSource: requestedSessionId ? "proxy_header" : "ephemeral_request",
+    }),
+    roleAtIssue: user.role,
+  });
+
+  if (session.status === "revoked") {
+    throw forbidden("Backoffice session is revoked.", {
+      actorId: user.id,
+      sessionId: session.id,
+    });
+  }
+
+  return {
+    authMode,
+    id: user.id,
+    requestId: request.id,
+    role: user.role,
+    session: {
+      authMode: session.authMode,
+      createdAt: session.createdAt,
+      id: session.id,
+      lastSeenAt: session.lastSeenAt,
+      roleAtIssue: session.roleAtIssue,
+      status: session.status,
+    },
+    user: {
+      createdAt: user.createdAt,
+      disabledAt: user.disabledAt,
+      displayName: user.displayName,
+      id: user.id,
+      lastSeenAt: user.lastSeenAt,
+      role: user.role,
+    },
+  };
 };
 
 const createBackofficeMetadata = (actor: BackofficeActor, metadata: Record<string, unknown>) =>
   compactMetadata({
     actorId: actor.id,
     actorRole: actor.role,
+    authMode: actor.authMode,
+    backofficeSessionId: actor.session.id,
+    backofficeUserId: actor.user.id,
+    effectiveRole: actor.role,
+    requestId: actor.requestId,
     ...metadata,
   });
 
-const clearInstallSecurityState = (store: ApiStore, installIdentityId: string) => {
-  const clearedRestrictions = clearInstallRestrictions(store, { installIdentityId }).length;
-  let clearedRateLimitCounters = 0;
+const serializeBackofficeUser = (store: ApiStore, user: BackofficeUserRecord) => {
+  const sessions = store.backofficeSessions
+    .filter((session) => session.backofficeUserId === user.id)
+    .sort((left, right) => Date.parse(right.lastSeenAt) - Date.parse(left.lastSeenAt));
+  const activeSessions = sessions.filter((session) => session.status === "active");
 
-  for (const key of Object.keys(store.rateLimitCounters)) {
-    if (!key.includes(`install:${installIdentityId}`)) {
-      continue;
-    }
+  return {
+    ...user,
+    activeSessionCount: activeSessions.length,
+    permissions: BACKOFFICE_ROLE_PERMISSIONS[user.role],
+    revokedSessionCount: sessions.length - activeSessions.length,
+    sessions: sessions.slice(0, 5).map((session) => ({
+      authMode: session.authMode,
+      createdAt: session.createdAt,
+      id: session.id,
+      lastSeenAt: session.lastSeenAt,
+      revokedAt: session.revokedAt,
+      revocationReason: session.revocationReason,
+      roleAtIssue: session.roleAtIssue,
+      status: session.status,
+    })),
+    status: user.disabledAt ? "disabled" : "active",
+  };
+};
 
-    delete store.rateLimitCounters[key];
-    clearedRateLimitCounters += 1;
+const getActiveBackofficeOwnerCount = (store: ApiStore, excludedUserId?: string) =>
+  store.backofficeUsers.filter(
+    (user) => user.id !== excludedUserId && user.role === "owner" && !user.disabledAt
+  ).length;
+
+const assertBackofficeUserMutationAllowed = (
+  store: ApiStore,
+  actor: BackofficeActor,
+  targetUser: BackofficeUserRecord,
+  nextRole: BackofficeRole,
+  nextDisabled: boolean
+) => {
+  if (targetUser.id === actor.id && nextDisabled) {
+    throw conflict("Current owner cannot disable their own backoffice user.");
   }
+
+  if (targetUser.id === actor.id && nextRole !== "owner") {
+    throw conflict("Current owner cannot downgrade their own backoffice role.");
+  }
+
+  if (targetUser.role === "owner" && (nextRole !== "owner" || nextDisabled)) {
+    const remainingOwners = getActiveBackofficeOwnerCount(store, targetUser.id);
+    if (remainingOwners < 1) {
+      throw conflict("At least one active owner is required.");
+    }
+  }
+};
+
+const clearInstallSecurityState = async (store: ApiStore, installIdentityId: string) => {
+  const clearedRestrictions = clearInstallRestrictions(store, { installIdentityId }).length;
+  const clearedRateLimitCounters = await createRateLimitStore(store).clearByInstall(installIdentityId);
 
   const clearedRiskState = Boolean(store.deviceRiskState[installIdentityId]);
   delete store.deviceRiskState[installIdentityId];
@@ -798,6 +1385,7 @@ const INSTALL_AUTH_ROUTE_PATHS = new Set([
   "/search",
   "/account/me",
   "/account/profile",
+  "/account/devices/:installIdentityId/logout",
   "/account/channel-preferences",
   "/me",
   "/notifications",
@@ -874,20 +1462,90 @@ const getInstallIdentityForRequest = (store: ApiStore, request: FastifyRequest) 
   };
 };
 
-const buildAccountIdentity = (store: ApiStore, account: Account, profile: AccountProfile) => ({
+const buildLinkedInstallSummaries = (store: ApiStore, accountId: string, currentInstallIdentityId?: string) => {
+  const activeLinks = [...store.accountLinks]
+    .filter((link) => link.accountId === accountId && link.unlinkedAt === null)
+    .sort((left, right) => right.linkedAt.localeCompare(left.linkedAt));
+  let remoteDeviceNumber = 0;
+
+  return activeLinks
+    .map((link) => {
+      const installIdentity = getInstallIdentityById(store, link.installIdentityId);
+      if (!installIdentity || installIdentity.accountId !== accountId) {
+        return null;
+      }
+
+      const activeSessions = [...store.installSessions]
+        .filter((session) => session.installIdentityId === installIdentity.id && session.status === "active")
+        .sort((left, right) => right.lastSeenAt.localeCompare(left.lastSeenAt));
+      const latestSession = activeSessions[0] ?? null;
+      const city = getCityById(store, installIdentity.cityId);
+      const current = installIdentity.id === currentInstallIdentityId;
+      const deviceLabel = current ? "Dieses Gerät" : `Gerät ${++remoteDeviceNumber}`;
+
+      return {
+        canRemoteLogout: !current,
+        cityId: city.id,
+        cityLabel: city.label,
+        current,
+        deviceLabel,
+        installIdentityId: installIdentity.id,
+        lastSeenAt: latestSession?.lastSeenAt ?? installIdentity.createdAt,
+        linkedAt: link.linkedAt,
+        sessionCount: activeSessions.length,
+        status: activeSessions.length > 0 ? "active" : "signed_out",
+      };
+    })
+    .filter((entry): entry is NonNullable<typeof entry> => Boolean(entry));
+};
+
+const buildAccountIdentity = (
+  store: ApiStore,
+  account: Account,
+  profile: AccountProfile,
+  currentInstallIdentityId?: string,
+) => ({
   id: account.id,
   channelPreferences: Object.values(store.accountChannelPreferences)
     .filter((entry) => entry.accountId === account.id)
     .sort((left, right) => left.cityId.localeCompare(right.cityId)),
   username: account.username,
   displayName: profile.displayName,
+  bio: profile.bio,
+  avatarUrl: profile.avatarUrl,
+  isCreator: profile.isCreator,
   discoverable: account.discoverable,
   emailMasked: maskEmail(account.emailNormalized),
   emailVerified: Boolean(account.emailVerifiedAt),
-  linkedInstallCount: store.accountLinks.filter((link) => link.accountId === account.id && link.unlinkedAt === null).length,
+  linkedInstallCount: buildLinkedInstallSummaries(store, account.id, currentInstallIdentityId).length,
+  linkedInstalls: buildLinkedInstallSummaries(store, account.id, currentInstallIdentityId),
   createdAt: account.createdAt,
   lastSeenAt: account.lastSeenAt,
 });
+
+const buildAccountSearchResult = (store: ApiStore, account: Account): AccountSearchResult | null => {
+  const profile = getAccountProfile(store, account.id);
+  if (!profile) {
+    return null;
+  }
+
+  const linkedInstall = getPrimaryLinkedInstallForAccountId(store, account.id);
+  const city = linkedInstall ? getCityById(store, linkedInstall.cityId) : null;
+  const trimmedBio = profile.bio.trim();
+
+  return {
+    accountId: account.id,
+    username: account.username,
+    displayName: profile.displayName || account.username,
+    discoverable: account.discoverable,
+    isCreator: profile.isCreator,
+    cityId: city?.id,
+    cityLabel: city?.label,
+    bio: trimmedBio || null,
+    avatarUrl: profile.avatarUrl ?? null,
+    visibilityReason: profile.isCreator ? "creator" : "discoverable",
+  };
+};
 
 const buildAccountIdentityForInstall = (store: ApiStore, installIdentityId: string) => {
   const account = getAccountForInstallIdentity(store, installIdentityId);
@@ -900,7 +1558,7 @@ const buildAccountIdentityForInstall = (store: ApiStore, installIdentityId: stri
     return null;
   }
 
-  return buildAccountIdentity(store, account, profile);
+  return buildAccountIdentity(store, account, profile, installIdentityId);
 };
 
 const getLinkedInstallIdentities = (store: ApiStore, installIdentityId: string) => {
@@ -1003,17 +1661,23 @@ const migrateInstallStateToAccount = (
 
   store.posts.forEach((post) => {
     if (post.recipientInstallIdentityId === installIdentityId) {
-      post.accountId = account.id;
-      post.accountUsername = account.username;
-      post.accountDisplayName = profile.displayName;
+      const wasAccountLinked = Boolean(post.accountId);
+      post.accountId = post.accountId ?? account.id;
+      if (wasAccountLinked) {
+        post.accountUsername = post.accountUsername ?? account.username;
+        post.accountDisplayName = post.accountDisplayName ?? profile.displayName;
+      }
     }
   });
 
   store.replies.forEach((reply) => {
     if (reply.recipientInstallIdentityId === installIdentityId) {
-      reply.accountId = account.id;
-      reply.accountUsername = account.username;
-      reply.accountDisplayName = profile.displayName;
+      const wasAccountLinked = Boolean(reply.accountId);
+      reply.accountId = reply.accountId ?? account.id;
+      if (wasAccountLinked) {
+        reply.accountUsername = reply.accountUsername ?? account.username;
+        reply.accountDisplayName = reply.accountDisplayName ?? profile.displayName;
+      }
     }
   });
 
@@ -1074,7 +1738,7 @@ const requireAccountForRequest = (store: ApiStore, request: FastifyRequest) => {
 
   return {
     account,
-    accountIdentity: buildAccountIdentity(store, account, profile),
+    accountIdentity: buildAccountIdentity(store, account, profile, installIdentity.id),
     installIdentity,
     profile,
     session,
@@ -1241,10 +1905,29 @@ const decorateChatRequestForViewer = (
   const isOutgoing =
     (Boolean(params.accountId) && params.request.fromAccountId === params.accountId) ||
     params.request.fromInstallIdentityId === params.installIdentityId;
+  const counterpartAccountId = isOutgoing ? params.request.toAccountId : params.request.fromAccountId;
+  const counterpartInstallIdentityId = isOutgoing
+    ? params.request.toInstallIdentityId
+    : params.request.fromInstallIdentityId;
+  const counterpartMatchesRelatedPostAuthor = Boolean(
+    relatedPost &&
+      ((Boolean(counterpartAccountId) && relatedPost.accountId === counterpartAccountId) ||
+        relatedPost.recipientInstallIdentityId === counterpartInstallIdentityId),
+  );
+  const creatorIdentity = buildPublicCreatorIdentity(store, counterpartAccountId);
+  const fallbackCounterpartLabel = relatedPost
+    ? counterpartMatchesRelatedPostAuthor
+      ? relatedPost.authorLabel
+      : createThreadAnonLabel(relatedPost.id, counterpartInstallIdentityId)
+    : createInstallAnonLabel(counterpartInstallIdentityId);
 
   return {
     ...params.request,
-    counterpartLabel: relatedPost?.authorLabel ?? (isOutgoing ? "Person" : "Nachricht"),
+    counterpartAvatarUrl: creatorIdentity?.avatarUrl ?? undefined,
+    counterpartDisplayName: creatorIdentity?.displayName ?? undefined,
+    counterpartIsCreator: creatorIdentity?.isCreator ?? undefined,
+    counterpartLabel: creatorIdentity?.displayName ?? fallbackCounterpartLabel,
+    counterpartUsername: creatorIdentity?.username ?? undefined,
     lastActivityAt: lastMessage?.createdAt ?? params.request.createdAt,
     lastMessageAt: lastMessage?.createdAt ?? undefined,
     lastMessageOwn: lastMessage
@@ -1270,6 +1953,7 @@ type RateLimitRule = {
   blockMs?: number;
   errorCode?: "ACTION_TEMPORARILY_BLOCKED" | "RATE_LIMIT_EXCEEDED";
   limit: number;
+  message?: string;
   restrictionDurationMs?: number;
   restrictionType?: "chat_request_block" | "geo_switch_block" | "posting_block" | "reply_block" | "vote_block";
   riskIncrement?: number;
@@ -1287,8 +1971,6 @@ const getClientIpHash = (request: FastifyRequest) => {
 
 const getRateLimitUserAgentHash = (request: FastifyRequest) =>
   hashRateLimitValue(clampText(getHeaderValue(request.headers["user-agent"])).toLowerCase() || "unknown");
-
-const addDuration = (milliseconds: number) => new Date(Date.now() + milliseconds).toISOString();
 
 const GLOBAL_RATE_LIMIT_RULES: RateLimitRule[] = [
   { limit: 240, scope: "ip", windowMs: 60 * 1000 },
@@ -1325,9 +2007,9 @@ const ROUTE_RATE_LIMITS: Record<string, RateLimitRule[]> = {
     { errorCode: "ACTION_TEMPORARILY_BLOCKED", limit: 12, scope: "install", windowMs: 24 * 60 * 60 * 1000, restrictionDurationMs: 24 * 60 * 60 * 1000, restrictionType: "posting_block", riskIncrement: 15 },
   ],
   "POST /replies": [
-    { errorCode: "ACTION_TEMPORARILY_BLOCKED", limit: 4, scope: "install", windowMs: 5 * 60 * 1000, restrictionDurationMs: 30 * 60 * 1000, restrictionType: "reply_block" },
-    { errorCode: "ACTION_TEMPORARILY_BLOCKED", limit: 12, scope: "install", windowMs: 60 * 60 * 1000, restrictionDurationMs: 30 * 60 * 1000, restrictionType: "reply_block", riskIncrement: 8 },
-    { errorCode: "ACTION_TEMPORARILY_BLOCKED", limit: 40, scope: "install", windowMs: 24 * 60 * 60 * 1000, restrictionDurationMs: 12 * 60 * 60 * 1000, restrictionType: "reply_block", riskIncrement: 12 },
+    { errorCode: "ACTION_TEMPORARILY_BLOCKED", limit: 10, message: "Du warst gerade sehr schnell. Warte kurz, dann kannst du weiter antworten.", scope: "install", windowMs: 2 * 60 * 1000 },
+    { errorCode: "ACTION_TEMPORARILY_BLOCKED", limit: 30, message: "Antworten ist für dieses Gerät gerade kurz pausiert.", scope: "install", windowMs: 30 * 60 * 1000, restrictionDurationMs: 15 * 60 * 1000, restrictionType: "reply_block", riskIncrement: 6 },
+    { errorCode: "ACTION_TEMPORARILY_BLOCKED", limit: 100, message: "Antworten ist für dieses Gerät gerade kurz pausiert.", scope: "install", windowMs: 24 * 60 * 60 * 1000, restrictionDurationMs: 12 * 60 * 60 * 1000, restrictionType: "reply_block", riskIncrement: 12 },
   ],
   "POST /votes": [
     { limit: 10, scope: "install", windowMs: 60 * 1000, riskIncrement: 6 },
@@ -1336,7 +2018,7 @@ const ROUTE_RATE_LIMITS: Record<string, RateLimitRule[]> = {
   ],
 };
 
-const consumeRateLimit = (
+const consumeRateLimit = async (
   store: ApiStore,
   params: {
     installIdentityId?: string;
@@ -1359,23 +2041,23 @@ const consumeRateLimit = (
         ? `ip_ua:${ipHash}:${userAgentHash}`
         : `ip:${ipHash}`;
   const counterKey = `rl:${params.routeName}:${scopeKey}:${params.rule.windowMs}`;
-  const counter = getRateLimitCounter(store, counterKey, now, params.rule.windowMs);
+  const rateLimit = await createRateLimitStore(store).hit({
+    blockMs: params.rule.blockMs,
+    key: counterKey,
+    limit: params.rule.limit,
+    nowIso: now,
+    windowMs: params.rule.windowMs,
+  });
 
-  if (counter.blockedUntil && Date.parse(counter.blockedUntil) > Date.now()) {
-    throw actionTemporarilyBlocked("Too many requests. Try again later.", {
-      retryAfterSeconds: Math.max(1, Math.ceil((Date.parse(counter.blockedUntil) - Date.now()) / 1000)),
-      route: params.routeName,
-    });
-  }
-
-  counter.count += 1;
-  if (counter.count <= params.rule.limit) {
+  if (!rateLimit.blocked) {
     return;
   }
 
-  counter.lastExceededAt = now;
-  if (params.rule.blockMs) {
-    counter.blockedUntil = addDuration(params.rule.blockMs);
+  if (!rateLimit.exceeded) {
+    throw actionTemporarilyBlocked("Too many requests. Try again later.", {
+      retryAfterSeconds: rateLimit.retryAfterSeconds,
+      route: params.routeName,
+    });
   }
 
   recordAbuseEvent(store, {
@@ -1412,12 +2094,10 @@ const consumeRateLimit = (
     });
   }
 
-  const retryAfterSeconds = counter.blockedUntil
-    ? Math.max(1, Math.ceil((Date.parse(counter.blockedUntil) - Date.now()) / 1000))
-    : Math.max(1, Math.ceil((Date.parse(counter.windowEndsAt) - Date.now()) / 1000));
+  const retryAfterSeconds = rateLimit.retryAfterSeconds;
 
   if (params.rule.errorCode === "ACTION_TEMPORARILY_BLOCKED") {
-    throw actionTemporarilyBlocked("Too many requests. Try again later.", {
+    throw actionTemporarilyBlocked(params.rule.message ?? "Too many requests. Try again later.", {
       retryAfterSeconds,
       route: params.routeName,
     });
@@ -1429,27 +2109,61 @@ const consumeRateLimit = (
   });
 };
 
-const enforceRateLimits = (store: ApiStore, request: FastifyRequest, routeName: string, installIdentityId?: string) => {
+const enforceRateLimits = async (store: ApiStore, request: FastifyRequest, routeName: string, installIdentityId?: string) => {
   for (const rule of GLOBAL_RATE_LIMIT_RULES) {
-    consumeRateLimit(store, { installIdentityId, request, routeName: "GLOBAL", rule });
+    await consumeRateLimit(store, { installIdentityId, request, routeName: "GLOBAL", rule });
   }
 
   for (const rule of ROUTE_RATE_LIMITS[routeName] ?? []) {
-    consumeRateLimit(store, { installIdentityId, request, routeName, rule });
+    await consumeRateLimit(store, { installIdentityId, request, routeName, rule });
   }
+};
+
+const getRestrictionActorInstallIds = (store: ApiStore, installIdentityId: string) => {
+  const installIds = new Set([installIdentityId]);
+  const installIdentity = getInstallIdentityById(store, installIdentityId);
+  if (!installIdentity?.accountId) {
+    return [...installIds];
+  }
+
+  for (const linkedInstall of store.installIdentities) {
+    if (linkedInstall.accountId === installIdentity.accountId) {
+      installIds.add(linkedInstall.id);
+    }
+  }
+
+  for (const link of store.accountLinks) {
+    if (link.accountId === installIdentity.accountId && link.unlinkedAt === null) {
+      installIds.add(link.installIdentityId);
+    }
+  }
+
+  return [...installIds];
+};
+
+const getActiveActorRestriction = (store: ApiStore, installIdentityId: string, type: RestrictionType) => {
+  for (const sourceInstallIdentityId of getRestrictionActorInstallIds(store, installIdentityId)) {
+    const restriction = getActiveRestriction(store, sourceInstallIdentityId, type);
+    if (restriction) {
+      return { restriction, sourceInstallIdentityId };
+    }
+  }
+
+  return null;
 };
 
 const assertInstallRestriction = (
   store: ApiStore,
   installIdentityId: string,
-  type: "chat_request_block" | "geo_switch_block" | "posting_block" | "read_only" | "reply_block" | "vote_block",
+  type: RestrictionType,
   routeName: string,
 ) => {
-  const readOnly = getActiveRestriction(store, installIdentityId, "read_only");
+  const readOnly = getActiveActorRestriction(store, installIdentityId, "read_only");
   if (readOnly) {
     throw actionTemporarilyBlocked("This install is temporarily read-only.", {
-      endsAt: readOnly.endsAt,
+      endsAt: readOnly.restriction.endsAt,
       route: routeName,
+      sourceInstallIdentityId: readOnly.sourceInstallIdentityId,
       type: "read_only",
     });
   }
@@ -1458,24 +2172,26 @@ const assertInstallRestriction = (
     return;
   }
 
-  const specificRestriction = getActiveRestriction(store, installIdentityId, type);
+  const specificRestriction = getActiveActorRestriction(store, installIdentityId, type);
   if (!specificRestriction) {
     return;
   }
 
   throw actionTemporarilyBlocked("This action is temporarily blocked.", {
-    endsAt: specificRestriction.endsAt,
+    endsAt: specificRestriction.restriction.endsAt,
     route: routeName,
+    sourceInstallIdentityId: specificRestriction.sourceInstallIdentityId,
     type,
   });
 };
 
 const assertInstallNotReadOnly = (store: ApiStore, installIdentityId: string, routeName: string) => {
-  const readOnly = getActiveRestriction(store, installIdentityId, "read_only");
+  const readOnly = getActiveActorRestriction(store, installIdentityId, "read_only");
   if (readOnly) {
     throw actionTemporarilyBlocked("This install is temporarily read-only.", {
-      endsAt: readOnly.endsAt,
+      endsAt: readOnly.restriction.endsAt,
       route: routeName,
+      sourceInstallIdentityId: readOnly.sourceInstallIdentityId,
       type: "read_only",
     });
   }
@@ -1492,6 +2208,14 @@ const getCurrentWallet = (store: ApiStore) => {
 const ONE_MINUTE_MS = 1000 * 60;
 const ONE_HOUR_MS = ONE_MINUTE_MS * 60;
 const ONE_DAY_MS = ONE_HOUR_MS * 24;
+const GEO_CITY_SWITCH_COOLDOWN_MS = 15 * ONE_MINUTE_MS;
+const GEO_UNREALISTIC_JUMP_WINDOW_MS = 2 * ONE_HOUR_MS;
+const GEO_UNREALISTIC_JUMP_DISTANCE_KM = 250;
+const GEO_UNREALISTIC_JUMP_SPEED_KMH = 650;
+const VOTE_DAMPING_WINDOWS = [
+  { limit: 12, windowMs: ONE_MINUTE_MS, windowName: "1m" },
+  { limit: 45, windowMs: 10 * ONE_MINUTE_MS, windowName: "10m" },
+];
 
 const hashValue = (value: string) => createHash("sha256").update(value).digest("hex");
 
@@ -1518,7 +2242,7 @@ const countUrls = (value: string) => (value.match(/https?:\/\/\S+/gi) ?? []).len
 const buildRateLimitKey = (routeName: string, dimension: string, identity: string, windowName: string) =>
   `rl:${routeName}:${dimension}:${identity}:${windowName}`;
 
-const hitRateLimit = (
+const hitRateLimit = async (
   store: ApiStore,
   routeName: string,
   dimension: string,
@@ -1528,37 +2252,28 @@ const hitRateLimit = (
   limit: number,
 ) => {
   const nowIso = new Date().toISOString();
-  const counter = getRateLimitCounter(store, buildRateLimitKey(routeName, dimension, identity, windowName), nowIso, windowMs);
+  const result = await createRateLimitStore(store).hit({
+    key: buildRateLimitKey(routeName, dimension, identity, windowName),
+    limit,
+    nowIso,
+    windowMs,
+  });
 
-  if (counter.blockedUntil && Date.parse(counter.blockedUntil) > Date.now()) {
-    return {
-      blocked: true,
-      count: counter.count,
-      retryAfterSeconds: Math.max(1, Math.ceil((Date.parse(counter.blockedUntil) - Date.now()) / 1000)),
-    };
-  }
-
-  counter.count += 1;
-  if (counter.count <= limit) {
-    return { blocked: false, count: counter.count, retryAfterSeconds: 0 };
-  }
-
-  counter.lastExceededAt = nowIso;
   return {
-    blocked: true,
-    count: counter.count,
-    retryAfterSeconds: Math.max(1, Math.ceil((Date.parse(counter.windowEndsAt) - Date.now()) / 1000)),
+    blocked: result.blocked,
+    count: result.count,
+    retryAfterSeconds: result.retryAfterSeconds,
   };
 };
 
-const assertRouteRateLimit = (
+const assertRouteRateLimit = async (
   store: ApiStore,
   request: FastifyRequest,
   routeName: string,
   rules: Array<{ dimension: "install" | "ip" | "ua"; identity: string; windowMs: number; windowName: string; limit: number }>,
 ) => {
   for (const rule of rules) {
-    const result = hitRateLimit(store, routeName, rule.dimension, rule.identity, rule.windowName, rule.windowMs, rule.limit);
+    const result = await hitRateLimit(store, routeName, rule.dimension, rule.identity, rule.windowName, rule.windowMs, rule.limit);
     if (!result.blocked) {
       continue;
     }
@@ -1585,14 +2300,195 @@ const assertRouteRateLimit = (
   }
 };
 
+const isFiniteNumber = (value: unknown): value is number => typeof value === "number" && Number.isFinite(value);
+
+const coordinatesForCity = (store: ApiStore, cityId: string | undefined) => {
+  const city = cityId ? store.cities.find((entry) => entry.id === cityId) : null;
+  return city ? { lat: city.lat, lng: city.lng } : null;
+};
+
+const coordinatesForGeoEvent = (store: ApiStore, event: { cityId?: string; lat?: number; lng?: number }) => {
+  if (isFiniteNumber(event.lat) && isFiniteNumber(event.lng)) {
+    return { lat: event.lat, lng: event.lng };
+  }
+
+  return coordinatesForCity(store, event.cityId);
+};
+
+const distanceKm = (from: { lat: number; lng: number }, to: { lat: number; lng: number }) => {
+  const earthRadiusKm = 6371;
+  const toRadians = (value: number) => (value * Math.PI) / 180;
+  const dLat = toRadians(to.lat - from.lat);
+  const dLng = toRadians(to.lng - from.lng);
+  const startLat = toRadians(from.lat);
+  const endLat = toRadians(to.lat);
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(startLat) * Math.cos(endLat) * Math.sin(dLng / 2) ** 2;
+  return 2 * earthRadiusKm * Math.asin(Math.min(1, Math.sqrt(a)));
+};
+
+const getLatestGeoEventForActor = (store: ApiStore, installIdentityId: string, accountId?: string | null) =>
+  store.geoEvents
+    .filter((event) => event.installIdentityId === installIdentityId || (accountId && event.accountId === accountId))
+    .sort((left, right) => Date.parse(right.createdAt) - Date.parse(left.createdAt))[0] ?? null;
+
+const recordBlockedGeoEvent = (
+  store: ApiStore,
+  params: {
+    accountId?: string;
+    cityId: string;
+    installIdentityId: string;
+    kind: string;
+    lat?: number;
+    lng?: number;
+    metadata: Record<string, unknown>;
+    riskDelta: number;
+  },
+) => {
+  recordGeoEvent(store, {
+    installIdentityId: params.installIdentityId,
+    accountId: params.accountId,
+    cityId: params.cityId,
+    lat: params.lat,
+    lng: params.lng,
+    kind: params.kind,
+    riskDelta: params.riskDelta,
+    metadata: params.metadata,
+  });
+  recordAbuseEvent(store, {
+    installIdentityId: params.installIdentityId,
+    accountId: params.accountId,
+    routeName: "POST /geo/resolve",
+    kind: params.kind,
+    metadata: params.metadata,
+  });
+  incrementRiskScore(store, params.installIdentityId, params.riskDelta, {
+    ...params.metadata,
+    kind: params.kind,
+    routeName: "POST /geo/resolve",
+  });
+};
+
+const assertGeoResolveAllowed = (
+  store: ApiStore,
+  params: {
+    city: ReturnType<typeof getCityById>;
+    installIdentityId: string;
+    lat?: number;
+    lng?: number;
+  },
+) => {
+  const installIdentity = getInstallIdentityById(store, params.installIdentityId);
+  const accountId = installIdentity?.accountId;
+  const latestGeoEvent = getLatestGeoEventForActor(store, params.installIdentityId, accountId);
+  if (!latestGeoEvent) {
+    return;
+  }
+
+  const latestCreatedAt = Date.parse(latestGeoEvent.createdAt);
+  const ageMs = Date.now() - latestCreatedAt;
+  const isCitySwitch = Boolean(latestGeoEvent.cityId && latestGeoEvent.cityId !== params.city.id);
+
+  if (isCitySwitch && ageMs >= 0 && ageMs < GEO_CITY_SWITCH_COOLDOWN_MS) {
+    const retryAfterSeconds = Math.max(1, Math.ceil((GEO_CITY_SWITCH_COOLDOWN_MS - ageMs) / 1000));
+    const metadata = compactMetadata({
+      fromCityId: latestGeoEvent.cityId,
+      toCityId: params.city.id,
+      retryAfterSeconds,
+      windowMs: GEO_CITY_SWITCH_COOLDOWN_MS,
+    });
+
+    recordBlockedGeoEvent(store, {
+      installIdentityId: params.installIdentityId,
+      accountId,
+      cityId: params.city.id,
+      lat: params.lat,
+      lng: params.lng,
+      kind: "geo_switch_cooldown_blocked",
+      riskDelta: 4,
+      metadata,
+    });
+    applyActionRestriction(
+      store,
+      params.installIdentityId,
+      "POST /geo/resolve",
+      "geo_switch_block",
+      Math.min(GEO_CITY_SWITCH_COOLDOWN_MS, retryAfterSeconds * 1000),
+      "geo_switch_cooldown",
+      metadata,
+    );
+
+    throw actionTemporarilyBlocked("City switching is temporarily paused for this device.", {
+      retryAfterSeconds,
+      route: "POST /geo/resolve",
+      type: "geo_switch_block",
+    });
+  }
+
+  if (!isFiniteNumber(params.lat) || !isFiniteNumber(params.lng) || ageMs < 0 || ageMs > GEO_UNREALISTIC_JUMP_WINDOW_MS) {
+    return;
+  }
+
+  const previousCoordinates = coordinatesForGeoEvent(store, latestGeoEvent);
+  if (!previousCoordinates) {
+    return;
+  }
+
+  const nextCoordinates = { lat: params.lat, lng: params.lng };
+  const traveledKm = distanceKm(previousCoordinates, nextCoordinates);
+  const hours = Math.max(ageMs / ONE_HOUR_MS, 1 / 60);
+  const speedKmh = traveledKm / hours;
+  const isUnrealisticJump =
+    traveledKm >= GEO_UNREALISTIC_JUMP_DISTANCE_KM && speedKmh >= GEO_UNREALISTIC_JUMP_SPEED_KMH;
+
+  if (!isUnrealisticJump) {
+    return;
+  }
+
+  const metadata = compactMetadata({
+    fromCityId: latestGeoEvent.cityId,
+    toCityId: params.city.id,
+    traveledKm: Math.round(traveledKm),
+    speedKmh: Math.round(speedKmh),
+    windowMs: ageMs,
+  });
+
+  recordBlockedGeoEvent(store, {
+    installIdentityId: params.installIdentityId,
+    accountId,
+    cityId: params.city.id,
+    lat: params.lat,
+    lng: params.lng,
+    kind: "geo_unrealistic_jump_blocked",
+    riskDelta: 12,
+    metadata,
+  });
+  applyActionRestriction(
+    store,
+    params.installIdentityId,
+    "POST /geo/resolve",
+    "geo_switch_block",
+    ONE_HOUR_MS,
+    "geo_unrealistic_jump",
+    metadata,
+  );
+
+  throw suspiciousActivity("Suspicious location change detected.", {
+    route: "POST /geo/resolve",
+    type: "geo_unrealistic_jump",
+  });
+};
+
 const assertRestrictionClear = (
   store: ApiStore,
   installIdentityId: string,
   routeName: string,
-  types: Array<"posting_block" | "reply_block" | "vote_block" | "chat_request_block" | "geo_switch_block" | "read_only">,
+  types: RestrictionType[],
 ) => {
   for (const type of types) {
-    const restriction = getActiveRestriction(store, installIdentityId, type);
+    const result = getActiveActorRestriction(store, installIdentityId, type);
+    const restriction = result?.restriction;
     if (!restriction) {
       continue;
     }
@@ -1602,15 +2498,18 @@ const assertRestrictionClear = (
       reasonCode: restriction.reasonCode,
       route: routeName,
       restrictionType: type,
+      sourceInstallIdentityId: result.sourceInstallIdentityId,
     });
   }
 };
+
+type ActionRestrictionType = Exclude<RestrictionType, "read_only">;
 
 const applyActionRestriction = (
   store: ApiStore,
   installIdentityId: string,
   routeName: string,
-  type: "posting_block" | "reply_block" | "vote_block" | "chat_request_block" | "geo_switch_block",
+  type: ActionRestrictionType,
   durationMs: number,
   reasonCode: string,
   metadata: Record<string, unknown> = {},
@@ -1657,17 +2556,27 @@ const assertPostCooldown = (store: ApiStore, installIdentityId: string) => {
 };
 
 const assertReplyCooldown = (store: ApiStore, installIdentityId: string) => {
-  const latestOwnReply = store.replies.find((reply) => reply.recipientInstallIdentityId === installIdentityId);
+  const latestOwnReply = store.replies.reduce<Reply | null>((latestReply, reply) => {
+    if (reply.recipientInstallIdentityId !== installIdentityId) {
+      return latestReply;
+    }
+
+    if (!latestReply || Date.parse(reply.createdAt) > Date.parse(latestReply.createdAt)) {
+      return reply;
+    }
+
+    return latestReply;
+  }, null);
   if (!latestOwnReply) {
     return;
   }
 
-  const cooldownEndsAt = Date.parse(latestOwnReply.createdAt) + 1000 * 20;
+  const cooldownEndsAt = Date.parse(latestOwnReply.createdAt) + 1000 * 8;
   if (cooldownEndsAt <= Date.now()) {
     return;
   }
 
-  throw actionTemporarilyBlocked("Please wait before replying again.", {
+  throw actionTemporarilyBlocked("Kurz warten, dann kannst du direkt weiter antworten.", {
     retryAfterSeconds: Math.max(1, Math.ceil((cooldownEndsAt - Date.now()) / 1000)),
     route: "POST /replies",
   });
@@ -1721,6 +2630,68 @@ const assertNoDuplicateReply = (store: ApiStore, installIdentityId: string, post
   }
 };
 
+const assertVoteDamping = async (
+  store: ApiStore,
+  request: FastifyRequest,
+  actor: { accountId?: string | null; installIdentityId: string },
+) => {
+  const actorIdentity = actor.accountId ? `account:${actor.accountId}` : `install:${actor.installIdentityId}`;
+  const actorDimension = actor.accountId ? "account" : "install";
+
+  for (const window of VOTE_DAMPING_WINDOWS) {
+    const result = await hitRateLimit(
+      store,
+      "POST /votes",
+      actorDimension,
+      actorIdentity,
+      `vote-${window.windowName}`,
+      window.windowMs,
+      window.limit,
+    );
+    if (!result.blocked) {
+      continue;
+    }
+
+    const metadata = {
+      actorDimension,
+      count: result.count,
+      limit: window.limit,
+      retryAfterSeconds: result.retryAfterSeconds,
+      windowMs: window.windowMs,
+      windowName: window.windowName,
+    };
+
+    recordAbuseEvent(store, {
+      installIdentityId: actor.installIdentityId,
+      accountId: actor.accountId ?? undefined,
+      ipHash: getRequestIpHash(request),
+      routeName: "POST /votes",
+      kind: "vote_burst_damped",
+      metadata,
+    });
+    incrementRiskScore(store, actor.installIdentityId, 8, {
+      ...metadata,
+      kind: "vote_burst_damped",
+      routeName: "POST /votes",
+    });
+    applyActionRestriction(
+      store,
+      actor.installIdentityId,
+      "POST /votes",
+      "vote_block",
+      30 * ONE_MINUTE_MS,
+      "vote_burst_damped",
+      metadata,
+    );
+
+    throw actionTemporarilyBlocked("Voting is temporarily slowed down for this account.", {
+      retryAfterSeconds: result.retryAfterSeconds,
+      route: "POST /votes",
+      type: "vote_block",
+    });
+  }
+};
+
 const applyVote = (
   store: ApiStore,
   body: VoteBody,
@@ -1743,6 +2714,9 @@ const applyVote = (
     delete store.votes[key];
   } else {
     store.votes[key] = {
+      accountId: actor.accountId ?? undefined,
+      actorKey,
+      installIdentityId: actor.installIdentityId,
       targetId: body.targetId,
       targetType: body.targetType,
       value: nextVote,
@@ -1996,6 +2970,7 @@ const updateModerationState = (store: ApiStore, body: ModerationActionBody, acto
     throw notFound("Moderation case not found.");
   }
 
+  const now = new Date().toISOString();
   const target = getTargetByType(store, caseItem.targetType as "post" | "reply", caseItem.targetId);
   const targetModeration = moderationLabel(body.action);
 
@@ -2016,9 +2991,20 @@ const updateModerationState = (store: ApiStore, body: ModerationActionBody, acto
             : body.action === "dismiss"
               ? "dismissed"
               : "reviewed";
-      report.updatedAt = new Date().toISOString();
+      report.updatedAt = now;
     }
   });
+
+  const moderationAction: ModerationAction = {
+    id: createId("mod-action"),
+    moderationCaseId: caseItem.id,
+    actorId: actor.id,
+    actorLabel: `${actor.role}:${actor.id}`,
+    action: body.action,
+    note: body.note ?? "",
+    createdAt: now,
+  };
+  store.moderationActions.unshift(moderationAction);
 
   recordAudit(store, {
     actorType: "admin",
@@ -2054,6 +3040,38 @@ const updateModerationState = (store: ApiStore, body: ModerationActionBody, acto
   createSystemNotification(store, `Moderation case ${caseItem.id} was ${body.action}.`, "moderation");
 
   return caseItem;
+};
+
+const getOrCreatePayoutAccount = (
+  store: ApiStore,
+  application: CreatorApplicationRecord,
+  checkedAt: string
+): PayoutAccount => {
+  const existing = store.payoutAccounts.find(
+    (account) =>
+      account.installIdentityId === application.installIdentityId &&
+      account.accountId === application.accountId &&
+      account.state === "ready",
+  );
+
+  if (existing) {
+    existing.lastCheckedAt = checkedAt;
+    return existing;
+  }
+
+  const payoutAccount: PayoutAccount = {
+    id: createId("payout-account"),
+    installIdentityId: application.installIdentityId,
+    accountId: application.accountId,
+    provider: "manual",
+    label: application.accountDisplayName
+      ? `${application.accountDisplayName} manual payout`
+      : `Manual payout ${application.installIdentityId}`,
+    state: "ready",
+    lastCheckedAt: checkedAt,
+  };
+  store.payoutAccounts.unshift(payoutAccount);
+  return payoutAccount;
 };
 
 const assertAdultGateAccepted = (store: ApiStore) => {
@@ -2174,6 +3192,9 @@ const registerContentTypeParserOnce = (
 
 export const registerRoutes = async (app: FastifyInstance, storeOverride?: ApiStore) => {
   const store = storeOverride ?? (await createStore());
+  await initializeRateLimitStore();
+  const requireBackofficeActor = (request: FastifyRequest, minimumRole: BackofficeRole = "moderator") =>
+    resolveBackofficeActor(store, request, minimumRole);
   registerContentTypeParserOnce(app, /^image\/.+$/i, (_request, body, done) => {
     done(null, body);
   });
@@ -2188,10 +3209,20 @@ export const registerRoutes = async (app: FastifyInstance, storeOverride?: ApiSt
       installIdentityId = requireInstallSession(store, request).installIdentityId;
     }
 
-    enforceRateLimits(store, request, routeName, installIdentityId);
+    await enforceRateLimits(store, request, routeName, installIdentityId);
   });
 
   app.get("/health", async () => ({ ok: true, service: "veil-api" }));
+
+  app.post<{ Body: { betaInviteCode?: string } }>("/beta/invite/check", async (request) => {
+    const invite = assertBetaInviteCode(request.body?.betaInviteCode);
+
+    return {
+      codeHash: invite.codeHash,
+      required: invite.required,
+      valid: true,
+    };
+  });
 
   app.get("/me", async (request) => {
     const { account, installIdentity, session } = getInstallIdentityForRequest(store, request);
@@ -2237,7 +3268,23 @@ export const registerRoutes = async (app: FastifyInstance, storeOverride?: ApiSt
         const currentInstallIdentity = existingSession
           ? getInstallIdentityById(store, existingSession.installIdentityId)
           : null;
+        if (currentInstallIdentity) {
+          assertInstallRestriction(store, currentInstallIdentity.id, "geo_switch_block", "POST /install/register");
+          assertGeoResolveAllowed(store, {
+            city,
+            installIdentityId: currentInstallIdentity.id,
+            lat: request.body?.lat,
+            lng: request.body?.lng,
+          });
+        }
+
         const accepted = request.body?.adultGateAccepted ?? currentInstallIdentity?.adultGateAccepted ?? false;
+        const invite = currentInstallIdentity
+          ? {
+              codeHash: undefined as string | undefined,
+              required: false,
+            }
+          : assertBetaInviteCode(request.body?.betaInviteCode);
         const installIdentity =
           currentInstallIdentity ??
           {
@@ -2272,7 +3319,24 @@ export const registerRoutes = async (app: FastifyInstance, storeOverride?: ApiSt
           metadata: {
             cityId: city.id,
             adultGateAccepted: accepted,
+            betaInviteCodeHash: invite.codeHash,
+            betaInviteRequired: invite.required,
           },
+        });
+
+        recordGeoEvent(store, {
+          installIdentityId: installIdentity.id,
+          accountId: installIdentity.accountId,
+          cityId: city.id,
+          lat: request.body?.lat,
+          lng: request.body?.lng,
+          kind: currentInstallIdentity ? "install_city_refresh" : "install_register",
+          riskDelta: 0,
+          metadata: compactMetadata({
+            cityId: city.id,
+            citySlug: request.body?.citySlug,
+            hasCoordinates: typeof request.body?.lat === "number" && typeof request.body?.lng === "number",
+          }),
         });
 
         const sessionBundle = issueInstallSession(store, installIdentity.id);
@@ -2303,7 +3367,7 @@ export const registerRoutes = async (app: FastifyInstance, storeOverride?: ApiSt
         const refreshTokenHash = createHash("sha256").update(providedRefreshToken).digest("hex");
         const refreshTokenRecord = store.refreshTokens.find((entry) => entry.tokenHash === refreshTokenHash) ?? null;
         if (refreshTokenRecord?.installIdentityId) {
-          assertRouteRateLimit(store, request, "POST /auth/refresh", [
+          await assertRouteRateLimit(store, request, "POST /auth/refresh", [
             {
               dimension: "install",
               identity: refreshTokenRecord.installIdentityId,
@@ -2486,6 +3550,11 @@ export const registerRoutes = async (app: FastifyInstance, storeOverride?: ApiSt
           displayName: request.body?.displayName,
           username: request.body?.username,
         }));
+    const existingByUsername = findAccountByUsername(store, username);
+    if (existingByUsername && existingByUsername.emailNormalized !== emailNormalized) {
+      throw conflict("Username is already reserved.");
+    }
+
     const verifiedCode = verifyAccountLoginCode(store, {
       code,
       emailNormalized,
@@ -2493,14 +3562,23 @@ export const registerRoutes = async (app: FastifyInstance, storeOverride?: ApiSt
       username,
     });
 
-    const linked = linkInstallIdentityToAccount(store, {
-      accountId: existingAccount?.id ?? installIdentity.accountId ?? "",
-      displayName: clampText(request.body?.displayName) || installIdentity.accountDisplayName || existingAccount?.username || verifiedCode.username,
-      discoverable: request.body?.discoverable ?? existingAccount?.discoverable ?? false,
-      emailNormalized,
-      installIdentityId: installIdentity.id,
-      username: existingAccount?.username ?? verifiedCode.username,
-    });
+    let linked: ReturnType<typeof linkInstallIdentityToAccount>;
+    try {
+      linked = linkInstallIdentityToAccount(store, {
+        accountId: existingAccount?.id ?? installIdentity.accountId ?? "",
+        displayName: clampText(request.body?.displayName) || installIdentity.accountDisplayName || existingAccount?.username || verifiedCode.username,
+        discoverable: request.body?.discoverable ?? existingAccount?.discoverable ?? false,
+        emailNormalized,
+        installIdentityId: installIdentity.id,
+        username: existingAccount?.username ?? verifiedCode.username,
+      });
+    } catch (error) {
+      if (error instanceof Error && error.message === "account_identity_conflict") {
+        throw conflict("Account identity conflict.");
+      }
+
+      throw error;
+    }
     migrateInstallStateToAccount(store, {
       account: linked.account,
       installIdentityId: installIdentity.id,
@@ -2533,7 +3611,7 @@ export const registerRoutes = async (app: FastifyInstance, storeOverride?: ApiSt
     });
 
     return {
-      account: buildAccountIdentity(store, linked.account, linked.profile),
+      account: buildAccountIdentity(store, linked.account, linked.profile, installIdentity.id),
       installIdentity: linked.installIdentity,
       message: existingAccount ? "Gerät mit vorhandenem Account verknüpft." : "Account erstellt und mit diesem Gerät verknüpft.",
       session: installSession,
@@ -2581,8 +3659,64 @@ export const registerRoutes = async (app: FastifyInstance, storeOverride?: ApiSt
     }
 
     return {
-      account: buildAccountIdentity(store, account, profile),
+      account: buildAccountIdentity(store, account, profile, installIdentity.id),
       channelPreferences: getAccountChannelPreferencesForCity(store, account.id, installIdentity.cityId),
+    };
+  });
+
+  app.post<{ Params: { installIdentityId: string } }>("/account/devices/:installIdentityId/logout", async (request) => {
+    const { account, installIdentity, profile, session } = requireAccountForRequest(store, request);
+    const targetInstallIdentityId = clampText(request.params.installIdentityId);
+
+    if (!targetInstallIdentityId) {
+      throw validationError("Install identity is required.", { fieldName: "installIdentityId" });
+    }
+
+    if (targetInstallIdentityId === installIdentity.id) {
+      throw validationError("Use /auth/logout for the current device.", { fieldName: "installIdentityId" });
+    }
+
+    const historicalLink =
+      store.accountLinks.find(
+        (link) => link.accountId === account.id && link.installIdentityId === targetInstallIdentityId,
+      ) ?? null;
+
+    if (!historicalLink) {
+      throw notFound("Linked device not found.");
+    }
+
+    const targetInstallIdentity = getInstallIdentityById(store, targetInstallIdentityId);
+    const alreadyLoggedOut = historicalLink.unlinkedAt !== null || targetInstallIdentity?.accountId !== account.id;
+
+    if (alreadyLoggedOut) {
+      return {
+        account: buildAccountIdentity(store, account, profile, session.installIdentityId),
+        message: "Gerät ist bereits abgemeldet.",
+        revokedSessions: 0,
+      };
+    }
+
+    const revoked = revokeInstallSessions(store, targetInstallIdentityId, "remote_account_logout");
+    unlinkInstallIdentityFromAccount(store, targetInstallIdentityId);
+
+    recordAudit(store, {
+      actorType: "install",
+      actorId: session.installIdentityId,
+      action: "account.device_logout",
+      entityType: "install_identity",
+      entityId: targetInstallIdentityId,
+      metadata: {
+        accountId: account.id,
+        currentInstallIdentityId: installIdentity.id,
+        revokedRefreshTokens: revoked.revokedRefreshTokens,
+        revokedSessions: revoked.revokedSessions,
+      },
+    });
+
+    return {
+      account: buildAccountIdentity(store, account, profile, session.installIdentityId),
+      message: "Gerät wurde abgemeldet.",
+      revokedSessions: revoked.revokedSessions,
     };
   });
 
@@ -2599,6 +3733,9 @@ export const registerRoutes = async (app: FastifyInstance, storeOverride?: ApiSt
     }
 
     profile.displayName = clampText(request.body?.displayName) || profile.displayName;
+    if (typeof request.body?.bio === "string") {
+      profile.bio = clampText(request.body.bio);
+    }
     account.discoverable = request.body?.discoverable ?? account.discoverable;
     account.lastSeenAt = new Date().toISOString();
 
@@ -2612,7 +3749,7 @@ export const registerRoutes = async (app: FastifyInstance, storeOverride?: ApiSt
     setCurrentInstallIdentity(store, session.installIdentityId);
 
     return {
-      account: buildAccountIdentity(store, account, profile),
+      account: buildAccountIdentity(store, account, profile, session.installIdentityId),
     };
   });
 
@@ -2672,29 +3809,15 @@ export const registerRoutes = async (app: FastifyInstance, storeOverride?: ApiSt
             (!needle || account.username.includes(needle) || profile?.displayName.toLowerCase().includes(needle))
           );
         })
-        .map((account) => {
-          const profile = getAccountProfile(store, account.id);
-          const linkedInstall = getPrimaryLinkedInstallForAccountId(store, account.id);
-          return profile
-            ? {
-                accountId: account.id,
-                cityId: linkedInstall?.cityId,
-                cityLabel: linkedInstall?.cityLabel,
-                discoverable: account.discoverable,
-                displayName: profile.displayName,
-                isCreator: profile.isCreator,
-                username: account.username,
-              }
-            : null;
-        })
-        .filter((account): account is NonNullable<typeof account> => Boolean(account)),
+        .map((account) => buildAccountSearchResult(store, account))
+        .filter((account): account is AccountSearchResult => Boolean(account)),
     };
   });
 
   app.post<{ Body: ResolveBody }>("/geo/resolve", async (request) => {
     const accessToken = getRequestAccessToken(request);
+    const session = accessToken ? authenticateInstallSession(store, accessToken) : null;
     if (accessToken) {
-      const session = authenticateInstallSession(store, accessToken);
       if (session) {
         assertInstallRestriction(store, session.installIdentityId, "geo_switch_block", "POST /geo/resolve");
       }
@@ -2703,6 +3826,30 @@ export const registerRoutes = async (app: FastifyInstance, storeOverride?: ApiSt
     const city = request.body?.cityQuery
       ? getCityByQuery(store, request.body.cityQuery)
       : resolveCityFromCoordinates(store, request.body?.lat, request.body?.lng);
+    const installIdentity = session ? getInstallIdentityById(store, session.installIdentityId) : null;
+    if (session) {
+      assertGeoResolveAllowed(store, {
+        city,
+        installIdentityId: session.installIdentityId,
+        lat: request.body?.lat,
+        lng: request.body?.lng,
+      });
+    }
+
+    recordGeoEvent(store, {
+      installIdentityId: session?.installIdentityId,
+      accountId: installIdentity?.accountId,
+      cityId: city.id,
+      lat: request.body?.lat,
+      lng: request.body?.lng,
+      kind: request.body?.cityQuery ? "city_query_resolved" : "coordinates_resolved",
+      riskDelta: 0,
+      metadata: compactMetadata({
+        cityId: city.id,
+        cityQuery: request.body?.cityQuery,
+        hasCoordinates: typeof request.body?.lat === "number" && typeof request.body?.lng === "number",
+      }),
+    });
 
     return {
       cityContext: city,
@@ -2820,7 +3967,7 @@ export const registerRoutes = async (app: FastifyInstance, storeOverride?: ApiSt
       channel: getChannelForPost(store, post),
       cityContext: getCityById(store, post.cityId),
       post: {
-        ...post,
+        ...decoratePublicPost(store, post),
         replyCount: replyCountForPost(store, post.id),
       },
       replies: visibleRepliesForPost(store, post.id),
@@ -2835,9 +3982,10 @@ export const registerRoutes = async (app: FastifyInstance, storeOverride?: ApiSt
       postId,
       replies: postId
         ? visibleRepliesForPost(store, postId)
-      : [...store.replies]
-          .filter((reply) => reply.moderation === "visible")
-          .sort((left, right) => right.createdAt.localeCompare(left.createdAt)),
+        : [...store.replies]
+            .filter((reply) => reply.moderation === "visible")
+            .sort((left, right) => right.createdAt.localeCompare(left.createdAt))
+            .map((reply) => decoratePublicReply(store, reply)),
     };
   });
 
@@ -2877,7 +4025,7 @@ export const registerRoutes = async (app: FastifyInstance, storeOverride?: ApiSt
   app.get("/media/:fileName", async (request, reply) => {
     const params = request.params as { fileName?: string };
     const fileName = safeMediaFileName(clampText(params.fileName));
-    const filePath = resolve(MEDIA_UPLOADS_DIR, fileName);
+    const filePath = resolve(getApiUploadsPath(), fileName);
 
     try {
       await stat(filePath);
@@ -2984,7 +4132,7 @@ export const registerRoutes = async (app: FastifyInstance, storeOverride?: ApiSt
           },
         });
 
-        return post;
+        return decoratePublicPost(store, post);
       },
     })
   );
@@ -3081,7 +4229,7 @@ export const registerRoutes = async (app: FastifyInstance, storeOverride?: ApiSt
           },
         });
 
-        return replyItem;
+        return decoratePublicReply(store, replyItem);
       },
     })
   );
@@ -3102,6 +4250,11 @@ export const registerRoutes = async (app: FastifyInstance, storeOverride?: ApiSt
         if (!payload) {
           throw badRequest("Vote payload is required.");
         }
+
+        await assertVoteDamping(store, request, {
+          accountId: account?.id,
+          installIdentityId: session.installIdentityId,
+        });
 
         const result = applyVote(store, payload, {
           accountId: account?.id,
@@ -3164,7 +4317,11 @@ export const registerRoutes = async (app: FastifyInstance, storeOverride?: ApiSt
           ) ?? null;
 
         if (existingRequest) {
-          return existingRequest;
+          return decorateChatRequestForViewer(store, {
+            accountId: account?.id,
+            installIdentityId: session.installIdentityId,
+            request: existingRequest,
+          });
         }
 
         const chatRequest: ChatRequest = {
@@ -3966,14 +5123,125 @@ export const registerRoutes = async (app: FastifyInstance, storeOverride?: ApiSt
 
     return {
       actor,
+      authMode: actor.authMode,
       expectedHeaders: {
         adminId: "x-admin-id",
         adminRole: "x-admin-role",
+        backofficeSessionId: "x-backoffice-session-id",
+        trustedProxySecret: "x-backoffice-secret",
       },
       permissions: BACKOFFICE_ROLE_PERMISSIONS[actor.role],
       roleLevel: BACKOFFICE_ROLE_LEVEL[actor.role],
+      session: actor.session,
+      user: actor.user,
     };
   });
+
+  app.get("/admin/backoffice/users", async (request) => {
+    const actor = requireBackofficeActor(request, "owner");
+    const users = store.backofficeUsers
+      .map((user) => serializeBackofficeUser(store, user))
+      .sort((left, right) => Date.parse(right.lastSeenAt) - Date.parse(left.lastSeenAt));
+
+    return {
+      actor,
+      totals: {
+        active: users.filter((user) => user.status === "active").length,
+        disabled: users.filter((user) => user.status === "disabled").length,
+        owners: users.filter((user) => user.role === "owner" && user.status === "active").length,
+      },
+      users,
+    };
+  });
+
+  app.patch<{ Body: BackofficeUserPatchBody; Params: { userId: string } }>(
+    "/admin/backoffice/users/:userId",
+    async (request) => {
+      const actor = requireBackofficeActor(request, "owner");
+      const targetUser = getBackofficeUserById(store, request.params.userId);
+      if (!targetUser) {
+        throw notFound("Backoffice user not found.");
+      }
+
+      const requestedRole = request.body?.role
+        ? normalizeBackofficeRole(clampText(request.body.role).toLowerCase())
+        : null;
+      if (request.body?.role && !requestedRole) {
+        throw badRequest("Invalid backoffice role.");
+      }
+
+      const now = new Date().toISOString();
+      const previousRole = targetUser.role;
+      const previousDisabledAt = targetUser.disabledAt;
+      const nextRole = requestedRole ?? targetUser.role;
+      const nextDisabled =
+        typeof request.body?.disabled === "boolean" ? request.body.disabled : Boolean(targetUser.disabledAt);
+
+      assertBackofficeUserMutationAllowed(store, actor, targetUser, nextRole, nextDisabled);
+
+      const displayName = clampText(request.body?.displayName).slice(0, 80);
+      if (displayName) {
+        targetUser.displayName = displayName;
+      }
+
+      targetUser.role = nextRole;
+      if (nextDisabled) {
+        targetUser.disabledAt = targetUser.disabledAt ?? now;
+      } else {
+        delete targetUser.disabledAt;
+      }
+
+      const shouldRevokeSessions = Boolean(request.body?.revokeSessions || nextDisabled);
+      const revokedSessions = shouldRevokeSessions
+        ? revokeBackofficeSessions(store, {
+            backofficeUserId: targetUser.id,
+            reason: request.body?.note ?? (nextDisabled ? "backoffice_user_disabled" : "owner_revoked_sessions"),
+            revokedAt: now,
+          })
+        : [];
+      const action =
+        nextDisabled && !previousDisabledAt
+          ? "backoffice_user.disable"
+          : !nextDisabled && previousDisabledAt
+            ? "backoffice_user.enable"
+            : "backoffice_user.update";
+      const metadata = createBackofficeMetadata(actor, {
+        disabled: nextDisabled,
+        displayNameChanged: Boolean(displayName),
+        note: request.body?.note ?? "",
+        previousDisabledAt,
+        previousRole,
+        revokedSessionCount: revokedSessions.length,
+        role: targetUser.role,
+        targetBackofficeUserId: targetUser.id,
+      });
+
+      recordAudit(store, {
+        actorId: actor.id,
+        actorRole: actor.role,
+        actorType: "admin",
+        action,
+        entityId: targetUser.id,
+        entityType: "backoffice_user",
+        metadata,
+        summary: `Backoffice user ${targetUser.id} updated by ${actor.id}`,
+      });
+      recordBackofficeAction(store, {
+        action,
+        actorId: actor.id,
+        actorRole: actor.role,
+        entityId: targetUser.id,
+        entityType: "backoffice_user",
+        metadata,
+      });
+
+      return {
+        actor,
+        revokedSessions,
+        user: serializeBackofficeUser(store, targetUser),
+      };
+    }
+  );
 
   app.get("/admin/reports", async (request) => {
     const actor = requireBackofficeActor(request, "moderator");
@@ -4005,43 +5273,112 @@ export const registerRoutes = async (app: FastifyInstance, storeOverride?: ApiSt
   app.get("/admin/audit-logs", async (request) => {
     const actor = requireBackofficeActor(request, "moderator");
     const query = request.query as Record<string, string | undefined>;
-    const entityType = query.entityType;
-    const action = query.action;
+    const entityType = clampText(query.entityType);
+    const entityId = clampText(query.entityId);
+    const action = clampText(query.action);
+    const actorId = clampText(query.actorId);
+    const actorType = clampText(query.actorType);
+    const actorRole = clampText(query.actorRole) as BackofficeRole | undefined;
+    const accountId = clampText(query.accountId);
+    const installIdentityId = clampText(query.installIdentityId);
+    const searchQuery = clampText(query.q);
+    const limit = parseAuditLimit(query.limit, actor.role);
 
-    return {
-      actor,
-      auditLogs: store.auditLogs
-        .filter((entry) => {
+    const auditLogs = store.auditLogs
+      .map((entry) => {
+        const resolved = auditEntryContext(store, entry);
+        return {
+          ...entry,
+          ...resolved,
+        };
+      })
+      .filter((entry) => {
         if (entityType && entry.entityType !== entityType) {
+          return false;
+        }
+        if (entityId && entry.entityId !== entityId) {
           return false;
         }
         if (action && entry.action !== action) {
           return false;
         }
-        return true;
-        })
-        .map((entry) => ({
+        if (actorType && entry.actorType !== actorType) {
+          return false;
+        }
+        if (actorId && entry.actorId !== actorId) {
+          return false;
+        }
+        if (actorRole && entry.actorRole !== actorRole) {
+          return false;
+        }
+
+        const contexts = [entry.actorContext, entry.targetContext, ...(entry.relatedTargetContexts ?? [])];
+        if (!auditContextListMatchesFilters({ accountId, installIdentityId }, contexts)) {
+          return false;
+        }
+
+        return auditLogMatchesQuery(searchQuery, entry, entry);
+      });
+
+    const backofficeActions = store.backofficeActions
+      .map((entry) => {
+        const resolved = auditEntryContext(store, {
+          actorType: "admin",
+          actorId: entry.actorId,
+          entityId: entry.entityId,
+          entityType: entry.entityType,
+          metadata: entry.metadata,
+        });
+
+        return {
           ...entry,
-          ...auditEntryContext(store, entry),
-        })),
-      backofficeActions: store.backofficeActions
-        .filter((entry) => {
-          if (entityType && entry.entityType !== entityType) {
-            return false;
-          }
-          if (action && entry.action !== action) {
-            return false;
-          }
-          return true;
-        })
-        .map((entry) => ({
-          ...entry,
-          ...auditEntryContext(store, {
-            actorType: "admin",
+          ...resolved,
+        };
+      })
+      .filter((entry) => {
+        if (entityType && entry.entityType !== entityType) {
+          return false;
+        }
+        if (entityId && entry.entityId !== entityId) {
+          return false;
+        }
+        if (action && entry.action !== action) {
+          return false;
+        }
+        if (actorType && actorType !== "admin") {
+          return false;
+        }
+        if (actorId && entry.actorId !== actorId) {
+          return false;
+        }
+        if (actorRole && entry.actorRole !== actorRole) {
+          return false;
+        }
+
+        const contexts = [entry.actorContext, entry.targetContext, ...(entry.relatedTargetContexts ?? [])];
+        if (!auditContextListMatchesFilters({ accountId, installIdentityId }, contexts)) {
+          return false;
+        }
+
+        return auditLogMatchesQuery(
+          searchQuery,
+          {
+            action: entry.action,
             actorId: entry.actorId,
+            actorRole: entry.actorRole,
+            actorType: "admin",
+            entityId: entry.entityId,
+            entityType: entry.entityType,
             metadata: entry.metadata,
-          }),
-        })),
+          },
+          entry,
+        );
+      });
+
+    return {
+      actor,
+      auditLogs: limit ? auditLogs.slice(0, limit) : auditLogs,
+      backofficeActions: limit ? backofficeActions.slice(0, limit) : backofficeActions,
     };
   });
 
@@ -4074,6 +5411,205 @@ export const registerRoutes = async (app: FastifyInstance, storeOverride?: ApiSt
       ops: await getOpsStatus(store),
     };
   });
+
+  app.get("/admin/channels", async (request) => {
+    const actor = requireBackofficeActor(request, "admin");
+
+    return {
+      actor,
+      channels: store.channels.map((channel) => ({
+        ...channel,
+        cityLabel: getCityById(store, channel.cityId)?.label ?? channel.cityId,
+        openReportCount: store.reports.filter(
+          (report) => report.targetType === "channel" && report.targetId === channel.id && report.status === "open",
+        ).length,
+        postCount: store.posts.filter((post) => post.channelId === channel.id).length,
+      })),
+    };
+  });
+
+  app.patch<{ Body: AdminChannelPatchBody; Params: { channelId: string } }>(
+    "/admin/channels/:channelId",
+    async (request) => {
+      const actor = requireBackofficeActor(request, "admin");
+      const channel = store.channels.find((entry) => entry.id === request.params.channelId);
+      if (!channel) {
+        throw notFound("Channel not found.");
+      }
+
+      const previous = { ...channel };
+      const body = request.body ?? {};
+      if (body.title !== undefined) {
+        const title = clampText(body.title);
+        if (!title) {
+          throw validationError("title is required.", { fieldName: "title" });
+        }
+        channel.title = title.slice(0, 80);
+      }
+      if (body.description !== undefined) {
+        channel.description = clampText(body.description).slice(0, 240);
+      }
+      if (body.isAdultOnly !== undefined) {
+        channel.isAdultOnly = body.isAdultOnly;
+      }
+      if (body.isExclusive !== undefined) {
+        channel.isExclusive = body.isExclusive;
+      }
+      if (body.isVerified !== undefined) {
+        channel.isVerified = body.isVerified;
+      }
+      if (body.memberCount !== undefined) {
+        if (!Number.isInteger(body.memberCount) || body.memberCount < 0) {
+          throw validationError("memberCount must be a non-negative integer.", {
+            fieldName: "memberCount",
+            provided: body.memberCount,
+          });
+        }
+        channel.memberCount = body.memberCount;
+      }
+
+      const metadata = createBackofficeMetadata(actor, {
+        after: {
+          description: channel.description,
+          isAdultOnly: channel.isAdultOnly,
+          isExclusive: channel.isExclusive,
+          isVerified: channel.isVerified,
+          memberCount: channel.memberCount,
+          title: channel.title,
+        },
+        before: {
+          description: previous.description,
+          isAdultOnly: previous.isAdultOnly,
+          isExclusive: previous.isExclusive,
+          isVerified: previous.isVerified,
+          memberCount: previous.memberCount,
+          title: previous.title,
+        },
+        cityId: channel.cityId,
+        slug: channel.slug,
+      });
+
+      recordAudit(store, {
+        actorType: "admin",
+        actorId: actor.id,
+        actorRole: actor.role,
+        action: "channel.update",
+        entityType: "channel",
+        entityId: channel.id,
+        summary: `Channel ${channel.slug} updated by ${actor.role}.`,
+        metadata,
+      });
+
+      recordBackofficeAction(store, {
+        actorId: actor.id,
+        actorRole: actor.role,
+        action: "channel.update",
+        entityType: "channel",
+        entityId: channel.id,
+        metadata,
+      });
+
+      return {
+        actor,
+        channel: {
+          ...channel,
+          cityLabel: getCityById(store, channel.cityId)?.label ?? channel.cityId,
+          openReportCount: store.reports.filter(
+            (report) => report.targetType === "channel" && report.targetId === channel.id && report.status === "open",
+          ).length,
+          postCount: store.posts.filter((post) => post.channelId === channel.id).length,
+        },
+      };
+    },
+  );
+
+  app.get("/admin/feature-flags", async (request) => {
+    const actor = requireBackofficeActor(request, "admin");
+
+    return {
+      actor,
+      featureFlags: store.featureFlags,
+    };
+  });
+
+  app.patch<{ Body: AdminFeatureFlagPatchBody; Params: { flagId: string } }>(
+    "/admin/feature-flags/:flagId",
+    async (request) => {
+      const actor = requireBackofficeActor(request, "admin");
+      const featureFlag = store.featureFlags.find(
+        (entry) => entry.id === request.params.flagId || entry.key === request.params.flagId,
+      );
+      if (!featureFlag) {
+        throw notFound("Feature flag not found.");
+      }
+
+      const previous = { ...featureFlag };
+      const body = request.body ?? {};
+      if (body.label !== undefined) {
+        const label = clampText(body.label);
+        if (!label) {
+          throw validationError("label is required.", { fieldName: "label" });
+        }
+        featureFlag.label = label.slice(0, 80);
+      }
+      if (body.description !== undefined) {
+        featureFlag.description = clampText(body.description).slice(0, 240);
+      }
+      if (body.enabled !== undefined) {
+        featureFlag.enabled = body.enabled;
+      }
+      if (body.audience !== undefined) {
+        if (!["all", "plus", "creators", "admins"].includes(body.audience)) {
+          throw validationError("audience is invalid.", {
+            fieldName: "audience",
+            supportedValues: ["all", "plus", "creators", "admins"],
+          });
+        }
+        featureFlag.audience = body.audience;
+      }
+
+      const metadata = createBackofficeMetadata(actor, {
+        after: {
+          audience: featureFlag.audience,
+          description: featureFlag.description,
+          enabled: featureFlag.enabled,
+          label: featureFlag.label,
+        },
+        before: {
+          audience: previous.audience,
+          description: previous.description,
+          enabled: previous.enabled,
+          label: previous.label,
+        },
+        key: featureFlag.key,
+      });
+
+      recordAudit(store, {
+        actorType: "admin",
+        actorId: actor.id,
+        actorRole: actor.role,
+        action: "feature_flag.update",
+        entityType: "feature_flag",
+        entityId: featureFlag.id,
+        summary: `Feature flag ${featureFlag.key} updated by ${actor.role}.`,
+        metadata,
+      });
+
+      recordBackofficeAction(store, {
+        actorId: actor.id,
+        actorRole: actor.role,
+        action: "feature_flag.update",
+        entityType: "feature_flag",
+        entityId: featureFlag.id,
+        metadata,
+      });
+
+      return {
+        actor,
+        featureFlag,
+      };
+    },
+  );
 
   app.get("/admin/security", async (request) => {
     const actor = requireBackofficeActor(request, "moderator");
@@ -4247,7 +5783,7 @@ export const registerRoutes = async (app: FastifyInstance, storeOverride?: ApiSt
         const actor = requireBackofficeActor(request, "owner");
         const installIdentityId = requireInstallIdentityId(request.body?.installIdentityId);
         const note = clampText(request.body?.note);
-        const reset = clearInstallSecurityState(store, installIdentityId);
+        const reset = await clearInstallSecurityState(store, installIdentityId);
 
         recordAudit(store, {
           actorType: "admin",
@@ -4333,7 +5869,8 @@ export const registerRoutes = async (app: FastifyInstance, storeOverride?: ApiSt
         application.status = request.body?.action === "approve" ? "approved" : "rejected";
         application.kycState = request.body?.action === "approve" ? "verified" : "pending";
         application.payoutState = request.body?.action === "approve" ? "ready" : "paused";
-        application.reviewedAt = new Date().toISOString();
+        const reviewedAt = new Date().toISOString();
+        application.reviewedAt = reviewedAt;
         application.notes = request.body?.note ?? application.notes ?? "";
 
         if (request.body?.action === "approve") {
@@ -4352,6 +5889,16 @@ export const registerRoutes = async (app: FastifyInstance, storeOverride?: ApiSt
             }
           }
         }
+
+        const review: CreatorReview = {
+          id: createId("creator-review"),
+          creatorApplicationId: application.id,
+          reviewerId: actor.id,
+          decision: request.body?.action === "approve" ? "approve" : "reject",
+          note: request.body?.note ?? "",
+          createdAt: reviewedAt,
+        };
+        store.creatorReviews.unshift(review);
 
         recordAudit(store, {
           actorType: "admin",
@@ -4395,6 +5942,7 @@ export const registerRoutes = async (app: FastifyInstance, storeOverride?: ApiSt
         return {
           actor,
           application,
+          review,
         };
       },
     })
@@ -4442,6 +5990,7 @@ export const registerRoutes = async (app: FastifyInstance, storeOverride?: ApiSt
         }
 
         const amountCents = positiveCents(request.body?.amountCents, "amountCents", 100);
+        const now = new Date().toISOString();
         const creatorWallet = getWallet(store, application.installIdentityId);
 
         if (creatorWallet.pendingCents < amountCents) {
@@ -4454,6 +6003,21 @@ export const registerRoutes = async (app: FastifyInstance, storeOverride?: ApiSt
         creatorWallet.pendingCents -= amountCents;
         creatorWallet.lifetimePaidOutCents += amountCents;
 
+        const payoutAccount = getOrCreatePayoutAccount(store, application, now);
+        const payout: Payout = {
+          id: createId("payout"),
+          installIdentityId: application.installIdentityId,
+          accountId: application.accountId,
+          payoutAccountId: payoutAccount.id,
+          status: "paid",
+          grossCents: amountCents,
+          feeCents: 0,
+          netCents: amountCents,
+          requestedAt: now,
+          settledAt: now,
+        };
+        store.payouts.unshift(payout);
+
         const payoutEntry: LedgerEntry = appendLedgerEntry(store, {
           id: createId("ledger"),
           installIdentityId: application.installIdentityId,
@@ -4463,8 +6027,8 @@ export const registerRoutes = async (app: FastifyInstance, storeOverride?: ApiSt
           platformFeeCents: 0,
           netCents: amountCents,
           refType: "payout",
-          refId: application.id,
-          createdAt: new Date().toISOString(),
+          refId: payout.id,
+          createdAt: now,
         });
 
         recordAudit(store, {
@@ -4507,7 +6071,9 @@ export const registerRoutes = async (app: FastifyInstance, storeOverride?: ApiSt
 
         return {
           actor,
-          payout: payoutEntry,
+          entry: payoutEntry,
+          payout,
+          payoutAccount,
           wallet: creatorWallet,
         };
       },

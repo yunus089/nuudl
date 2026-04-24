@@ -51,10 +51,25 @@ export type AccountIdentity = {
   channelPreferences: AccountChannelPreferences[];
   username: string;
   displayName: string;
+  bio: string;
+  avatarUrl?: string | null;
+  isCreator: boolean;
   discoverable: boolean;
   emailMasked?: string | null;
   emailVerified: boolean;
   linkedInstallCount: number;
+  linkedInstalls?: {
+    canRemoteLogout: boolean;
+    cityId: string;
+    cityLabel: string;
+    current: boolean;
+    deviceLabel: string;
+    installIdentityId: string;
+    lastSeenAt: string;
+    linkedAt: string;
+    sessionCount: number;
+    status: "active" | "signed_out";
+  }[];
   createdAt: string;
   lastSeenAt: string;
 };
@@ -244,6 +259,7 @@ export type UploadMediaResponse = {
 export type ConsumerRuntimeConfig = {
   allowLocalFallbacks: boolean;
   apiBaseUrl: string;
+  betaInviteRequired: boolean;
   enableFakePayments: boolean;
 };
 
@@ -444,6 +460,12 @@ async function uploadBinary(path: string, file: File): Promise<UploadMediaRespon
 
 export const consumerApi = {
   getRuntimeConfig,
+  checkBetaInvite: (body: { betaInviteCode?: string }) =>
+    requestJson<{ codeHash?: string; required: boolean; valid: boolean }>("/beta/invite/check", {
+      bodyJson: body,
+      idempotent: true,
+      method: "POST",
+    }),
   getFeed: (cityId: string) => requestJson<FeedResponse>(`/feed?cityId=${encodeURIComponent(cityId)}`),
   getChannels: (cityId: string) => requestJson<ChannelsResponse>(`/channels?cityId=${encodeURIComponent(cityId)}`),
   getChannelBySlug: (slug: string) => requestJson<ChannelDetailResponse>(`/channels/${encodeURIComponent(slug)}`),
@@ -494,7 +516,16 @@ export const consumerApi = {
     return response;
   },
   getAccountMe: () => requestJson<AccountProfileResponse>("/account/me"),
-  updateAccountProfile: (body: { displayName?: string; discoverable?: boolean }) =>
+  logoutAccountDevice: (installIdentityId: string) =>
+    requestJson<AccountProfileResponse & { message: string; revokedSessions: number }>(
+      `/account/devices/${encodeURIComponent(installIdentityId)}/logout`,
+      {
+        bodyJson: {},
+        idempotent: true,
+        method: "POST",
+      },
+    ),
+  updateAccountProfile: (body: { displayName?: string; bio?: string; discoverable?: boolean }) =>
     requestJson<AccountProfileResponse>("/account/profile", {
       bodyJson: body,
       idempotent: true,
@@ -569,7 +600,7 @@ export const consumerApi = {
       idempotent: true,
       method: "POST",
     }),
-  registerInstall: async (body: { adultGateAccepted?: boolean; cityId?: string; citySlug?: string; lat?: number; lng?: number }) => {
+  registerInstall: async (body: { adultGateAccepted?: boolean; betaInviteCode?: string; cityId?: string; citySlug?: string; lat?: number; lng?: number }) => {
     const response = await requestJson<RegisterInstallResponse>("/install/register", {
       bodyJson: body,
       idempotent: true,

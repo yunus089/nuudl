@@ -2,8 +2,11 @@
 
 import type {
   AdminAuditLogsResponse,
+  AdminBackofficeUsersResponse,
+  AdminChannelsResponse,
   AdminCreatorApplicationsResponse,
   AdminDataBundle,
+  AdminFeatureFlagsResponse,
   AdminLedgerResponse,
   AdminOpsResponse,
   AdminOverviewResponse,
@@ -11,6 +14,7 @@ import type {
   RestrictionType,
   AdminSecurityResponse,
   BackofficeProfile,
+  BackofficeSessionResponse,
 } from "./admin-types";
 
 const PROXY_ROOT = "/api/backoffice";
@@ -59,25 +63,56 @@ async function requestJson<T>(path: string, profile: BackofficeProfile, init?: R
 }
 
 export const adminApi = {
-  async loadDashboard(profile: BackofficeProfile): Promise<AdminDataBundle> {
-    const [overview, reportsResponse, auditResponse, creatorResponse, ledgerResponse, securityResponse, opsResponse] = await Promise.all([
+  getSession(profile: BackofficeProfile): Promise<BackofficeSessionResponse> {
+    return requestJson<BackofficeSessionResponse>("/admin/backoffice/session", profile);
+  },
+
+  async loadDashboard(profile: BackofficeProfile, session?: BackofficeSessionResponse): Promise<AdminDataBundle> {
+    const actorRole = session?.actor.role ?? profile.role;
+    const [
+      overview,
+      reportsResponse,
+      auditResponse,
+      creatorResponse,
+      ledgerResponse,
+      securityResponse,
+      opsResponse,
+      channelsResponse,
+      featureFlagsResponse,
+      backofficeUsersResponse,
+    ] = await Promise.all([
       requestJson<AdminOverviewResponse>("/admin/overview", profile),
       requestJson<AdminReportsResponse>("/admin/reports", profile),
       requestJson<AdminAuditLogsResponse>("/admin/audit-logs", profile),
-      profile.role === "moderator"
+      actorRole === "moderator"
         ? Promise.resolve({ applications: [] } satisfies AdminCreatorApplicationsResponse)
         : requestJson<AdminCreatorApplicationsResponse>("/admin/creator-applications", profile),
-      profile.role === "moderator"
-        ? Promise.resolve({ ledger: [], wallets: {} } satisfies AdminLedgerResponse)
+      actorRole === "moderator"
+        ? Promise.resolve({ backofficeActions: [], ledger: [], wallets: {} } satisfies AdminLedgerResponse)
         : requestJson<AdminLedgerResponse>("/admin/ledger", profile),
       requestJson<AdminSecurityResponse>("/admin/security", profile),
       requestJson<AdminOpsResponse>("/admin/ops", profile),
+      actorRole === "moderator"
+        ? Promise.resolve({ channels: [] } satisfies AdminChannelsResponse)
+        : requestJson<AdminChannelsResponse>("/admin/channels", profile),
+      actorRole === "moderator"
+        ? Promise.resolve({ featureFlags: [] } satisfies AdminFeatureFlagsResponse)
+        : requestJson<AdminFeatureFlagsResponse>("/admin/feature-flags", profile),
+      actorRole === "owner"
+        ? requestJson<AdminBackofficeUsersResponse>("/admin/backoffice/users", profile)
+        : Promise.resolve({
+            totals: { active: 0, disabled: 0, owners: 0 },
+            users: [],
+          } satisfies AdminBackofficeUsersResponse),
     ]);
 
     return {
       auditLogs: auditResponse.auditLogs,
       backofficeActions: auditResponse.backofficeActions,
+      backofficeUsers: backofficeUsersResponse.users,
+      channels: channelsResponse.channels,
       creatorApplications: creatorResponse.applications,
+      featureFlags: featureFlagsResponse.featureFlags,
       ledger: ledgerResponse.ledger,
       moderationCases: reportsResponse.moderationCases,
       moderationCaseItems: reportsResponse.moderationCaseItems,
@@ -123,6 +158,57 @@ export const adminApi = {
   ) {
     return requestJson("/admin/security/restrictions", profile, {
       method: "POST",
+      body: JSON.stringify(body),
+    });
+  },
+
+  updateChannel(
+    profile: BackofficeProfile,
+    channelId: string,
+    body: {
+      description?: string;
+      isAdultOnly?: boolean;
+      isExclusive?: boolean;
+      isVerified?: boolean;
+      memberCount?: number;
+      title?: string;
+    }
+  ) {
+    return requestJson(`/admin/channels/${encodeURIComponent(channelId)}`, profile, {
+      method: "PATCH",
+      body: JSON.stringify(body),
+    });
+  },
+
+  updateFeatureFlag(
+    profile: BackofficeProfile,
+    flagId: string,
+    body: {
+      audience?: "all" | "plus" | "creators" | "admins";
+      description?: string;
+      enabled?: boolean;
+      label?: string;
+    }
+  ) {
+    return requestJson(`/admin/feature-flags/${encodeURIComponent(flagId)}`, profile, {
+      method: "PATCH",
+      body: JSON.stringify(body),
+    });
+  },
+
+  updateBackofficeUser(
+    profile: BackofficeProfile,
+    userId: string,
+    body: {
+      disabled?: boolean;
+      displayName?: string;
+      note?: string;
+      revokeSessions?: boolean;
+      role?: BackofficeProfile["role"];
+    }
+  ) {
+    return requestJson(`/admin/backoffice/users/${encodeURIComponent(userId)}`, profile, {
+      method: "PATCH",
       body: JSON.stringify(body),
     });
   },

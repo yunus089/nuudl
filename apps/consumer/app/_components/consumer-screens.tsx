@@ -25,7 +25,13 @@ import {
 } from "@veil/shared";
 import { consumerApi, type AccountIdentity } from "../_lib/consumer-api";
 import { ChevronRightIcon, ConsumerSheet, VoteDownIcon, VoteUpIcon } from "./mobile-shell";
-import { autoResizeTextarea, formatTime, readFileAsDataUrl } from "./consumer-helpers";
+import {
+  autoResizeTextarea,
+  formatTime,
+  getChatCounterpartPresentation,
+  getPublicActorPresentation,
+  readFileAsDataUrl,
+} from "./consumer-helpers";
 import type { FeedSort, LocationState } from "./consumer-types";
 
 const RECENT_CHANNEL_LIMIT = 5;
@@ -37,6 +43,7 @@ type ComposerMediaAttachment = {
   fileName: string;
   url: string;
 };
+type DiscoverAccount = NonNullable<SearchResults["accounts"]>[number];
 
 function recentChannelsStorageKey(cityId: string) {
   return `nuudl-recent-channels:${cityId}`;
@@ -87,6 +94,23 @@ function emptyComposerDraft() {
     selectedChannelId: null as string | null,
     channelQuery: "",
   };
+}
+
+function describeAccountVisibility(account: DiscoverAccount) {
+  if (account.isCreator) {
+    return "Öffentlich als Creator sichtbar";
+  }
+
+  if (account.visibilityReason === "discoverable" || account.discoverable) {
+    return "Öffentlich auffindbares Profil";
+  }
+
+  return "Nur über Suche sichtbar";
+}
+
+function getAccountFallbackInitial(account: DiscoverAccount) {
+  const source = account.displayName || account.username || "@";
+  return source.trim().charAt(0).toUpperCase() || "@";
 }
 
 function readComposerDraft(cityId: string): {
@@ -496,25 +520,26 @@ export function FeedCard({
   channel,
   replyCount,
   userVote = 0,
-  showQuickTips = true,
   onOpenPost,
   onOpenAuthor,
   onVote,
-  onTip,
 }: {
   post: Post;
   channel?: Channel;
   replyCount: number;
   userVote?: -1 | 0 | 1;
-  showQuickTips?: boolean;
   onOpenPost?: () => void;
   onOpenAuthor?: () => void;
   onVote?: (value: -1 | 1) => void;
-  onTip?: (grossCents: number) => Promise<{ ok: boolean; message: string }>;
 }) {
   const interactive = typeof onOpenPost === "function";
-  const [tipFeedback, setTipFeedback] = useState<string | null>(null);
   const [mediaOpen, setMediaOpen] = useState(false);
+  const author = getPublicActorPresentation(post);
+  const footerStats = [`${replyCount} Antworten`];
+
+  if (post.tipTotalCents > 0) {
+    footerStats.push(`${formatEuro(post.tipTotalCents)} Tips`);
+  }
 
   return (
     <>
@@ -533,7 +558,7 @@ export function FeedCard({
         >
           <div className="feedTop">
             <div className="feedMeta">
-              {onOpenAuthor && post.recipientInstallIdentityId && post.authorLabel !== "Du" ? (
+              {onOpenAuthor && post.recipientInstallIdentityId && author.primaryLabel !== "Du" ? (
                 <button
                   className="feedAuthorButton"
                   onClick={(event) => {
@@ -542,14 +567,16 @@ export function FeedCard({
                   }}
                   type="button"
                 >
-                  {post.authorLabel}
+                  {author.primaryLabel}
                 </button>
               ) : (
-                <strong className="feedAuthorLabel">{post.authorLabel}</strong>
+                <strong className="feedAuthorLabel">{author.primaryLabel}</strong>
               )}
+              {author.secondaryLabel ? <span className="feedMetaSecondary">{author.secondaryLabel}</span> : null}
+              {author.badgeLabel ? <span className="feedMetaTag">{author.badgeLabel}</span> : null}
               <span className="feedMetaSecondary">@{channel?.slug ?? "main"}</span>
               <span className="feedMetaSecondary">{formatTime(post.createdAt)}</span>
-              {post.isPinned ? <span className="feedMetaTag">Wichtig</span> : null}
+              {post.isPinned ? <span className="feedMetaSecondary">Wichtig</span> : null}
             </div>
           </div>
 
@@ -576,33 +603,12 @@ export function FeedCard({
             </button>
           ) : null}
 
-          <div className="feedFooterStack">
-            <div className="feedFooter">
-              <span className="feedFooterStat">{replyCount} Antworten</span>
-              <span className="feedFooterStat">{formatEuro(post.tipTotalCents)} Tips</span>
-            </div>
-
-            {showQuickTips && post.canTip && onTip ? (
-              <div className="tipActionStack">
-                <div className="quickTipRow">
-                  {[200, 500, 1000].map((amountCents) => (
-                    <button
-                      className="quickTipButton"
-                      key={amountCents}
-                      onClick={async (event) => {
-                        event.stopPropagation();
-                        const result = await onTip(amountCents);
-                        setTipFeedback(result.message);
-                      }}
-                      type="button"
-                    >
-                      Tip {formatEuro(amountCents)}
-                    </button>
-                  ))}
-                </div>
-                {tipFeedback ? <p className="supportCopy inlineFeedbackCompact">{tipFeedback}</p> : null}
-              </div>
-            ) : null}
+          <div className="feedFooter">
+            {footerStats.map((stat) => (
+              <span className="feedFooterStat" key={stat}>
+                {stat}
+              </span>
+            ))}
           </div>
         </div>
 
@@ -666,7 +672,6 @@ export function FeedScreen({
   onSortChange,
   onOpenPost,
   onOpenAuthorChat,
-  onTipPost,
   onVotePost,
 }: {
   activeCity: CityContext;
@@ -678,7 +683,6 @@ export function FeedScreen({
   onSortChange: (value: FeedSort) => void;
   onOpenPost: (postId: string) => void;
   onOpenAuthorChat?: (post: Post) => void;
-  onTipPost: (postId: string, grossCents: number) => Promise<{ ok: boolean; message: string }>;
   onVotePost: (postId: string, value: -1 | 1) => void;
 }) {
   const cityChannels = filterChannelsByCity(activeCity.id, channelEntries);
@@ -721,9 +725,7 @@ export function FeedScreen({
               post={post}
               channel={cityChannels.find((channel) => channel.id === post.channelId)}
               onOpenAuthor={onOpenAuthorChat ? () => onOpenAuthorChat(post) : undefined}
-              showQuickTips={false}
               onOpenPost={() => onOpenPost(post.id)}
-              onTip={(amountCents) => onTipPost(post.id, amountCents)}
               onVote={(value) => onVotePost(post.id, value)}
               replyCount={replyCountByPost.get(post.id) ?? post.replyCount}
               userVote={postVotes[post.id] ?? 0}
@@ -750,12 +752,13 @@ export function DiscoverScreen({
   posts,
   onQueryChange,
   onOpenChannel,
+  onOpenAccountPreview,
   onOpenPost,
   onOpenAuthorChat,
   onToggleFavoriteChannel,
 }: {
   activeCity: CityContext;
-  accounts: NonNullable<SearchResults["accounts"]>;
+  accounts: DiscoverAccount[];
   channels: Channel[];
   favoriteChannelIds: string[];
   hashtags: string[];
@@ -763,6 +766,7 @@ export function DiscoverScreen({
   posts: Post[];
   onQueryChange: (value: string) => void;
   onOpenChannel: (slug: string) => void;
+  onOpenAccountPreview: (account: DiscoverAccount) => void;
   onOpenPost: (postId: string) => void;
   onOpenAuthorChat?: (post: Post) => void;
   onToggleFavoriteChannel: (channelId: string) => void;
@@ -842,7 +846,7 @@ export function DiscoverScreen({
             className="searchInput denseSearchInput"
             value={query}
             onChange={(event) => onQueryChange(event.target.value)}
-            placeholder={`Channels, #Tags oder Stichwort in ${activeCity.label} suchen`}
+            placeholder={`@Handle, Creator, Channels oder #Tags in ${activeCity.label}`}
           />
           {normalizedQuery ? (
             <button className="searchClearButton" onClick={() => onQueryChange("")} type="button">
@@ -850,7 +854,7 @@ export function DiscoverScreen({
             </button>
           ) : null}
         </div>
-        <p className="searchHint">Tippe einen Channel an oder starte direkt mit einer Suche.</p>
+        <p className="searchHint">Suche direkt nach @Handles, öffentlichen Creator-Profilen oder Themen aus deiner Stadt.</p>
       </div>
 
       {!normalizedQuery && favoriteChannels.length ? (
@@ -917,7 +921,7 @@ export function DiscoverScreen({
             <div className="resultSection">
               <div className="sectionLabel screenHeaderBlock screenHeaderBlockCompact">
                 <div>
-                  <strong>Menschen</strong>
+                  <strong>Menschen & Handles</strong>
                   <span>{matchingAccounts.length} Treffer</span>
                 </div>
               </div>
@@ -925,17 +929,28 @@ export function DiscoverScreen({
               <div className="channelList">
                 {matchingAccounts.slice(0, 6).map((account) => (
                   <div className="channelListRow" key={account.accountId}>
-                    <div className="channelListMainButton channelListMainButtonStatic">
-                      <span className="channelDot">@</span>
+                    <button className="channelListMainButton searchAccountButton" onClick={() => onOpenAccountPreview(account)} type="button">
+                      <span className={account.avatarUrl ? "channelDot channelDotAvatar" : "channelDot"}>
+                        {account.avatarUrl ? (
+                          <img
+                            alt={`${account.displayName || account.username} Avatar`}
+                            className="searchAccountAvatar"
+                            src={account.avatarUrl}
+                          />
+                        ) : (
+                          getAccountFallbackInitial(account)
+                        )}
+                      </span>
                       <div className="channelRowMain">
                         <strong>{account.displayName || `@${account.username}`}</strong>
-                        <span>@{account.username}</span>
+                        <span>@{account.username} • {describeAccountVisibility(account)}</span>
+                        {account.bio ? <p className="searchAccountBio">{account.bio}</p> : null}
                       </div>
                       <div className="channelRowSide">
                         {account.isCreator ? <span className="channelTag">Creator</span> : null}
                         {account.cityLabel ? <span className="channelTag">{account.cityLabel}</span> : null}
                       </div>
-                    </div>
+                    </button>
                   </div>
                 ))}
               </div>
@@ -952,48 +967,54 @@ export function DiscoverScreen({
               </div>
 
               <div className="threadStack">
-                {matchingPosts.slice(0, 6).map((post) => (
-                  <div
-                    className="searchPostRow"
-                    key={post.id}
-                    onClick={() => onOpenPost(post.id)}
-                    onKeyDown={(event) => {
-                      if (event.key === "Enter" || event.key === " ") {
-                        event.preventDefault();
-                        onOpenPost(post.id);
-                      }
-                    }}
-                    role="button"
-                    tabIndex={0}
-                  >
-                    <div className="searchPostTop">
-                      {onOpenAuthorChat && post.recipientInstallIdentityId ? (
-                        <button
-                          className="feedAuthorButton searchAuthorButton"
-                          onClick={(event) => {
-                            event.stopPropagation();
-                            onOpenAuthorChat(post);
-                          }}
-                          onKeyDown={(event) => {
-                            if (event.key === "Enter" || event.key === " ") {
+                {matchingPosts.slice(0, 6).map((post) => {
+                  const author = getPublicActorPresentation(post);
+
+                  return (
+                    <div
+                      className="searchPostRow"
+                      key={post.id}
+                      onClick={() => onOpenPost(post.id)}
+                      onKeyDown={(event) => {
+                        if (event.key === "Enter" || event.key === " ") {
+                          event.preventDefault();
+                          onOpenPost(post.id);
+                        }
+                      }}
+                      role="button"
+                      tabIndex={0}
+                    >
+                      <div className="searchPostTop">
+                        {onOpenAuthorChat && post.recipientInstallIdentityId ? (
+                          <button
+                            className="feedAuthorButton searchAuthorButton"
+                            onClick={(event) => {
                               event.stopPropagation();
-                            }
-                          }}
-                          type="button"
-                        >
-                          {post.authorLabel}
-                        </button>
-                      ) : (
-                        <strong>{post.authorLabel}</strong>
-                      )}
-                      <span className="searchPostMeta">{formatTime(post.createdAt)}</span>
+                              onOpenAuthorChat(post);
+                            }}
+                            onKeyDown={(event) => {
+                              if (event.key === "Enter" || event.key === " ") {
+                                event.stopPropagation();
+                              }
+                            }}
+                            type="button"
+                          >
+                            {author.primaryLabel}
+                          </button>
+                        ) : (
+                          <strong>{author.primaryLabel}</strong>
+                        )}
+                        {author.secondaryLabel ? <span className="searchPostMeta">{author.secondaryLabel}</span> : null}
+                        {author.badgeLabel ? <span className="feedMetaTag">{author.badgeLabel}</span> : null}
+                        <span className="searchPostMeta">{formatTime(post.createdAt)}</span>
+                      </div>
+                      <p>{post.body}</p>
+                      <span className="searchPostFooter">
+                        {post.replyCount} Antworten • {formatEuro(post.tipTotalCents)}
+                      </span>
                     </div>
-                    <p>{post.body}</p>
-                    <span className="searchPostFooter">
-                      {post.replyCount} Antworten • {formatEuro(post.tipTotalCents)}
-                    </span>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           ) : null}
@@ -1001,9 +1022,9 @@ export function DiscoverScreen({
           {!hasSearchResults ? (
             <div className="emptyState emptyStateInline emptyStateSoft searchEmptyState">
               <strong>Keine Treffer.</strong>
-              <p className="supportCopy">Versuch es mit Channel-Namen, Hashtags oder einem anderen Stichwort.</p>
+              <p className="supportCopy">Versuch es mit @Handles, Channel-Namen, Hashtags oder einem anderen Stichwort.</p>
               <button className="inlineAction" onClick={() => onQueryChange("")} type="button">
-                Suche loeschen
+                Suche löschen
               </button>
             </div>
           ) : null}
@@ -1110,17 +1131,17 @@ export function ChatScreen({
           {rows.length ? (
             rows.map((request) => {
               const relatedPost = posts.find((post) => post.id === request.postId) ?? null;
+              const counterpart = getChatCounterpartPresentation(request);
               const isOutgoing =
                 (Boolean(currentAccountId) && request.fromAccountId === currentAccountId) ||
                 request.fromInstallIdentityId === installIdentityId;
-              const counterpartLabel = relatedPost?.authorLabel ?? (isOutgoing ? "Person" : "Nachricht");
               const previewLabel = request.lastMessagePreview
                 ? `${request.lastMessageOwn ? "Du: " : ""}${request.lastMessagePreview}`
                 : request.status === "accepted"
-                  ? `Nachrichten mit ${counterpartLabel}.`
+                  ? `Nachrichten mit ${counterpart.primaryLabel}.`
                   : isOutgoing
-                    ? `Wartet auf ${counterpartLabel}.`
-                    : `${counterpartLabel} möchte mit dir schreiben.`;
+                    ? `Wartet auf ${counterpart.primaryLabel}.`
+                    : `${counterpart.primaryLabel} möchte mit dir schreiben.`;
               const unreadCount = request.unreadCount ?? 0;
               const activityTime = request.lastActivityAt ?? request.lastMessageAt ?? request.createdAt;
 
@@ -1133,7 +1154,11 @@ export function ChatScreen({
                 >
                   <div className="chatRowMain">
                     <div className="chatRowTop">
-                      <strong>{counterpartLabel}</strong>
+                      <div className="chatCounterpartHeader">
+                        <strong>{counterpart.primaryLabel}</strong>
+                        {counterpart.secondaryLabel ? <span className="chatCounterpartMeta">{counterpart.secondaryLabel}</span> : null}
+                        {counterpart.badgeLabel ? <span className="channelTag">{counterpart.badgeLabel}</span> : null}
+                      </div>
                       <span
                         className={
                           request.status === "accepted"
@@ -1786,23 +1811,111 @@ export function CreatorSheet({
   );
 }
 
+export function AccountPreviewSheet({
+  account,
+  onClose,
+}: {
+  account: DiscoverAccount;
+  onClose: () => void;
+}) {
+  const visibilityLabel = describeAccountVisibility(account);
+
+  return (
+    <ConsumerSheet title={account.isCreator ? "Creator-Profil" : "Profil-Vorschau"} onClose={onClose}>
+      <div className="card sheetSummaryCard">
+        <div className="profilePreviewHero">
+          <div className={account.avatarUrl ? "profilePreviewAvatar profilePreviewAvatarFilled" : "profilePreviewAvatar"}>
+            {account.avatarUrl ? (
+              <img
+                alt={`${account.displayName || account.username} Avatar`}
+                className="profilePreviewAvatarImage"
+                src={account.avatarUrl}
+              />
+            ) : (
+              <span>{getAccountFallbackInitial(account)}</span>
+            )}
+          </div>
+          <div className="profilePreviewCopy">
+            <strong>{account.displayName || `@${account.username}`}</strong>
+            <span>@{account.username}</span>
+            <p className="supportCopy">{visibilityLabel}</p>
+          </div>
+        </div>
+        <div className="summaryList">
+          <div className="summaryItem">
+            <span>Öffentliche Rolle</span>
+            <strong>{account.isCreator ? "Creator" : "Profil"}</strong>
+          </div>
+          <div className="summaryItem">
+            <span>Handle</span>
+            <strong>@{account.username}</strong>
+          </div>
+          <div className="summaryItem">
+            <span>Stadt</span>
+            <strong>{account.cityLabel || "Nicht sichtbar"}</strong>
+          </div>
+        </div>
+        <p className="sheetActionNote">
+          {account.bio
+            ? account.bio
+            : account.isCreator
+              ? "Dieses Creator-Profil ist öffentlich auffindbar und nutzt eine stabile Handle-Identität."
+              : "Dieses Profil ist über die Suche sichtbar, ohne den anonymen Feed-Charakter aufzugeben."}
+        </p>
+      </div>
+
+      <div className="card sheetListCard">
+        <div className="sectionLabel">
+          <div>
+            <strong>Identität</strong>
+            <span>Öffentlich lesbar, Feed bleibt weiter anon-first.</span>
+          </div>
+        </div>
+        <div className="rowStack">
+          <ListRow
+            right={account.isCreator ? "Creator" : "Profil"}
+            rightTone={account.isCreator ? "positive" : "default"}
+            subtitle={visibilityLabel}
+            title="Sichtbarkeit"
+          />
+          <ListRow
+            right={account.cityLabel || "Offen"}
+            rightTone="default"
+            subtitle="Die Suche zieht den Stadtkontext aus dem verknüpften Hauptgerät."
+            title="Suchkontext"
+          />
+        </div>
+      </div>
+    </ConsumerSheet>
+  );
+}
+
 export function SettingsSheet({
   accountState,
+  onCheckUsernameAvailability,
   onClose,
   onLogoutAccount,
+  onLogoutAccountDevice,
   onStartEmailAccountLogin,
   onUpdateAccountProfile,
   onVerifyEmailAccountLogin,
 }: {
   accountState: AccountIdentity | null;
+  onCheckUsernameAvailability: (input: { username: string }) => Promise<{
+    available: boolean;
+    normalizedUsername: string;
+    reason?: string;
+    username: string;
+  }>;
   onClose: () => void;
   onLogoutAccount: () => Promise<{ ok: boolean; message: string }>;
+  onLogoutAccountDevice: (installIdentityId: string) => Promise<{ ok: boolean; message: string }>;
   onStartEmailAccountLogin: (input: { email: string; displayName?: string; username?: string }) => Promise<{
     codePreview?: string | null;
     ok: boolean;
     message: string;
   }>;
-  onUpdateAccountProfile: (input: { displayName?: string; discoverable?: boolean }) => Promise<{
+  onUpdateAccountProfile: (input: { displayName?: string; bio?: string; discoverable?: boolean }) => Promise<{
     ok: boolean;
     message: string;
   }>;
@@ -1816,20 +1929,98 @@ export function SettingsSheet({
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState(accountState?.username ?? "");
   const [displayName, setDisplayName] = useState(accountState?.displayName ?? "");
+  const [bio, setBio] = useState(accountState?.bio ?? "");
   const [discoverable, setDiscoverable] = useState(accountState?.discoverable ?? false);
   const [code, setCode] = useState("");
   const [codePreview, setCodePreview] = useState<string | null>(null);
-  const [busyAction, setBusyAction] = useState<"start" | "verify" | "save" | "logout" | null>(null);
+  const [busyAction, setBusyAction] = useState<"start" | "verify" | "save" | "logout" | "device" | null>(null);
+  const [busyDeviceId, setBusyDeviceId] = useState<string | null>(null);
+  const [usernameFeedback, setUsernameFeedback] = useState<{
+    available: boolean;
+    message: string;
+    tone: "muted" | "positive" | "danger";
+  }>({
+    available: false,
+    message: "Nutze ein eigenes @Handle für Suche, Creator-Identität und neue Geräte.",
+    tone: "muted",
+  });
   const activeDocumentContent = activeDocument ? settingsDocuments[activeDocument] : null;
   const hasAccount = Boolean(accountState);
+  const linkedInstallCount = accountState?.linkedInstalls?.length ?? accountState?.linkedInstallCount ?? 0;
+  const currentLinkedInstall = accountState?.linkedInstalls?.find((install) => install.current) ?? null;
 
   useEffect(() => {
     setUsername(accountState?.username ?? "");
     setDisplayName(accountState?.displayName ?? "");
+    setBio(accountState?.bio ?? "");
     setDiscoverable(accountState?.discoverable ?? false);
     setCode("");
     setCodePreview(null);
-  }, [accountState?.displayName, accountState?.discoverable, accountState?.username]);
+  }, [accountState?.bio, accountState?.displayName, accountState?.discoverable, accountState?.username]);
+
+  useEffect(() => {
+    if (hasAccount) {
+      setUsernameFeedback({
+        available: true,
+        message: `Dein Handle @${accountState?.username} bleibt aktuell stabil und wird für Creator-Identität und Suche genutzt.`,
+        tone: "muted",
+      });
+      return;
+    }
+
+    const normalizedUsername = username.trim().replace(/^@+/, "");
+    if (!normalizedUsername) {
+      setUsernameFeedback({
+        available: false,
+        message: "Nutze ein eigenes @Handle für Suche, Creator-Identität und neue Geräte.",
+        tone: "muted",
+      });
+      return;
+    }
+
+    if (normalizedUsername.length < 3) {
+      setUsernameFeedback({
+        available: false,
+        message: "Ein Handle braucht mindestens 3 Zeichen.",
+        tone: "danger",
+      });
+      return;
+    }
+
+    let cancelled = false;
+    const timer = window.setTimeout(() => {
+      onCheckUsernameAvailability({ username: normalizedUsername })
+        .then((result) => {
+          if (cancelled) {
+            return;
+          }
+
+          setUsernameFeedback({
+            available: result.available,
+            message: result.available
+              ? `@${result.normalizedUsername} ist verfügbar.`
+              : result.reason || `@${result.normalizedUsername} ist schon vergeben.`,
+            tone: result.available ? "positive" : "danger",
+          });
+        })
+        .catch(() => {
+          if (cancelled) {
+            return;
+          }
+
+          setUsernameFeedback({
+            available: false,
+            message: "Handle konnte gerade nicht geprüft werden.",
+            tone: "danger",
+          });
+        });
+    }, 240);
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timer);
+    };
+  }, [accountState?.username, hasAccount, onCheckUsernameAvailability, username]);
 
   return (
     <ConsumerSheet title="Einstellungen" onClose={onClose}>
@@ -1854,6 +2045,10 @@ export function SettingsSheet({
             <strong>{hasAccount ? accountState?.displayName || accountState?.username || "Nicht gesetzt" : "Nicht gesetzt"}</strong>
           </div>
           <div className="summaryItem">
+            <span>Profiltext</span>
+            <strong>{hasAccount ? (accountState?.bio ? "Gefüllt" : "Noch leer") : "Kommt später"}</strong>
+          </div>
+          <div className="summaryItem">
             <span>E-Mail</span>
             <strong>{hasAccount ? (accountState?.emailVerified ? "Bestätigt" : "Offen") : "Nicht gesichert"}</strong>
           </div>
@@ -1865,9 +2060,16 @@ export function SettingsSheet({
             <span>Channel Sync</span>
             <strong>{hasAccount ? "Accountweit" : "Nur lokal"}</strong>
           </div>
+          <div className="summaryItem">
+            <span>Geräte</span>
+            <strong>{hasAccount ? `${linkedInstallCount || 1} aktiv` : "1 lokal"}</strong>
+          </div>
         </div>
         {hasAccount ? (
-          <p className="sheetActionNote">Favoriten, Recent und Channel-Beitritte werden mit diesem Account synchronisiert.</p>
+          <p className="sheetActionNote">
+            Favoriten, Recent und Channel-Beitritte werden mit diesem Account synchronisiert.
+            {currentLinkedInstall ? ` Dieses Gerät ist an ${currentLinkedInstall.cityLabel} gebunden.` : ""}
+          </p>
         ) : null}
       </div>
 
@@ -1899,10 +2101,13 @@ export function SettingsSheet({
                 <input
                   className="searchInput denseSearchInput"
                   onChange={(event) => setUsername(event.target.value)}
-                  placeholder="deinhandle"
+                  placeholder="@deinhandle"
                   type="text"
                   value={username}
                 />
+                <p className={`supportCopy settingsHandleStatus settingsHandleStatus${usernameFeedback.tone[0].toUpperCase()}${usernameFeedback.tone.slice(1)}`}>
+                  {usernameFeedback.message}
+                </p>
               </label>
               <label className="composerToolInfo">
                 <strong>Anzeige-Name</strong>
@@ -1924,6 +2129,10 @@ export function SettingsSheet({
                   const normalizedEmail = email.trim();
                   if (!normalizedEmail) {
                     setFeedback("Bitte gib zuerst eine E-Mail an.");
+                    return;
+                  }
+                  if (!usernameFeedback.available) {
+                    setFeedback(usernameFeedback.message);
                     return;
                   }
 
@@ -1949,6 +2158,10 @@ export function SettingsSheet({
                   const normalizedCode = code.trim();
                   if (!normalizedEmail || !normalizedCode) {
                     setFeedback("Bitte E-Mail und Code ausfüllen.");
+                    return;
+                  }
+                  if (!usernameFeedback.available) {
+                    setFeedback(usernameFeedback.message);
                     return;
                   }
 
@@ -1983,6 +2196,10 @@ export function SettingsSheet({
                 <strong>{accountState?.displayName}</strong>
                 <span>@{accountState?.username}</span>
               </div>
+              <div className="composerToolInfo">
+                <strong>Handle</strong>
+                <span>{usernameFeedback.message}</span>
+              </div>
               <label className="composerToolInfo">
                 <strong>Anzeigename</strong>
                 <span>Wird bei Creator und späteren Profilen angezeigt.</span>
@@ -1992,6 +2209,17 @@ export function SettingsSheet({
                   placeholder="Anzeigename"
                   type="text"
                   value={displayName}
+                />
+              </label>
+              <label className="composerToolInfo composerToolInfoWide">
+                <strong>Profiltext</strong>
+                <span>Kurze Einordnung für Creator und öffentliche Profil-Vorschauen.</span>
+                <textarea
+                  className="composerInput settingsBioInput"
+                  onChange={(event) => setBio(event.target.value)}
+                  placeholder="Kurz beschreiben, wofür man dich öffentlich finden soll."
+                  rows={3}
+                  value={bio}
                 />
               </label>
               <button
@@ -2016,6 +2244,7 @@ export function SettingsSheet({
                   setBusyAction("save");
                   const result = await onUpdateAccountProfile({
                     displayName: displayName.trim() || undefined,
+                    bio: bio.trim(),
                     discoverable,
                   });
                   setBusyAction(null);
@@ -2039,6 +2268,38 @@ export function SettingsSheet({
                 Auf diesem Gerät abmelden
               </button>
             </div>
+            {accountState?.linkedInstalls?.length ? (
+              <div className="rowStack">
+                {accountState.linkedInstalls.slice(0, 4).map((install) => {
+                  const isBusyDevice = busyAction === "device" && busyDeviceId === install.installIdentityId;
+                  const sessionLabel = install.sessionCount === 1 ? "1 Session" : `${install.sessionCount} Sessions`;
+                  const statusLabel = install.status === "active" ? "Aktiv" : "Abgemeldet";
+                  const canLogoutDevice = !install.current && install.canRemoteLogout && busyAction !== "device";
+
+                  return (
+                    <ListRow
+                      key={install.installIdentityId}
+                      right={install.current ? "Dieses Gerät" : isBusyDevice ? "Trennt..." : "Abmelden"}
+                      rightTone={install.current ? "positive" : "danger"}
+                      subtitle={`${statusLabel} · ${sessionLabel} · Stadtbindung: ${install.cityLabel}`}
+                      title={install.deviceLabel || (install.current ? "Aktuelles Gerät" : "Weiteres Gerät")}
+                      onClick={
+                        canLogoutDevice
+                          ? async () => {
+                              setBusyAction("device");
+                              setBusyDeviceId(install.installIdentityId);
+                              const result = await onLogoutAccountDevice(install.installIdentityId);
+                              setFeedback(result.message);
+                              setBusyAction(null);
+                              setBusyDeviceId(null);
+                            }
+                          : undefined
+                      }
+                    />
+                  );
+                })}
+              </div>
+            ) : null}
           </>
         )}
       </div>

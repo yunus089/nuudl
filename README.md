@@ -26,7 +26,7 @@ This repository contains two implementation artifacts for the mobile-only anonym
 
 - `npm run smoke:beta` runs a repeatable closed-beta smoke against the local API, consumer, and admin services
 - `npm run backup:beta` copies the API snapshot and uploaded media into a timestamped local backup under `backups/beta/`
-- `npm run build:deploy` builds `shared`, `api`, and `consumer` in the deploy-safe order
+- `npm run build:deploy` builds `shared`, `api`, `consumer`, and `admin` in the deploy-safe order
 - `npm run start:api` and `npm run start:consumer` are the root-level launch helpers for Coolify or local testing
 - [blueprint/08_qa/BETA_OPERATIONS_RUNBOOK.md](C:/Users/yunus/Desktop/OJ_neu/blueprint/08_qa/BETA_OPERATIONS_RUNBOOK.md) documents health checks, smoke flow, backup and restore
 - [docs/deploy/COOLIFY_HOSTINGER.md](C:/Users/yunus/Desktop/OJ_neu/docs/deploy/COOLIFY_HOSTINGER.md) contains the minimal first deploy path for Coolify or Hostinger

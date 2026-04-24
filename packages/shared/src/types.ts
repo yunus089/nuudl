@@ -131,6 +131,7 @@ export type Post = {
   accountId?: string;
   accountUsername?: string;
   accountDisplayName?: string;
+  accountIsCreator?: boolean;
   body: string;
   authorLabel: string;
   score: number;
@@ -151,6 +152,7 @@ export type Reply = {
   accountId?: string;
   accountUsername?: string;
   accountDisplayName?: string;
+  accountIsCreator?: boolean;
   body: string;
   authorLabel: string;
   score: number;
@@ -260,7 +262,10 @@ export type ModerationAction = {
     | "approve_creator"
     | "reject_creator"
     | "pause_payouts"
-    | "verify_channel";
+    | "verify_channel"
+    | "block"
+    | "flag"
+    | "restore";
   note: string;
   createdAt: string;
 };
@@ -269,6 +274,7 @@ export type AuditLogEntry = {
   id: string;
   actorType: "install" | "admin" | "system";
   actorId: string;
+  actorRole?: "moderator" | "admin" | "owner";
   action: string;
   entityType: string;
   entityId: string;
@@ -304,6 +310,9 @@ export type AccountSearchResult = {
   isCreator: boolean;
   cityId?: string;
   cityLabel?: string;
+  bio?: string | null;
+  avatarUrl?: string | null;
+  visibilityReason?: "creator" | "discoverable";
 };
 
 export type ChatRequest = {
@@ -316,6 +325,10 @@ export type ChatRequest = {
   status: "pending" | "accepted" | "declined";
   createdAt: string;
   counterpartLabel?: string;
+  counterpartDisplayName?: string;
+  counterpartUsername?: string;
+  counterpartAvatarUrl?: string | null;
+  counterpartIsCreator?: boolean;
   lastActivityAt?: string;
   lastMessageAt?: string;
   lastMessageOwn?: boolean;

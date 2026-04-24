@@ -4,7 +4,7 @@ export type GateState = "pending" | "accepted";
 
 export type RootView = "feed" | "discover" | "chat" | "alerts" | "me";
 
-export type SheetView = null | "location" | "plus" | "settings" | "wallet" | "creator" | "composer";
+export type SheetView = null | "location" | "plus" | "settings" | "wallet" | "creator" | "composer" | "profile";
 
 export type FeedSort = "Neu" | "Kommentiert" | "Lauteste";
 
@@ -25,4 +25,3 @@ export type RootTab = {
 };
 
 export type TopBarVariant = "home" | "section";
-

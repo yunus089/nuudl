@@ -2,7 +2,13 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { autoResizeTextarea, formatTime, goBackOrFallback, openOrCreateChatFromPost } from "./consumer-helpers";
+import {
+  autoResizeTextarea,
+  formatTime,
+  getPublicActorPresentation,
+  goBackOrFallback,
+  openOrCreateChatFromPost,
+} from "./consumer-helpers";
 import { useConsumerApp } from "./consumer-provider";
 import type { RootView } from "./consumer-types";
 import {
@@ -145,6 +151,9 @@ function ReportPicker({
 function ReplyCard({
   id,
   authorLabel,
+  accountDisplayName,
+  accountIsCreator,
+  accountUsername,
   body,
   createdAt,
   score,
@@ -158,6 +167,9 @@ function ReplyCard({
 }: {
   id: string;
   authorLabel: string;
+  accountDisplayName?: string;
+  accountIsCreator?: boolean;
+  accountUsername?: string;
   body: string;
   createdAt: string;
   score: number;
@@ -170,6 +182,12 @@ function ReplyCard({
   reportBusy: boolean;
 }) {
   const [reportOpen, setReportOpen] = useState(false);
+  const author = getPublicActorPresentation({
+    accountDisplayName,
+    accountIsCreator,
+    accountUsername,
+    authorLabel,
+  });
 
   return (
     <article className="replyCard">
@@ -177,11 +195,13 @@ function ReplyCard({
         <div className="replyMeta">
           {onOpenAuthor && !isOwnReply ? (
             <button className="replyAuthorButton" onClick={onOpenAuthor} type="button">
-              {authorLabel}
+              {author.primaryLabel}
             </button>
           ) : (
-            <strong className="replyAuthorLabel">{authorLabel}</strong>
+            <strong className="replyAuthorLabel">{author.primaryLabel}</strong>
           )}
+          {author.secondaryLabel ? <span>{author.secondaryLabel}</span> : null}
+          {author.badgeLabel ? <span className="feedMetaTag">{author.badgeLabel}</span> : null}
           <span>{formatTime(createdAt)}</span>
           <button
             className={styles.inlineAction}
@@ -234,6 +254,7 @@ export function ConsumerPostRoute({ postId }: { postId: string }) {
   const consumerApp = useConsumerApp();
   const {
     booted,
+    betaInviteRequired,
     hydrationMessage,
     hydrationStatus,
     gateAccepted,
@@ -272,6 +293,7 @@ export function ConsumerPostRoute({ postId }: { postId: string }) {
   const [reportBusyTarget, setReportBusyTarget] = useState<string | null>(null);
   const [reportConfirmationByTarget, setReportConfirmationByTarget] = useState<Record<string, string>>({});
   const [replyFeedback, setReplyFeedback] = useState<string | null>(null);
+  const [tipFeedback, setTipFeedback] = useState<string | null>(null);
   const replyComposerRef = useRef<HTMLTextAreaElement | null>(null);
   const replyLength = replyBody.trim().length;
 
@@ -295,6 +317,7 @@ export function ConsumerPostRoute({ postId }: { postId: string }) {
     setReplyBody(readReplyDraft(postId));
     setLoadedDraftPostId(postId);
     setReplyFeedback(null);
+    setTipFeedback(null);
   }, [postId]);
 
   useEffect(() => {
@@ -366,7 +389,7 @@ export function ConsumerPostRoute({ postId }: { postId: string }) {
   }
 
   if (!gateAccepted) {
-    return <ConsumerGateScreen onAcceptGate={acceptGate} />;
+    return <ConsumerGateScreen betaInviteRequired={betaInviteRequired} onAcceptGate={acceptGate} />;
   }
 
   if (location.status !== "ready") {
@@ -438,17 +461,43 @@ export function ConsumerPostRoute({ postId }: { postId: string }) {
                     channel={channel}
                     onOpenAuthor={() => openAuthorChat(post.recipientInstallIdentityId)}
                     onVote={(value) => votePost(post.id, value)}
-                    onTip={(amountCents) => tipPost(post.id, amountCents)}
                     post={post}
                     replyCount={repliesForPost.length}
                     userVote={postVotes[post.id] ?? 0}
                   />
                 </div>
-                <div className={styles.postActionsRow}>
-                  <button className={styles.inlineAction} onClick={() => setPostReportOpen((current) => !current)} type="button">
-                    {reportConfirmationByTarget[`post:${post.id}`] ? "Beitrag gemeldet" : "Melden"}
-                  </button>
+                <div className={styles.postUtilityStack}>
+                  {post.canTip ? (
+                    <div className={styles.tipActionRow}>
+                      <span className={styles.tipActionLabel}>Tip geben</span>
+                      <div className={styles.tipButtonRow}>
+                        {[
+                          { grossCents: 200, label: "2 €" },
+                          { grossCents: 500, label: "5 €" },
+                          { grossCents: 1000, label: "10 €" },
+                        ].map((tipOption) => (
+                          <button
+                            className={styles.tipButton}
+                            key={tipOption.grossCents}
+                            onClick={async () => {
+                              const result = await tipPost(post.id, tipOption.grossCents);
+                              setTipFeedback(result.message);
+                            }}
+                            type="button"
+                          >
+                            {tipOption.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  ) : null}
+                  <div className={styles.postActionsRow}>
+                    <button className={styles.inlineAction} onClick={() => setPostReportOpen((current) => !current)} type="button">
+                      {reportConfirmationByTarget[`post:${post.id}`] ? "Beitrag gemeldet" : "Melden"}
+                    </button>
+                  </div>
                 </div>
+                {tipFeedback ? <p className={styles.tipFeedback}>{tipFeedback}</p> : null}
                 {(postReportOpen || reportConfirmationByTarget[`post:${post.id}`]) && (
                   <div className={styles.postReportWrap}>
                     <ReportPicker
@@ -472,6 +521,9 @@ export function ConsumerPostRoute({ postId }: { postId: string }) {
                     repliesForPost.map((reply) => (
                       <div className={styles.replyItemWrap} key={reply.id}>
                       <ReplyCard
+                        accountDisplayName={reply.accountDisplayName}
+                        accountIsCreator={reply.accountIsCreator}
+                        accountUsername={reply.accountUsername}
                         authorLabel={reply.authorLabel}
                         body={reply.body}
                         createdAt={reply.createdAt}
@@ -530,15 +582,15 @@ export function ConsumerPostRoute({ postId }: { postId: string }) {
                   disabled={!replyLength}
                   onClick={async () => {
                     setReplyFeedback(null);
-                    const createdReplyId = await createReply({ postId, body: replyBody });
+                    const replyResult = await createReply({ postId, body: replyBody });
 
-                    if (createdReplyId) {
+                    if (replyResult.id) {
                       setReplyBody("");
                       clearReplyDraft(postId);
                       return;
                     }
 
-                    setReplyFeedback("Antwort konnte gerade nicht gesendet werden.");
+                    setReplyFeedback(replyResult.message ?? "Antwort konnte gerade nicht gesendet werden.");
                   }}
                   type="button"
                 >

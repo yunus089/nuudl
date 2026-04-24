@@ -28,6 +28,8 @@ export const buildApp = async () => {
           "req.headers.x-install-token",
           "req.headers.x-admin-id",
           "req.headers.x-backoffice-id",
+          "req.headers.x-backoffice-secret",
+          "req.headers.x-backoffice-session-id",
         ],
         remove: true,
       },
@@ -48,7 +50,7 @@ export const buildApp = async () => {
     reply.header("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
     reply.header(
       "Access-Control-Allow-Headers",
-      "accept, authorization, content-type, idempotency-key, x-admin-id, x-admin-role, x-backoffice-id, x-backoffice-role, x-install-token, x-upload-filename"
+      "accept, authorization, content-type, idempotency-key, x-admin-id, x-admin-role, x-backoffice-id, x-backoffice-role, x-backoffice-secret, x-backoffice-session-id, x-install-token, x-upload-filename"
     );
 
     if (request.method === "OPTIONS") {

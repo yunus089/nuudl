@@ -15,12 +15,20 @@
     "build:api": "npm run build:shared && npm run build --workspace @veil/api",
     "build:consumer": "npm run build:shared && npm run build --workspace @veil/consumer",
     "build:admin": "npm run build:shared && npm run build --workspace @veil/admin",
-    "build:deploy": "npm run build:shared && npm run build --workspace @veil/api && npm run build --workspace @veil/consumer",
+    "build:deploy": "npm run build:shared && npm run build --workspace @veil/api && npm run build --workspace @veil/consumer && npm run build --workspace @veil/admin",
     "start:api": "node apps/api/dist/apps/api/src/index.js",
     "start:consumer": "npm run start --workspace @veil/consumer -- --hostname 0.0.0.0 --port 3000",
     "backup:beta": "node ./scripts/backup-beta-data.mjs",
+    "backoffice:break-glass": "npm run build:api && node apps/api/dist/apps/api/src/backoffice-break-glass.js",
+    "doctor:deploy": "node ./scripts/check-deploy-hygiene.mjs",
+    "doctor:deploy:strict": "node ./scripts/check-deploy-hygiene.mjs --strict",
+    "preflight:beta": "node ./scripts/preflight-beta.mjs",
+    "preflight:private-beta": "node ./scripts/preflight-beta.mjs --profile=private-beta",
+    "preflight:soft-launch": "node ./scripts/preflight-beta.mjs --profile=soft-launch",
+    "reset:beta-data": "node ./scripts/reset-beta-data.mjs",
     "lint": "npm run lint --workspaces --if-present",
     "smoke:beta": "node ./scripts/smoke-beta.mjs",
+    "test:api": "npm run test --workspace @veil/api",
     "typecheck": "npm run typecheck --workspaces --if-present"
   }
 }

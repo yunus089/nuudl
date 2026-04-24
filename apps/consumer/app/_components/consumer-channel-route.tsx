@@ -31,6 +31,7 @@ export function ConsumerChannelRoute({ slug }: { slug: string }) {
   const router = useRouter();
   const {
     booted,
+    betaInviteRequired,
     hydrationMessage,
     hydrationStatus,
     gateAccepted,
@@ -47,7 +48,6 @@ export function ConsumerChannelRoute({ slug }: { slug: string }) {
     feedPosts,
     feedReplies,
     postVotes,
-    tipPost,
     toggleChannelJoined,
     toggleFavoriteChannel,
     votePost,
@@ -107,7 +107,7 @@ export function ConsumerChannelRoute({ slug }: { slug: string }) {
   }
 
   if (!gateAccepted) {
-    return <ConsumerGateScreen onAcceptGate={acceptGate} />;
+    return <ConsumerGateScreen betaInviteRequired={betaInviteRequired} onAcceptGate={acceptGate} />;
   }
 
   if (location.status !== "ready") {
@@ -212,8 +212,8 @@ export function ConsumerChannelRoute({ slug }: { slug: string }) {
                 {channelPosts.length ? (
                   channelPosts.map((post) => (
                     <FeedCard
-                  channel={channel}
-                  key={post.id}
+                      channel={channel}
+                      key={post.id}
                       onOpenAuthor={() =>
                         openOrCreateChatFromPost({
                           createChatRequest,
@@ -224,9 +224,7 @@ export function ConsumerChannelRoute({ slug }: { slug: string }) {
                           requests: chatRequests,
                         })
                       }
-                      showQuickTips={false}
                       onOpenPost={() => router.push(`/post/${post.id}`)}
-                      onTip={(amountCents) => tipPost(post.id, amountCents)}
                       onVote={(value) => votePost(post.id, value)}
                       post={post}
                       replyCount={feedReplies.filter((reply) => reply.postId === post.id).length || post.replyCount}

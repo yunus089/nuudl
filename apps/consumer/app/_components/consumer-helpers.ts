@@ -1,4 +1,4 @@
-import type { ChatRequest, NotificationItem, Post } from "@veil/shared";
+import type { ChatRequest, NotificationItem, Post, Reply } from "@veil/shared";
 import type { RootTab, RootView } from "./consumer-types";
 
 export const rootTabs: RootTab[] = [
@@ -55,6 +55,58 @@ export function titleForView(view: RootView, cityLabel: string) {
 
 export function unreadCount(items: NotificationItem[]) {
   return items.filter((item) => !item.read).length;
+}
+
+type PublicActorSource = Pick<Post | Reply, "authorLabel" | "accountDisplayName" | "accountIsCreator" | "accountUsername">;
+
+export function getPublicActorPresentation(actor: PublicActorSource) {
+  if (!actor.accountIsCreator) {
+    return {
+      badgeLabel: null,
+      primaryLabel: actor.authorLabel,
+      secondaryLabel: null,
+    };
+  }
+
+  const primaryLabel = actor.accountDisplayName?.trim() || (actor.accountUsername ? `@${actor.accountUsername}` : actor.authorLabel);
+  const secondaryLabel = actor.accountUsername ? `@${actor.accountUsername}` : null;
+
+  return {
+    badgeLabel: "Creator",
+    primaryLabel,
+    secondaryLabel:
+      secondaryLabel && secondaryLabel.toLowerCase() !== primaryLabel.trim().toLowerCase() ? secondaryLabel : null,
+  };
+}
+
+export function getChatCounterpartPresentation(request: ChatRequest | null | undefined) {
+  if (!request) {
+    return {
+      badgeLabel: null,
+      primaryLabel: "Person",
+      secondaryLabel: null,
+    };
+  }
+
+  if (!request.counterpartIsCreator) {
+    return {
+      badgeLabel: null,
+      primaryLabel: request.counterpartLabel ?? "Person",
+      secondaryLabel: null,
+    };
+  }
+
+  const primaryLabel =
+    request.counterpartDisplayName?.trim() ||
+    (request.counterpartUsername ? `@${request.counterpartUsername}` : request.counterpartLabel ?? "Creator");
+  const secondaryLabel = request.counterpartUsername ? `@${request.counterpartUsername}` : null;
+
+  return {
+    badgeLabel: "Creator",
+    primaryLabel,
+    secondaryLabel:
+      secondaryLabel && secondaryLabel.toLowerCase() !== primaryLabel.trim().toLowerCase() ? secondaryLabel : null,
+  };
 }
 
 export function autoResizeTextarea(element: HTMLTextAreaElement | null, minHeight?: number, maxHeight?: number) {

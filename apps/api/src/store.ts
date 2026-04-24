@@ -1,7 +1,4 @@
-import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { createHash, randomBytes, randomUUID } from "node:crypto";
-import { dirname, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
 import {
   type Account,
   type AccountChannelPreferences,
@@ -12,11 +9,17 @@ import {
   type ChatMessage,
   type ChatRequest,
   type Channel,
+  type CityHealthSnapshot,
   type CityContext,
   type CreatorApplication,
+  type CreatorReview,
+  type FeatureFlag,
   type LedgerEntry,
+  type ModerationAction,
   type ModerationCase,
   type NotificationItem,
+  type Payout,
+  type PayoutAccount,
   type PlusEntitlement,
   type Post,
   type Reply,
@@ -26,6 +29,7 @@ import {
   type WalletBalance,
   type WalletTopup,
 } from "@veil/shared";
+import { loadStoreSnapshot, persistStoreSnapshot } from "./store-persistence.js";
 
 type MutableSeedState = SeedState & {
   installIdentity: SeedState["installIdentity"];
@@ -37,6 +41,29 @@ export type CreatorApplicationRecord = CreatorApplication & {
 };
 
 export type BackofficeRole = "owner" | "admin" | "moderator";
+export type BackofficeAuthMode = "loopback_dev_headers" | "trusted_proxy" | "trusted_proxy_session";
+
+export type BackofficeUserRecord = {
+  id: string;
+  role: BackofficeRole;
+  displayName: string;
+  disabledAt?: string;
+  createdAt: string;
+  lastSeenAt: string;
+};
+
+export type BackofficeSessionRecord = {
+  id: string;
+  backofficeUserId: string;
+  roleAtIssue: BackofficeRole;
+  authMode: BackofficeAuthMode;
+  status: "active" | "revoked";
+  createdAt: string;
+  lastSeenAt: string;
+  revokedAt?: string;
+  revocationReason?: string;
+  metadata: Record<string, unknown>;
+};
 
 export type BackofficeActionEntry = {
   id: string;
@@ -110,6 +137,7 @@ export type AccountLoginCodeRecord = {
   username: string;
   installIdentityId: string;
   code: string;
+  codeHash?: string;
   createdAt: string;
   expiresAt: string;
   attemptCount: number;
@@ -145,10 +173,24 @@ export type InstallRestrictionRecord = {
 
 export type AbuseEventRecord = {
   id: string;
+  accountId?: string;
   installIdentityId?: string;
   ipHash?: string;
   routeName: string;
   kind: string;
+  metadata: Record<string, unknown>;
+  createdAt: string;
+};
+
+export type GeoEventRecord = {
+  id: string;
+  installIdentityId?: string;
+  accountId?: string;
+  cityId?: string;
+  lat?: number;
+  lng?: number;
+  kind: string;
+  riskDelta: number;
   metadata: Record<string, unknown>;
   createdAt: string;
 };
@@ -184,6 +226,7 @@ export type ApiStore = {
   installIdentity: SeedState["installIdentity"];
   installIdentities: SeedState["installIdentity"][];
   channels: Channel[];
+  featureFlags: FeatureFlag[];
   posts: Post[];
   replies: Reply[];
   notifications: NotificationItem[];
@@ -194,8 +237,11 @@ export type ApiStore = {
   tips: Tip[];
   creatorApplication: CreatorApplicationRecord;
   moderationCases: ModerationCase[];
+  moderationActions: ModerationAction[];
   reports: ReportRecord[];
   auditLogs: AuditLogEntry[];
+  backofficeUsers: BackofficeUserRecord[];
+  backofficeSessions: BackofficeSessionRecord[];
   backofficeActions: BackofficeActionEntry[];
   idempotencyRecords: Record<string, IdempotencyRecord>;
   installSessions: InstallSessionRecord[];
@@ -207,11 +253,16 @@ export type ApiStore = {
   accountChannelPreferences: Record<string, AccountChannelPreferences>;
   installRestrictions: InstallRestrictionRecord[];
   abuseEvents: AbuseEventRecord[];
+  geoEvents: GeoEventRecord[];
   deviceRiskState: Record<string, DeviceRiskStateRecord>;
   rateLimitCounters: Record<string, RateLimitCounterRecord>;
   votes: Record<string, VoteState>;
   chatRequests: ChatRequest[];
   chatMessages: ChatMessage[];
+  creatorReviews: CreatorReview[];
+  payoutAccounts: PayoutAccount[];
+  payouts: Payout[];
+  cityHealth: CityHealthSnapshot[];
 };
 
 const parsePositiveInteger = (value: string | undefined, fallback: number) => {
@@ -223,8 +274,6 @@ const ACCESS_TOKEN_TTL_MS = 1000 * 60 * parsePositiveInteger(process.env.ACCESS_
 const REFRESH_TOKEN_TTL_MS = 1000 * 60 * 60 * 24 * parsePositiveInteger(process.env.REFRESH_TOKEN_TTL_DAYS, 30);
 const MAX_ACTIVE_SESSIONS_PER_INSTALL = parsePositiveInteger(process.env.MAX_ACTIVE_SESSIONS_PER_INSTALL, 3);
 const ACCOUNT_LOGIN_CODE_TTL_MS = 1000 * 60 * parsePositiveInteger(process.env.ACCOUNT_LOGIN_CODE_TTL_MINUTES, 10);
-
-const DATA_FILE_PATH = resolve(dirname(fileURLToPath(import.meta.url)), "..", ".data", "api-store.json");
 
 const clone = <T>(value: T): T => {
   if (typeof structuredClone === "function") {
@@ -245,6 +294,70 @@ const zeroWallet = (): WalletBalance => ({
   lifetimeTippedCents: 0,
   lifetimeEarnedCents: 0,
   lifetimePaidOutCents: 0,
+});
+
+const seedPlusEntitlement = (active: boolean): PlusEntitlement => ({
+  active,
+  explorer: active,
+  imageChat: active,
+  noAds: active,
+  weeklyBoosts: active ? 3 : 0,
+  weeklyColorDrops: active ? 3 : 0,
+});
+
+type SeedProfile = "clean" | "demo";
+
+export const getSeedProfile = (): SeedProfile => {
+  const normalized = process.env.API_SEED_PROFILE?.trim().toLowerCase();
+  if (normalized === "clean" || normalized === "empty" || normalized === "beta") {
+    return "clean";
+  }
+
+  if (normalized === "demo") {
+    return "demo";
+  }
+
+  return process.env.NODE_ENV === "production" ? "clean" : "demo";
+};
+
+const createCleanBetaSeedState = (state: MutableSeedState): MutableSeedState => ({
+  ...state,
+  channels: state.channels.map((channel) => ({
+    ...channel,
+    joined: false,
+    memberCount: 0,
+  })),
+  posts: [],
+  replies: [],
+  notifications: [],
+  wallet: zeroWallet(),
+  ledger: [],
+  tips: [],
+  creatorApplication: {
+    ...state.creatorApplication,
+    adultVerified: false,
+    kycState: "not_started",
+    payoutState: "not_ready",
+    status: "draft",
+    submittedAt: null,
+  },
+  moderationCases: [],
+  reports: [],
+  moderationActions: [],
+  auditTrail: [],
+  chatRequests: [],
+  chatMessages: [],
+  creatorReviews: [],
+  payoutAccounts: [],
+  payouts: [],
+  walletTopups: [],
+  cityHealth: state.cityHealth.map((entry) => ({
+    ...entry,
+    activeCreators: 0,
+    livePosts: 0,
+    openReports: 0,
+    walletVolumeCents: 0,
+  })),
 });
 
 const addMilliseconds = (isoTimestamp: string, milliseconds: number) =>
@@ -314,7 +427,8 @@ const createInstallIdentityRecord = (
 });
 
 const createSeedBackedStore = (): ApiStore => {
-  const state = clone(seedState) as MutableSeedState;
+  const clonedSeed = clone(seedState) as MutableSeedState;
+  const state = getSeedProfile() === "clean" ? createCleanBetaSeedState(clonedSeed) : clonedSeed;
   const installIdentity = createInstallIdentityRecord(state.installIdentity, {
     id: state.installIdentity.id,
     installKey: state.installIdentity.installKey,
@@ -322,6 +436,7 @@ const createSeedBackedStore = (): ApiStore => {
     cityId: state.installIdentity.cityId,
     cityLabel: state.installIdentity.cityLabel,
     createdAt: state.installIdentity.createdAt,
+    plus: getSeedProfile() === "clean" ? seedPlusEntitlement(false) : state.installIdentity.plus,
   });
   const wallets: Record<string, WalletBalance> = {
     [installIdentity.id]: state.wallet,
@@ -345,6 +460,7 @@ const createSeedBackedStore = (): ApiStore => {
     installIdentity,
     installIdentities: [installIdentity],
     channels: state.channels,
+    featureFlags: state.featureFlags,
     posts: normalizePosts(state.posts),
     replies: normalizeReplies(state.replies),
     notifications: normalizeNotifications(state.notifications, installIdentity.id),
@@ -355,8 +471,11 @@ const createSeedBackedStore = (): ApiStore => {
     tips: state.tips,
     creatorApplication: state.creatorApplication,
     moderationCases: state.moderationCases,
+    moderationActions: state.moderationActions,
     reports,
     auditLogs: [],
+    backofficeUsers: [],
+    backofficeSessions: [],
     backofficeActions: [],
     idempotencyRecords: {},
     installSessions: [],
@@ -368,11 +487,16 @@ const createSeedBackedStore = (): ApiStore => {
     accountChannelPreferences: {},
     installRestrictions: [],
     abuseEvents: [],
+    geoEvents: [],
     deviceRiskState: {},
     rateLimitCounters: {},
     votes: {},
     chatRequests: state.chatRequests,
     chatMessages: state.chatMessages,
+    creatorReviews: state.creatorReviews,
+    payoutAccounts: state.payoutAccounts,
+    payouts: state.payouts,
+    cityHealth: state.cityHealth,
   };
 };
 
@@ -387,6 +511,7 @@ const mergePersistedStore = (persisted: Partial<ApiStore>): ApiStore => {
       persisted.installIdentities?.find((entry) => entry.id === seed.installIdentity.id) ??
       seed.installIdentity,
     installIdentities: persisted.installIdentities ?? [persisted.installIdentity ?? seed.installIdentity],
+    featureFlags: persisted.featureFlags ?? seed.featureFlags,
     posts: normalizePosts(persisted.posts ?? seed.posts),
     replies: normalizeReplies(persisted.replies ?? seed.replies),
     notifications: normalizeNotifications(
@@ -399,7 +524,10 @@ const mergePersistedStore = (persisted: Partial<ApiStore>): ApiStore => {
     },
     idempotencyRecords: persisted.idempotencyRecords ?? seed.idempotencyRecords,
     auditLogs: persisted.auditLogs ?? seed.auditLogs,
+    backofficeUsers: persisted.backofficeUsers ?? seed.backofficeUsers,
+    backofficeSessions: persisted.backofficeSessions ?? seed.backofficeSessions,
     backofficeActions: persisted.backofficeActions ?? seed.backofficeActions,
+    moderationActions: persisted.moderationActions ?? seed.moderationActions,
     installSessions: persisted.installSessions ?? seed.installSessions,
     refreshTokens: persisted.refreshTokens ?? seed.refreshTokens,
     accounts: persisted.accounts ?? seed.accounts,
@@ -409,8 +537,13 @@ const mergePersistedStore = (persisted: Partial<ApiStore>): ApiStore => {
     accountChannelPreferences: persisted.accountChannelPreferences ?? seed.accountChannelPreferences,
     installRestrictions: persisted.installRestrictions ?? seed.installRestrictions,
     abuseEvents: persisted.abuseEvents ?? seed.abuseEvents,
+    geoEvents: persisted.geoEvents ?? seed.geoEvents,
     deviceRiskState: persisted.deviceRiskState ?? seed.deviceRiskState,
     rateLimitCounters: persisted.rateLimitCounters ?? seed.rateLimitCounters,
+    creatorReviews: persisted.creatorReviews ?? seed.creatorReviews,
+    payoutAccounts: persisted.payoutAccounts ?? seed.payoutAccounts,
+    payouts: persisted.payouts ?? seed.payouts,
+    cityHealth: persisted.cityHealth ?? seed.cityHealth,
     wallets: {
       ...seed.wallets,
       ...(persisted.wallets ?? {}),
@@ -418,23 +551,9 @@ const mergePersistedStore = (persisted: Partial<ApiStore>): ApiStore => {
   };
 };
 
-const persistStoreSnapshot = async (store: ApiStore) => {
-  await mkdir(dirname(DATA_FILE_PATH), { recursive: true });
-  await writeFile(DATA_FILE_PATH, JSON.stringify(store, null, 2), "utf8");
-};
-
-const loadPersistedStore = async (): Promise<ApiStore> => {
-  try {
-    const raw = await readFile(DATA_FILE_PATH, "utf8");
-    return mergePersistedStore(JSON.parse(raw) as Partial<ApiStore>);
-  } catch (error) {
-    const readError = error as NodeJS.ErrnoException;
-    if (readError.code === "ENOENT") {
-      return createSeedBackedStore();
-    }
-
-    throw error;
-  }
+export const loadPersistedStore = async (): Promise<ApiStore> => {
+  const snapshot = await loadStoreSnapshot(createSeedBackedStore);
+  return mergePersistedStore(snapshot);
 };
 
 const proxifyStore = (store: ApiStore, onMutate: () => void): ApiStore => {
@@ -501,7 +620,9 @@ export const createStore = async (): Promise<ApiStore> => {
 
       persistTimer = setTimeout(() => {
         persistTimer = null;
-        void persistStoreSnapshot(store);
+        void persistStoreSnapshot(store).catch((error) => {
+          console.error("store.snapshot_persist_failed", error);
+        });
       }, 40);
     };
 
@@ -513,6 +634,8 @@ export const createStore = async (): Promise<ApiStore> => {
 
   return storePromise;
 };
+
+export const createInMemoryStoreForTests = (): ApiStore => createSeedBackedStore();
 
 export const createId = (prefix: string) => `${prefix}-${randomUUID()}`;
 
@@ -554,6 +677,140 @@ export const getAccountForInstallIdentity = (store: ApiStore, installIdentityId:
 
 export const getAccountProfile = (store: ApiStore, accountId: string | null | undefined): AccountProfile | null =>
   accountId ? store.accountProfiles[accountId] ?? null : null;
+
+export const getBackofficeUserById = (store: ApiStore, backofficeUserId: string | null | undefined) =>
+  backofficeUserId ? store.backofficeUsers.find((entry) => entry.id === backofficeUserId) ?? null : null;
+
+export const ensureBackofficeUser = (
+  store: ApiStore,
+  params: {
+    displayName?: string;
+    id: string;
+    lastSeenAt?: string;
+    role: BackofficeRole;
+    syncRole?: boolean;
+  }
+) => {
+  const now = params.lastSeenAt ?? new Date().toISOString();
+  const displayName = params.displayName?.trim();
+  const existing = getBackofficeUserById(store, params.id);
+
+  if (existing) {
+    if (params.syncRole) {
+      existing.role = params.role;
+    }
+    if (displayName) {
+      existing.displayName = displayName;
+    }
+    existing.lastSeenAt = now;
+    return existing;
+  }
+
+  const backofficeUser: BackofficeUserRecord = {
+    id: params.id,
+    role: params.role,
+    displayName: displayName || params.id,
+    createdAt: now,
+    lastSeenAt: now,
+  };
+
+  store.backofficeUsers.unshift(backofficeUser);
+  return backofficeUser;
+};
+
+export const getBackofficeSessionById = (store: ApiStore, backofficeSessionId: string | null | undefined) =>
+  backofficeSessionId ? store.backofficeSessions.find((entry) => entry.id === backofficeSessionId) ?? null : null;
+
+export const ensureBackofficeSession = (
+  store: ApiStore,
+  params: {
+    authMode: BackofficeAuthMode;
+    backofficeUserId: string;
+    id: string;
+    lastSeenAt?: string;
+    metadata?: Record<string, unknown>;
+    revocationReason?: string;
+    roleAtIssue: BackofficeRole;
+    status?: "active" | "revoked";
+  }
+) => {
+  const now = params.lastSeenAt ?? new Date().toISOString();
+  const metadata = params.metadata ?? {};
+  const status = params.status ?? "active";
+  const existing = getBackofficeSessionById(store, params.id);
+
+  if (existing) {
+    const nextStatus = existing.status === "revoked" && status === "active" ? "revoked" : status;
+    existing.backofficeUserId = params.backofficeUserId;
+    existing.roleAtIssue = params.roleAtIssue;
+    existing.authMode = params.authMode;
+    existing.status = nextStatus;
+    existing.lastSeenAt = now;
+    existing.metadata = {
+      ...existing.metadata,
+      ...metadata,
+    };
+
+    if (nextStatus === "revoked") {
+      existing.revokedAt = now;
+      existing.revocationReason = params.revocationReason ?? existing.revocationReason;
+    } else if (status === "active") {
+      delete existing.revokedAt;
+      delete existing.revocationReason;
+    }
+
+    return existing;
+  }
+
+  const session: BackofficeSessionRecord = {
+    id: params.id,
+    backofficeUserId: params.backofficeUserId,
+    roleAtIssue: params.roleAtIssue,
+    authMode: params.authMode,
+    status,
+    createdAt: now,
+    lastSeenAt: now,
+    metadata,
+  };
+
+  if (status === "revoked") {
+    session.revokedAt = now;
+    session.revocationReason = params.revocationReason;
+  }
+
+  store.backofficeSessions.unshift(session);
+  return session;
+};
+
+export const revokeBackofficeSessions = (
+  store: ApiStore,
+  params: {
+    backofficeUserId: string;
+    exceptSessionId?: string;
+    reason: string;
+    revokedAt?: string;
+  }
+) => {
+  const revokedAt = params.revokedAt ?? new Date().toISOString();
+  const revoked: BackofficeSessionRecord[] = [];
+
+  for (const session of store.backofficeSessions) {
+    if (
+      session.backofficeUserId !== params.backofficeUserId ||
+      session.status === "revoked" ||
+      session.id === params.exceptSessionId
+    ) {
+      continue;
+    }
+
+    session.status = "revoked";
+    session.revokedAt = revokedAt;
+    session.revocationReason = params.reason;
+    revoked.push(session);
+  }
+
+  return revoked;
+};
 
 const accountChannelPreferencesKey = (accountId: string, cityId: string) => `${accountId}:${cityId}`;
 
@@ -716,6 +973,113 @@ export const recordBackofficeAction = (
   return actionEntry;
 };
 
+export type BackofficeOwnerRecoveryResult = {
+  action: "created" | "updated";
+  activeOwnerCountAfter: number;
+  activeOwnerCountBefore: number;
+  auditLog: AuditLogEntry;
+  backofficeAction: BackofficeActionEntry;
+  previousUser: BackofficeUserRecord | null;
+  removedSessions: BackofficeSessionRecord[];
+  user: BackofficeUserRecord;
+};
+
+const countActiveBackofficeOwners = (store: ApiStore) =>
+  store.backofficeUsers.filter((user) => user.role === "owner" && !user.disabledAt).length;
+
+export const recoverBackofficeOwner = (
+  store: ApiStore,
+  params: {
+    actorId?: string;
+    displayName?: string;
+    now?: string;
+    ownerId: string;
+    reason: string;
+    resetSessions?: boolean;
+  }
+): BackofficeOwnerRecoveryResult => {
+  const now = params.now ?? new Date().toISOString();
+  const actorId = params.actorId?.trim() || "break-glass";
+  const displayName = params.displayName?.trim();
+  const activeOwnerCountBefore = countActiveBackofficeOwners(store);
+  const existingUser = getBackofficeUserById(store, params.ownerId);
+  const previousUser = existingUser ? { ...existingUser } : null;
+  const action: BackofficeOwnerRecoveryResult["action"] = existingUser ? "updated" : "created";
+  const user =
+    existingUser ??
+    ({
+      id: params.ownerId,
+      role: "owner",
+      displayName: displayName || params.ownerId,
+      createdAt: now,
+      lastSeenAt: now,
+    } satisfies BackofficeUserRecord);
+
+  user.role = "owner";
+  user.displayName = displayName || user.displayName || params.ownerId;
+  user.lastSeenAt = now;
+  delete user.disabledAt;
+
+  if (!existingUser) {
+    store.backofficeUsers.unshift(user);
+  }
+
+  const removedSessions =
+    params.resetSessions === false
+      ? []
+      : store.backofficeSessions.filter((session) => session.backofficeUserId === params.ownerId);
+
+  if (removedSessions.length > 0) {
+    const removedSessionIds = new Set(removedSessions.map((session) => session.id));
+    store.backofficeSessions = store.backofficeSessions.filter((session) => !removedSessionIds.has(session.id));
+  }
+
+  const metadata = {
+    action,
+    activeOwnerCountBefore,
+    activeOwnerCountAfter: countActiveBackofficeOwners(store),
+    previousDisabledAt: previousUser?.disabledAt ?? null,
+    previousRole: previousUser?.role ?? null,
+    reason: params.reason,
+    resetSessions: params.resetSessions !== false,
+    removedSessionCount: removedSessions.length,
+    removedSessionIds: removedSessions.map((session) => session.id),
+  };
+
+  const auditLog = recordAudit(store, {
+    actorType: "system",
+    actorId,
+    actorRole: "owner",
+    action: "backoffice_owner.break_glass_recover",
+    entityType: "backoffice_user",
+    entityId: user.id,
+    summary: `Break-glass owner recovery -> backoffice_user:${user.id}`,
+    metadata,
+    createdAt: now,
+  });
+
+  const backofficeAction = recordBackofficeAction(store, {
+    actorId,
+    actorRole: "owner",
+    action: "backoffice_owner.break_glass_recover",
+    entityType: "backoffice_user",
+    entityId: user.id,
+    metadata,
+    createdAt: now,
+  });
+
+  return {
+    action,
+    activeOwnerCountAfter: metadata.activeOwnerCountAfter,
+    activeOwnerCountBefore,
+    auditLog,
+    backofficeAction,
+    previousUser,
+    removedSessions,
+    user,
+  };
+};
+
 export const createReportRecord = (
   store: ApiStore,
   params: {
@@ -758,12 +1122,7 @@ export const createReportRecord = (
 };
 
 export const toPlusEntitlement = (active: boolean): PlusEntitlement => ({
-  active,
-  explorer: active,
-  imageChat: active,
-  noAds: active,
-  weeklyBoosts: active ? 3 : 0,
-  weeklyColorDrops: active ? 3 : 0,
+  ...seedPlusEntitlement(active),
 });
 
 const revokeRefreshFamily = (store: ApiStore, familyId: string, reason: string, revokedAt: string) => {
@@ -783,10 +1142,64 @@ const revokeRefreshFamily = (store: ApiStore, familyId: string, reason: string, 
   });
 };
 
+export const revokeInstallSessions = (
+  store: ApiStore,
+  installIdentityId: string,
+  reason: string,
+  revokedAt = new Date().toISOString(),
+) => {
+  let revokedRefreshTokens = 0;
+  let revokedSessions = 0;
+  const tokenFamilyIds = new Set<string>();
+
+  store.installSessions.forEach((session) => {
+    if (session.installIdentityId !== installIdentityId || session.status === "revoked") {
+      return;
+    }
+
+    session.status = "revoked";
+    session.revokedAt = revokedAt;
+    session.revocationReason = reason;
+    tokenFamilyIds.add(session.tokenFamilyId);
+    revokedSessions += 1;
+  });
+
+  store.refreshTokens.forEach((token) => {
+    if (token.installIdentityId !== installIdentityId || token.revokedAt) {
+      return;
+    }
+
+    token.revokedAt = revokedAt;
+    token.revocationReason = reason;
+    tokenFamilyIds.add(token.tokenFamilyId);
+    revokedRefreshTokens += 1;
+  });
+
+  return {
+    revokedRefreshTokens,
+    revokedSessions,
+    tokenFamilyIds: [...tokenFamilyIds],
+  };
+};
+
 const enforceSessionLimit = (store: ApiStore, installIdentityId: string, currentSessionId: string) => {
-  const activeSessions = [...store.installSessions]
-    .filter((session) => session.installIdentityId === installIdentityId && session.status === "active")
-    .sort((left, right) => Date.parse(left.lastSeenAt) - Date.parse(right.lastSeenAt));
+  const activeSessions = store.installSessions
+    .map((session, index) => ({ index, session }))
+    .filter(({ session }) => session.installIdentityId === installIdentityId && session.status === "active")
+    .sort((left, right) => {
+      const lastSeenDelta = Date.parse(left.session.lastSeenAt) - Date.parse(right.session.lastSeenAt);
+      if (lastSeenDelta !== 0) {
+        return lastSeenDelta;
+      }
+
+      const createdDelta = Date.parse(left.session.createdAt) - Date.parse(right.session.createdAt);
+      if (createdDelta !== 0) {
+        return createdDelta;
+      }
+
+      return right.index - left.index;
+    })
+    .map(({ session }) => session);
 
   if (activeSessions.length <= MAX_ACTIVE_SESSIONS_PER_INSTALL) {
     return;
@@ -922,12 +1335,14 @@ export const startAccountLoginCode = (
   }
 ) => {
   const now = new Date().toISOString();
+  const code = issueLoginCode();
   const codeRecord: AccountLoginCodeRecord = {
     id: createId("login-code"),
     emailNormalized: params.emailNormalized,
     username: params.username,
     installIdentityId: params.installIdentityId,
-    code: issueLoginCode(),
+    code,
+    codeHash: hashToken(code),
     createdAt: now,
     expiresAt: addMilliseconds(now, ACCOUNT_LOGIN_CODE_TTL_MS),
     attemptCount: 0,
@@ -950,10 +1365,11 @@ export const verifyAccountLoginCode = (
     username: string;
   }
 ) => {
+  const codeHash = hashToken(params.code);
   const record = store.accountLoginCodes.find(
     (entry) =>
       !entry.consumedAt &&
-      entry.code === params.code &&
+      (entry.code === params.code || entry.codeHash === codeHash) &&
       entry.emailNormalized === params.emailNormalized &&
       entry.installIdentityId === params.installIdentityId
   );
@@ -985,7 +1401,20 @@ export const linkInstallIdentityToAccount = (
 ) => {
   const now = new Date().toISOString();
   const installIdentity = ensureInstallIdentity(store, params.installIdentityId);
-  let account = findAccountByEmail(store, params.emailNormalized) ?? findAccountByUsername(store, params.username);
+  const accountById = getAccountById(store, params.accountId);
+  const accountByEmail = findAccountByEmail(store, params.emailNormalized);
+  const accountByUsername = findAccountByUsername(store, params.username);
+  if (accountByEmail && accountByUsername && accountByEmail.id !== accountByUsername.id) {
+    throw new Error("account_identity_conflict");
+  }
+  if (accountById && accountByEmail && accountById.id !== accountByEmail.id) {
+    throw new Error("account_identity_conflict");
+  }
+  if (accountById && accountByUsername && accountById.id !== accountByUsername.id) {
+    throw new Error("account_identity_conflict");
+  }
+
+  let account = accountById ?? accountByEmail ?? accountByUsername;
 
   if (!account) {
     account = {
@@ -1009,8 +1438,14 @@ export const linkInstallIdentityToAccount = (
   installIdentity.accountDisplayName = params.displayName ?? installIdentity.accountDisplayName ?? account.username;
   installIdentity.discoverable = account.discoverable;
 
+  store.accountLinks.forEach((link) => {
+    if (link.installIdentityId === installIdentity.id && link.unlinkedAt === null && link.accountId !== account.id) {
+      link.unlinkedAt = now;
+    }
+  });
+
   const existingLink = store.accountLinks.find(
-    (link) => link.installIdentityId === installIdentity.id && link.unlinkedAt === null
+    (link) => link.installIdentityId === installIdentity.id && link.accountId === account.id && link.unlinkedAt === null
   );
   if (!existingLink) {
     store.accountLinks.unshift({
@@ -1180,6 +1615,7 @@ export const recordAbuseEvent = (
 ) => {
   const event: AbuseEventRecord = {
     id: createId("abuse"),
+    accountId: entry.accountId,
     installIdentityId: entry.installIdentityId,
     ipHash: entry.ipHash,
     routeName: entry.routeName,
@@ -1189,6 +1625,27 @@ export const recordAbuseEvent = (
   };
 
   store.abuseEvents.unshift(event);
+  return event;
+};
+
+export const recordGeoEvent = (
+  store: ApiStore,
+  entry: Omit<GeoEventRecord, "id" | "createdAt"> & { createdAt?: string },
+) => {
+  const event: GeoEventRecord = {
+    id: createId("geo"),
+    installIdentityId: entry.installIdentityId,
+    accountId: entry.accountId,
+    cityId: entry.cityId,
+    lat: entry.lat,
+    lng: entry.lng,
+    kind: entry.kind,
+    riskDelta: entry.riskDelta,
+    metadata: entry.metadata,
+    createdAt: entry.createdAt ?? new Date().toISOString(),
+  };
+
+  store.geoEvents.unshift(event);
   return event;
 };
 

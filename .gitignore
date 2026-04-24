@@ -1,8 +1,12 @@
 node_modules/
 .next/
 .next-build/
+.next-dev/
 dist/
 coverage/
+output/
+backups/
+apps/api/.data/
 .DS_Store
 .env
 .turbo/

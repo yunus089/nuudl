@@ -32,19 +32,14 @@
   padding-inline: 8px;
 }
 
-.requestCard,
-.composerCard,
-.emptyThread,
-.messageBubble {
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-md);
-  background: var(--bg-surface);
-}
-
 .requestCard {
   display: grid;
   gap: 8px;
-  padding: 12px;
+  padding: 14px 0 12px;
+  border: 0;
+  border-top: 1px solid var(--border-subtle);
+  border-radius: 0;
+  background: transparent;
 }
 
 .requestCardCompact {
@@ -136,10 +131,11 @@
 .sourceCard {
   display: grid;
   gap: 6px;
-  padding: 12px;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border-subtle);
-  background: var(--bg-surface-elevated);
+  padding: 10px 0 0;
+  border-radius: 0;
+  border: 0;
+  border-top: 1px solid var(--border-subtle);
+  background: transparent;
 }
 
 .sourceLabel {
@@ -287,13 +283,15 @@
 
 .messageList {
   display: grid;
-  gap: 8px;
+  gap: 0;
+  margin-top: 4px;
 }
 
 .emptyThread {
   display: grid;
   gap: 8px;
-  padding: 14px;
+  padding: 14px 0;
+  border-top: 1px solid var(--border-subtle);
 }
 
 .emptyThread strong {
@@ -309,14 +307,16 @@
 .messageBubble {
   display: grid;
   gap: 6px;
-  padding: 10px 12px;
-  max-width: 83%;
+  padding: 12px 0;
+  max-width: none;
+  border: 0;
+  border-top: 1px solid var(--border-subtle);
+  border-radius: 0;
+  background: transparent;
 }
 
 .messageBubbleSelf {
-  margin-left: auto;
-  border-color: rgba(232, 61, 109, 0.22);
-  background: var(--accent-muted);
+  margin-left: 0;
 }
 
 .messageHead {
@@ -343,7 +343,7 @@
 .composerDock {
   display: grid;
   gap: 8px;
-  padding: 8px 16px 10px;
+  padding: 8px 16px calc(10px + var(--safe-area-bottom));
   border-top: 1px solid var(--border-subtle);
   background: var(--bg-surface-elevated);
 }

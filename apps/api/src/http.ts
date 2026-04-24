@@ -137,6 +137,19 @@ export const normalizeError = (error: unknown, requestId: string): ApiErrorShape
 };
 
 export const installHttpGuards = (app: FastifyInstance) => {
+  app.addHook("onRequest", async (request) => {
+    const contentType = request.headers["content-type"];
+    const values = Array.isArray(contentType) ? contentType : [contentType];
+
+    for (const value of values) {
+      if (typeof value === "string" && value.trim() !== value) {
+        throw badRequest("Invalid Content-Type header.", {
+          header: "content-type",
+        });
+      }
+    }
+  });
+
   app.setErrorHandler((error, request, reply) => {
     const normalized = normalizeError(error, request.id);
     const statusCode = isApiError(error) ? error.statusCode : 400;

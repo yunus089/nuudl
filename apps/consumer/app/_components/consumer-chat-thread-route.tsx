@@ -4,7 +4,13 @@ import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { consumerApi } from "../_lib/consumer-api";
 import { useConsumerApp } from "./consumer-provider";
-import { autoResizeTextarea, formatTime, goBackOrFallback, readFileAsDataUrl } from "./consumer-helpers";
+import {
+  autoResizeTextarea,
+  formatTime,
+  getChatCounterpartPresentation,
+  goBackOrFallback,
+  readFileAsDataUrl,
+} from "./consumer-helpers";
 import type { RootView } from "./consumer-types";
 import {
   BackIcon,
@@ -148,6 +154,7 @@ export function ConsumerChatThreadRoute({ requestId }: { requestId: string }) {
   const {
     booted,
     accountState,
+    betaInviteRequired,
     hydrationMessage,
     hydrationStatus,
     gateAccepted,
@@ -236,7 +243,10 @@ export function ConsumerChatThreadRoute({ requestId }: { requestId: string }) {
 
   const request = chatRequests.find((entry) => entry.id === requestId) ?? null;
   const relatedPost = request ? feedPosts.find((entry) => entry.id === request.postId) ?? null : null;
-  const contactLabel = relatedPost?.authorLabel ?? "Person";
+  const counterpart = getChatCounterpartPresentation(request);
+  const contactLabel = counterpart.primaryLabel;
+  const contactHandle = counterpart.secondaryLabel;
+  const contactKindLabel = counterpart.badgeLabel ?? "Person";
   const isRequestRecipient =
     (Boolean(accountState?.id) && request?.toAccountId === accountState?.id) || request?.toInstallIdentityId === installIdentityId;
   const isRequestSender =
@@ -304,7 +314,7 @@ export function ConsumerChatThreadRoute({ requestId }: { requestId: string }) {
   }
 
   if (!gateAccepted) {
-    return <ConsumerGateScreen onAcceptGate={acceptGate} />;
+    return <ConsumerGateScreen betaInviteRequired={betaInviteRequired} onAcceptGate={acceptGate} />;
   }
 
   if (location.status !== "ready") {
@@ -343,7 +353,13 @@ export function ConsumerChatThreadRoute({ requestId }: { requestId: string }) {
 
           <div className={`${styles.topBarCenter} topBarCenter`}>
             <span className="titleHeader">{request ? contactLabel : "Chat"}</span>
-            <span className={styles.topBarSubline}>{request ? `seit ${formatTime(request.createdAt)}` : "Nachricht"}</span>
+            <span className={styles.topBarSubline}>
+              {request
+                ? contactHandle
+                  ? `${contactHandle} • seit ${formatTime(request.createdAt)}`
+                  : `seit ${formatTime(request.createdAt)}`
+                : "Nachricht"}
+            </span>
           </div>
 
           <div className="topBarSide topBarSideRight">
@@ -376,14 +392,15 @@ export function ConsumerChatThreadRoute({ requestId }: { requestId: string }) {
                     </p>
                   </article>
                 ) : (
-                  <article className={styles.requestCard}>
-                    <div className={styles.requestTop}>
-                      <div>
-                        <p className={styles.eyebrow}>Person</p>
-                        <h1 className={styles.requestTitle}>{contactLabel}</h1>
-                        <p className={styles.requestCopy}>
-                          {request.status === "declined" ? "Diese Anfrage wurde abgelehnt." : "Noch nicht freigeschaltet."}
-                        </p>
+                    <article className={styles.requestCard}>
+                      <div className={styles.requestTop}>
+                        <div>
+                          <p className={styles.eyebrow}>{contactKindLabel}</p>
+                          <h1 className={styles.requestTitle}>{contactLabel}</h1>
+                          {contactHandle ? <p className={styles.requestCopy}>{contactHandle}</p> : null}
+                          <p className={styles.requestCopy}>
+                            {request.status === "declined" ? "Diese Anfrage wurde abgelehnt." : "Noch nicht freigeschaltet."}
+                          </p>
                       </div>
                       <span className={`${styles.statusPill} ${styles.statusMuted}`}>
                         {request.status === "declined"

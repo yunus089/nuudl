@@ -1,10 +1,21 @@
 const apiBaseUrl = (process.env.NUUDL_API_BASE_URL || "http://localhost:4000").replace(/\/$/, "");
 const consumerBaseUrl = (process.env.NUUDL_CONSUMER_BASE_URL || "http://localhost:3000").replace(/\/$/, "");
 const adminBaseUrl = (process.env.NUUDL_ADMIN_BASE_URL || "http://localhost:3001").replace(/\/$/, "");
+const backofficeSharedSecret = (
+  process.env.NUUDL_BACKOFFICE_SHARED_SECRET ||
+  process.env.BACKOFFICE_SHARED_SECRET ||
+  ""
+).trim();
 
 const adminHeaders = {
   "x-admin-id": process.env.NUUDL_BACKOFFICE_ID || "owner-root",
   "x-admin-role": process.env.NUUDL_BACKOFFICE_ROLE || "owner",
+  ...(backofficeSharedSecret
+    ? {
+        "x-backoffice-secret": backofficeSharedSecret,
+        "x-backoffice-session-id": "smoke-backoffice-session",
+      }
+    : {}),
 };
 const smokeClientHeaders = {
   "user-agent": `nuudl-beta-smoke/${Date.now()}`,
@@ -61,6 +72,24 @@ const requestStatus = async (url) => {
   return response.status;
 };
 
+const requestBinary = async (url) => {
+  const response = await fetch(url, {
+    method: "GET",
+    headers: {
+      Accept: "*/*",
+    },
+  });
+
+  const buffer = await response.arrayBuffer();
+
+  return {
+    byteLength: buffer.byteLength,
+    contentType: response.headers.get("content-type") ?? "",
+    ok: response.ok,
+    status: response.status,
+  };
+};
+
 const main = async () => {
   const apiHealth = await requestJson(`${apiBaseUrl}/health`);
   const consumerRoot = await requestStatus(`${consumerBaseUrl}/`);
@@ -102,6 +131,11 @@ const main = async () => {
     headers: installHeaders,
     method: "POST",
   });
+
+  const uploadedMedia = await requestBinary(upload.asset.url);
+  if (!uploadedMedia.ok) {
+    throw new Error(`uploaded media fetch failed: ${uploadedMedia.status} ${upload.asset.url}`);
+  }
 
   const postAttempt = await request(`${apiBaseUrl}/posts`, {
     body: JSON.stringify({
@@ -190,6 +224,13 @@ const main = async () => {
 
   const result = {
     adminOpsSnapshotExists: adminOps.ops.storage.snapshotFile.exists,
+    adminOpsStorageNormalizedMirrorStatus:
+      adminOps.ops.storage.persistence.postgresRuntime.normalizedMirror.status,
+    adminOpsStorageNormalizedReadOverlayStatus:
+      adminOps.ops.storage.persistence.postgresRuntime.normalizedReadOverlay.status,
+    adminOpsStorageDriver: adminOps.ops.storage.persistence.activeDriver,
+    adminOpsStorageSnapshotReady: adminOps.ops.storage.persistence.postgresRuntime.snapshotReady,
+    adminOpsStorageWarning: adminOps.ops.storage.persistence.warning,
     adminRoot,
     adminSecurityEvents: adminSecurity.counts.abuseEvents,
     apiHealth,
@@ -200,7 +241,13 @@ const main = async () => {
     replyMode: replyAttempt.ok ? "created" : "reused-latest",
     replyId: reply.id,
     reportId: report.report.id,
+    uploadedMediaByteLength: uploadedMedia.byteLength,
+    uploadedMediaContentType: uploadedMedia.contentType,
+    uploadedMediaFetchStatus: uploadedMedia.status,
+    uploadedMediaUrl: upload.asset.url,
     uploadsStored: adminOps.ops.storage.uploadsDirectory.fileCount,
+    uploadsPublicBaseUrl: adminOps.ops.storage.uploadsDirectory.publicBaseUrl,
+    uploadsPathSource: adminOps.ops.storage.uploadsDirectory.pathSource,
     viewerWallet: adminOverview.wallet.availableCents,
   };
 

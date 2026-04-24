@@ -16,12 +16,9 @@
 
 .hero {
   display: grid;
-  gap: 24px;
-  padding: 24px;
-  border: 1px solid var(--border-subtle);
-  border-radius: 28px;
-  background: var(--bg-surface);
-  box-shadow: var(--shadow);
+  gap: 20px;
+  padding: 8px 0 24px;
+  border-bottom: 1px solid var(--border-subtle);
 }
 
 .heroTop,
@@ -44,7 +41,6 @@
 .phoneState,
 .trustPill,
 .feedChipRow span,
-.heroStatLabel,
 .legalSummaryHint,
 .stickySecondary,
 .stickyPrimary,
@@ -66,6 +62,7 @@
   color: var(--text-primary);
   font-size: 13px;
   font-weight: 600;
+  text-decoration: none;
 }
 
 .brandIcon {
@@ -134,15 +131,16 @@
 
 .lead,
 .sectionHeading p,
-.heroStatCopy,
-.noticeBox p,
 .previewCard p,
 .previewCardSoft p,
 .conversionCard p,
 .installCard p,
 .onboardingCard p,
 .flowCard p,
+.discoveryCard p,
+.answerSnippet p,
 .midCtaPanel p,
+.cityLinkPanel p,
 .safetyPanel p,
 .legalBody,
 .faqItem p,
@@ -156,7 +154,7 @@
 
 .lead {
   max-width: 60ch;
-  font-size: clamp(17px, 2vw, 19px);
+  font-size: clamp(16px, 1.8vw, 18px);
   color: var(--text-primary);
 }
 
@@ -209,74 +207,57 @@
   transform: translateY(-1px);
 }
 
-.heroStatGrid,
+.heroFactRow,
 .conversionGrid,
 .installGrid,
-.onboardingGrid {
+.onboardingGrid,
+.discoveryGrid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
 }
 
-.heroStatCard,
 .conversionCard,
 .installCard,
 .onboardingCard,
 .flowCard,
+.discoveryCard,
 .legalModule,
 .faqItem,
 .midCtaPanel,
 .finalCtaPanel,
 .safetyPanel,
-.noticeBox,
-.legalNote {
+.legalNote,
+.cityLinkPanel,
+.answerSnippet {
   border: 1px solid var(--border-subtle);
   border-radius: 20px;
   background: var(--bg-surface);
 }
 
-.heroStatCard,
 .conversionCard,
 .installCard,
 .onboardingCard,
-.flowCard {
+.flowCard,
+.discoveryCard,
+.answerSnippet {
   display: grid;
-  gap: 8px;
-  padding: 18px;
+  gap: 6px;
+  padding: 16px 0 0;
+  border: 0;
+  border-top: 1px solid var(--border-subtle);
+  background: transparent;
+  border-radius: 0;
 }
 
-.heroStatValue {
-  color: var(--text-primary);
-  font-size: 34px;
-  line-height: 1;
-  font-weight: 700;
-  letter-spacing: -0.05em;
-}
-
-.heroStatLabel {
-  justify-content: flex-start;
-  color: var(--accent-primary);
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-}
-
-.heroStatCopy {
-  font-size: 13px;
-}
-
-.noticeBox {
-  gap: 8px;
-  padding: 18px;
-}
-
-.noticeBox strong,
 .conversionCard strong,
 .installCard strong,
 .onboardingCard strong,
 .flowCard strong,
+.discoveryCard strong,
+.answerSnippet strong,
 .midCtaPanel strong,
+.cityLinkPanel strong,
 .safetyPanel strong,
 .legalSummary,
 .faqItem summary,
@@ -285,7 +266,6 @@
   font-weight: 700;
 }
 
-.noticeBox strong,
 .midCtaPanel strong,
 .legalNote strong {
   font-size: 16px;
@@ -294,14 +274,16 @@
 .conversionCard strong,
 .installCard strong,
 .onboardingCard strong,
-.flowCard strong {
-  font-size: 18px;
+.flowCard strong,
+.discoveryCard strong,
+.answerSnippet strong {
+  font-size: 17px;
   letter-spacing: -0.03em;
 }
 
 .heroVisual {
   display: grid;
-  gap: 18px;
+  gap: 16px;
   justify-items: center;
 }
 
@@ -317,7 +299,6 @@
   border: 1px solid var(--border-subtle);
   border-radius: 28px;
   background: var(--bg-base);
-  box-shadow: var(--shadow);
 }
 
 .phoneTop {
@@ -359,10 +340,18 @@
   padding: 0 10px;
   border-radius: 999px;
   border: 1px solid var(--border-subtle);
-  background: var(--bg-surface);
+  background: transparent;
   color: var(--text-secondary);
   font-size: 11px;
   font-weight: 600;
+}
+
+.heroFactRow span {
+  padding-top: 12px;
+  border-top: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 1.45;
 }
 
 .previewCard,
@@ -405,7 +394,7 @@
 
 .section {
   display: grid;
-  gap: 18px;
+  gap: 14px;
 }
 
 .sectionHeading {
@@ -417,17 +406,22 @@
   font-size: 15px;
 }
 
-.midCtaPanel,
+.midCtaPanel {
+  gap: 18px;
+  padding: 18px 0 0;
+  border: 0;
+  border-top: 1px solid var(--border-subtle);
+  background: transparent;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+}
+
 .finalCtaPanel {
   gap: 18px;
   padding: 20px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 20px;
   background: var(--bg-surface-elevated);
-  box-shadow: var(--shadow);
-}
-
-.midCtaPanel {
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: center;
 }
 
 .flowGrid {
@@ -436,16 +430,91 @@
   gap: 12px;
 }
 
+.cityHero {
+  display: grid;
+  gap: 18px;
+  max-width: 780px;
+}
+
+.cityHero h1 {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: clamp(38px, 7vw, 68px);
+  font-weight: 700;
+  line-height: 1.02;
+  letter-spacing: -0.05em;
+  text-wrap: balance;
+}
+
+.cityLinkPanel {
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+  gap: 18px;
+  align-items: center;
+  padding: 18px 0 0;
+  border: 0;
+  border-top: 1px solid var(--border-subtle);
+  border-radius: 0;
+  background: transparent;
+}
+
+.cityLinkGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.cityLink {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 122px;
+  padding: 11px 12px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 16px;
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  text-decoration: none;
+}
+
+.cityLink span {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.cityLink small {
+  color: var(--text-secondary);
+  font-size: 11px;
+}
+
+.answerSnippetGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
 .safetyPanel {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 16px;
-  padding: 20px;
+  padding: 18px 0 0;
+  border: 0;
+  border-top: 1px solid var(--border-subtle);
+  background: transparent;
 }
 
 .legalGrid,
 .faqGrid {
   display: grid;
   gap: 12px;
+}
+
+.legalModule,
+.faqItem,
+.legalNote {
+  border: 1px solid var(--border-subtle);
+  border-radius: 16px;
+  background: var(--bg-surface);
 }
 
 .legalModule,
@@ -475,7 +544,7 @@
   padding: 0 10px;
   border-radius: 999px;
   border: 1px solid var(--border-subtle);
-  background: var(--bg-surface-elevated);
+  background: transparent;
   color: var(--text-secondary);
   font-size: 11px;
   font-weight: 700;
@@ -526,8 +595,7 @@
   padding: 14px 16px;
   border: 1px solid var(--border-subtle);
   border-radius: 24px;
-  background: color-mix(in srgb, var(--bg-surface-elevated) 94%, black);
-  box-shadow: var(--shadow);
+  background: color-mix(in srgb, var(--bg-base) 92%, black);
 }
 
 .stickyCtaText {
@@ -546,14 +614,21 @@
 
 @media (max-width: 920px) {
   .heroGrid,
-  .heroStatGrid,
+  .heroFactRow,
   .conversionGrid,
   .installGrid,
   .onboardingGrid,
+  .discoveryGrid,
   .flowGrid,
+  .answerSnippetGrid,
   .safetyPanel,
+  .cityLinkPanel,
   .midCtaPanel {
     grid-template-columns: 1fr;
+  }
+
+  .cityLinkGrid {
+    justify-content: flex-start;
   }
 
   .heroCopy h1 {
@@ -576,8 +651,7 @@
   }
 
   .hero {
-    padding: 18px;
-    border-radius: 24px;
+    padding: 4px 0 18px;
   }
 
   .heroTop {

@@ -21,6 +21,7 @@ import {
   walletTopups as seedWalletTopups,
 } from "@veil/shared";
 import type {
+  AccountSearchResult,
   AccountChannelPreferences,
   Channel,
   ChatMessage,
@@ -52,6 +53,7 @@ import {
 } from "../_lib/consumer-api";
 
 const GATE_STORAGE_KEY = "nuudl-adult-gate";
+const INVITE_CODE_STORAGE_KEY = "nuudl-beta-invite-code";
 const CITY_STORAGE_KEY = "nuudl-active-city";
 const JOINED_CHANNELS_STORAGE_PREFIX = "nuudl-joined-channels:";
 const FAVORITE_CHANNELS_STORAGE_PREFIX = "nuudl-favorite-channels:";
@@ -70,6 +72,78 @@ const plusCatalog: Record<string, { plan: "monthly" | "yearly"; priceCents: numb
 };
 const apiUnavailableMessage = "NUUDL API ist gerade nicht erreichbar.";
 
+function normalizeSearchHandle(query: string) {
+  return query.trim().toLowerCase().replace(/^@+/, "");
+}
+
+function accountSearchScore(account: AccountSearchResult, query: string) {
+  const normalized = normalizeSearchHandle(query);
+  if (!normalized) {
+    return Number(account.isCreator);
+  }
+
+  const username = account.username.toLowerCase();
+  const displayName = account.displayName.toLowerCase();
+  let score = 0;
+
+  if (username === normalized) {
+    score += 100;
+  } else if (username.startsWith(normalized)) {
+    score += 70;
+  } else if (username.includes(normalized)) {
+    score += 40;
+  }
+
+  if (displayName === normalized) {
+    score += 60;
+  } else if (displayName.startsWith(normalized)) {
+    score += 35;
+  } else if (displayName.includes(normalized)) {
+    score += 15;
+  }
+
+  if (account.isCreator) {
+    score += 6;
+  }
+
+  return score;
+}
+
+function mergeAccountSearchResults(
+  primary: AccountSearchResult[] = [],
+  secondary: AccountSearchResult[] = [],
+  query: string,
+) {
+  const merged = new Map<string, AccountSearchResult>();
+
+  [...primary, ...secondary].forEach((entry) => {
+    const current = merged.get(entry.accountId);
+    if (!current) {
+      merged.set(entry.accountId, entry);
+      return;
+    }
+
+    merged.set(entry.accountId, {
+      ...current,
+      ...entry,
+      bio: entry.bio ?? current.bio ?? null,
+      avatarUrl: entry.avatarUrl ?? current.avatarUrl ?? null,
+      visibilityReason: entry.visibilityReason ?? current.visibilityReason,
+      cityId: entry.cityId ?? current.cityId,
+      cityLabel: entry.cityLabel ?? current.cityLabel,
+    });
+  });
+
+  return [...merged.values()].sort((left, right) => {
+    const scoreDelta = accountSearchScore(right, query) - accountSearchScore(left, query);
+    if (scoreDelta !== 0) {
+      return scoreDelta;
+    }
+
+    return left.username.localeCompare(right.username);
+  });
+}
+
 function isLocalDemoRuntime() {
   return typeof window !== "undefined" && isLoopbackHost(window.location.hostname);
 }
@@ -80,6 +154,32 @@ function getApiErrorMessage(error: unknown, fallback: string) {
   }
 
   return fallback;
+}
+
+function getReplyErrorMessage(error: unknown) {
+  const message = getApiErrorMessage(error, "Antwort konnte gerade nicht gesendet werden.");
+
+  if (message === "Please wait before replying again.") {
+    return "Kurz warten, dann kannst du direkt weiter antworten.";
+  }
+
+  if (message === "Too many requests. Try again later.") {
+    return "Du warst gerade sehr schnell. Warte kurz, dann kannst du weiter antworten.";
+  }
+
+  if (message === "Action temporarily blocked.") {
+    return "Antworten ist für dieses Gerät gerade kurz pausiert.";
+  }
+
+  if (message === "This install is temporarily read-only.") {
+    return "Dein Gerät ist gerade nur im Lesemodus.";
+  }
+
+  if (message === "Duplicate reply detected.") {
+    return "Diese Antwort hast du gerade schon gesendet.";
+  }
+
+  return message;
 }
 
 export type LocationState = {
@@ -102,6 +202,11 @@ type CreateReplyInput = {
   body: string;
 };
 
+type CreateReplyResult = {
+  id: string | null;
+  message: string | null;
+};
+
 type ChannelPreferenceSnapshot = {
   accountId?: string;
   source: "account" | "local";
@@ -119,6 +224,7 @@ type SubmitReportInput = Omit<ConsumerReportPayload, "cityId"> & {
 type ConsumerAppContextValue = {
   booted: boolean;
   accountState: AccountIdentity | null;
+  betaInviteRequired: boolean;
   demoPaymentsEnabled: boolean;
   hydrationMessage: string;
   hydrationStatus: HydrationStatus;
@@ -144,10 +250,10 @@ type ConsumerAppContextValue = {
   chatMessages: ChatMessage[];
   postVotes: Record<string, -1 | 0 | 1>;
   replyVotes: Record<string, -1 | 0 | 1>;
-  acceptGate: () => void;
+  acceptGate: (betaInviteCode?: string) => Promise<{ ok: boolean; message: string }>;
   resolveLocation: () => void;
   createPost: (input: CreatePostInput) => Promise<string | null>;
-  createReply: (input: CreateReplyInput) => Promise<string | null>;
+  createReply: (input: CreateReplyInput) => Promise<CreateReplyResult>;
   submitReport: (input: SubmitReportInput) => Promise<{ ok: boolean; message: string }>;
   votePost: (postId: string, value: -1 | 1) => void;
   voteReply: (replyId: string, value: -1 | 1) => void;
@@ -161,6 +267,12 @@ type ConsumerAppContextValue = {
   loadChannels: (cityId?: string) => Promise<void>;
   loadNotifications: () => Promise<void>;
   searchCity: (cityId: string, query: string) => Promise<SearchResults>;
+  checkUsernameAvailability: (input: { username: string }) => Promise<{
+    available: boolean;
+    normalizedUsername: string;
+    reason?: string;
+    username: string;
+  }>;
   loadThread: (postId: string) => Promise<void>;
   loadChatOverview: () => Promise<void>;
   loadChatThread: (chatRequestId: string) => Promise<void>;
@@ -179,7 +291,8 @@ type ConsumerAppContextValue = {
     message: string;
   }>;
   logoutAccount: () => Promise<{ ok: boolean; message: string }>;
-  updateAccountProfile: (input: { displayName?: string; discoverable?: boolean }) => Promise<{
+  logoutAccountDevice: (installIdentityId: string) => Promise<{ ok: boolean; message: string }>;
+  updateAccountProfile: (input: { displayName?: string; bio?: string; discoverable?: boolean }) => Promise<{
     ok: boolean;
     message: string;
   }>;
@@ -204,6 +317,39 @@ const ConsumerAppContext = createContext<ConsumerAppContextValue | null>(null);
 function getSeedCity() {
   return cities.find((city) => city.id === seedIdentity.cityId) ?? cities[0];
 }
+
+const emptyPlusEntitlement: PlusEntitlement = {
+  active: false,
+  explorer: false,
+  imageChat: false,
+  noAds: false,
+  weeklyBoosts: 0,
+  weeklyColorDrops: 0,
+};
+
+const emptyWalletBalance: WalletBalance = {
+  currency: "EUR",
+  availableCents: 0,
+  pendingCents: 0,
+  lifetimeTippedCents: 0,
+  lifetimeEarnedCents: 0,
+  lifetimePaidOutCents: 0,
+};
+
+const cleanChannelEntries = seedChannels.map((channel) => ({
+  ...channel,
+  joined: false,
+  memberCount: 0,
+}));
+
+const cleanCreatorApplication: CreatorApplication = {
+  ...seedCreatorApplication,
+  adultVerified: false,
+  kycState: "not_started",
+  payoutState: "not_ready",
+  status: "draft",
+  submittedAt: null,
+};
 
 function getSyntheticPendingRequest(): ChatRequest {
   return {
@@ -402,29 +548,22 @@ export function ConsumerAppProvider({ children }: { children: ReactNode }) {
   const [accountState, setAccountState] = useState<AccountIdentity | null>(null);
   const [gateAccepted, setGateAccepted] = useState(false);
   const [installIdentityId, setInstallIdentityId] = useState(seedIdentity.id);
-  const [channelEntries, setChannelEntries] = useState<Channel[]>(seedChannels);
+  const [channelEntries, setChannelEntries] = useState<Channel[]>(cleanChannelEntries);
   const [favoriteChannelIds, setFavoriteChannelIds] = useState<string[]>([]);
-  const [feedPosts, setFeedPosts] = useState<Post[]>(seedPosts);
-  const [feedReplies, setFeedReplies] = useState<Reply[]>(seedReplies);
-  const [notificationItems, setNotificationItems] = useState<NotificationItem[]>(seedNotifications);
-  const [walletBalance, setWalletBalance] = useState<WalletBalance>(seedWallet);
-  const [ledgerEntries, setLedgerEntries] = useState<LedgerEntry[]>(seedLedger);
-  const [, setTipEntries] = useState<Tip[]>(seedTips);
-  const [walletTopupEntries, setWalletTopupEntries] = useState<WalletTopup[]>(seedWalletTopups);
-  const [plusEntitlement, setPlusEntitlement] = useState<PlusEntitlement>({
-    active: false,
-    explorer: false,
-    imageChat: false,
-    noAds: false,
-    weeklyBoosts: 0,
-    weeklyColorDrops: 0,
-  });
-  const [creatorApplicationState, setCreatorApplicationState] = useState<CreatorApplication>(seedCreatorApplication);
-  const [creatorReviewEntries, setCreatorReviewEntries] = useState<CreatorReview[]>(seedCreatorReviews);
-  const [payoutAccountEntries, setPayoutAccountEntries] = useState<PayoutAccount[]>(seedPayoutAccounts);
-  const [payoutEntries] = useState<Payout[]>(seedPayouts);
-  const [chatRequests, setChatRequests] = useState<ChatRequest[]>([...baseChatRequests, getSyntheticPendingRequest()]);
-  const [chatMessages, setChatMessages] = useState<ChatMessage[]>(seedChatMessages);
+  const [feedPosts, setFeedPosts] = useState<Post[]>([]);
+  const [feedReplies, setFeedReplies] = useState<Reply[]>([]);
+  const [notificationItems, setNotificationItems] = useState<NotificationItem[]>([]);
+  const [walletBalance, setWalletBalance] = useState<WalletBalance>(emptyWalletBalance);
+  const [ledgerEntries, setLedgerEntries] = useState<LedgerEntry[]>([]);
+  const [, setTipEntries] = useState<Tip[]>([]);
+  const [walletTopupEntries, setWalletTopupEntries] = useState<WalletTopup[]>([]);
+  const [plusEntitlement, setPlusEntitlement] = useState<PlusEntitlement>(emptyPlusEntitlement);
+  const [creatorApplicationState, setCreatorApplicationState] = useState<CreatorApplication>(cleanCreatorApplication);
+  const [creatorReviewEntries, setCreatorReviewEntries] = useState<CreatorReview[]>([]);
+  const [payoutAccountEntries, setPayoutAccountEntries] = useState<PayoutAccount[]>([]);
+  const [payoutEntries] = useState<Payout[]>([]);
+  const [chatRequests, setChatRequests] = useState<ChatRequest[]>([]);
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [postVotes, setPostVotes] = useState<Record<string, -1 | 0 | 1>>({});
   const [replyVotes, setReplyVotes] = useState<Record<string, -1 | 0 | 1>>({});
   const [location, setLocation] = useState<LocationState>({
@@ -435,12 +574,30 @@ export function ConsumerAppProvider({ children }: { children: ReactNode }) {
   const hydratedCityRef = useRef<string | null>(null);
   const allowLocalFallbacks = runtimeConfig?.allowLocalFallbacks ?? false;
   const allowFakePayments = runtimeConfig?.enableFakePayments ?? false;
+  const betaInviteRequired = runtimeConfig?.betaInviteRequired ?? false;
   const activeCityId = (location.city ?? getSeedCity()).id;
   const retryHydration = useCallback(() => {
     hydratedCityRef.current = null;
     setHydrationMessage("");
     setHydrationStatus("idle");
     setHydrationNonce((current) => current + 1);
+  }, []);
+
+  const hydrateLocalDemoState = useCallback(() => {
+    setChannelEntries(seedChannels);
+    setFeedPosts(seedPosts);
+    setFeedReplies(seedReplies);
+    setNotificationItems(seedNotifications);
+    setWalletBalance(seedWallet);
+    setLedgerEntries(seedLedger);
+    setTipEntries(seedTips);
+    setWalletTopupEntries(seedWalletTopups);
+    setPlusEntitlement(seedIdentity.plus);
+    setCreatorApplicationState(seedCreatorApplication);
+    setCreatorReviewEntries(seedCreatorReviews);
+    setPayoutAccountEntries(seedPayoutAccounts);
+    setChatRequests(sortChatRequestsByActivity([...baseChatRequests, getSyntheticPendingRequest()]));
+    setChatMessages(seedChatMessages);
   }, []);
 
   const pushNotification = (item: Omit<NotificationItem, "id" | "createdAt" | "read">) => {
@@ -649,7 +806,13 @@ export function ConsumerAppProvider({ children }: { children: ReactNode }) {
       } satisfies SearchResults;
     }
 
-    const searchResponse = await consumerApi.getSearch(cityId, normalizedQuery);
+    const [searchResponse, usersResponse] = await Promise.all([
+      consumerApi.getSearch(cityId, normalizedQuery),
+      consumerApi.searchUsers(normalizedQuery).catch((error: unknown) => {
+        console.warn("NUUDL API user search failed.", error);
+        return { query: normalizedQuery, users: [] as AccountSearchResult[] };
+      }),
+    ]);
     const preferences = resolveChannelPreferenceSnapshot(cityId, searchResponse.results.accountPreferences ?? null);
     const resolvedJoinedIds =
       preferences.source === "account" || readStoredChannelIds(JOINED_CHANNELS_STORAGE_PREFIX, cityId).hasStored
@@ -657,6 +820,7 @@ export function ConsumerAppProvider({ children }: { children: ReactNode }) {
         : deriveJoinedChannelIds(searchResponse.results.channels, cityId);
     return {
       ...searchResponse.results,
+      accounts: mergeAccountSearchResults(searchResponse.results.accounts ?? [], usersResponse.users ?? [], normalizedQuery),
       channels: applyJoinedChannelIds(
         searchResponse.results.channels,
         cityId,
@@ -875,8 +1039,15 @@ export function ConsumerAppProvider({ children }: { children: ReactNode }) {
         };
       }
 
+      const targetPost = feedPosts.find((post) => post.id === postId) ?? null;
       const createdRequest: ChatRequest = {
         id: `chat-request-local-${Date.now()}`,
+        counterpartDisplayName: targetPost?.accountIsCreator ? targetPost.accountDisplayName ?? undefined : undefined,
+        counterpartIsCreator: targetPost?.accountIsCreator ? true : undefined,
+        counterpartLabel: targetPost?.accountIsCreator
+          ? targetPost.accountDisplayName || (targetPost.accountUsername ? `@${targetPost.accountUsername}` : targetPost.authorLabel)
+          : targetPost?.authorLabel,
+        counterpartUsername: targetPost?.accountIsCreator ? targetPost.accountUsername ?? undefined : undefined,
         fromInstallIdentityId: installIdentityId,
         toInstallIdentityId,
         postId,
@@ -966,6 +1137,9 @@ export function ConsumerAppProvider({ children }: { children: ReactNode }) {
       try {
         const registration = await consumerApi.registerInstall({
           adultGateAccepted: true,
+          betaInviteCode: betaInviteRequired
+            ? window.localStorage.getItem(INVITE_CODE_STORAGE_KEY) ?? undefined
+            : undefined,
           cityId: targetCity.id,
         });
         const [meResponse, walletResponse, notificationsResponse, feedResponse, channelsResponse, chatRequestsResponse] = await Promise.all([
@@ -1015,12 +1189,23 @@ export function ConsumerAppProvider({ children }: { children: ReactNode }) {
       } catch (error) {
         hydratedCityRef.current = null;
         console.warn("NUUDL API hydration failed.", error);
-        if (!allowLocalFallbacks) {
-          setHydrationStatus("blocked");
-          setHydrationMessage(getApiErrorMessage(error, apiUnavailableMessage));
+        const message = getApiErrorMessage(error, apiUnavailableMessage);
+        if (betaInviteRequired && message.toLowerCase().includes("beta")) {
+          window.localStorage.removeItem(GATE_STORAGE_KEY);
+          window.localStorage.removeItem(INVITE_CODE_STORAGE_KEY);
+          setGateAccepted(false);
+          setHydrationStatus("idle");
+          setHydrationMessage("");
           return;
         }
 
+        if (!allowLocalFallbacks) {
+          setHydrationStatus("blocked");
+          setHydrationMessage(message);
+          return;
+        }
+
+        hydrateLocalDemoState();
         setHydrationStatus("ready");
       }
     })();
@@ -1028,11 +1213,49 @@ export function ConsumerAppProvider({ children }: { children: ReactNode }) {
     return () => {
       cancelled = true;
     };
-  }, [allowLocalFallbacks, booted, gateAccepted, hydrationNonce, location.city?.id, location.status, runtimeConfig]);
+  }, [
+    allowLocalFallbacks,
+    booted,
+    gateAccepted,
+    hydrateLocalDemoState,
+    hydrationNonce,
+    location.city?.id,
+    location.status,
+    runtimeConfig,
+    betaInviteRequired,
+  ]);
 
-  const acceptGate = () => {
+  const acceptGate = async (betaInviteCode?: string) => {
+    const normalizedInviteCode = betaInviteCode?.trim() ?? "";
+
+    if (betaInviteRequired) {
+      if (!normalizedInviteCode) {
+        return {
+          ok: false,
+          message: "Bitte gib deinen Beta-Code ein.",
+        };
+      }
+
+      try {
+        await consumerApi.checkBetaInvite({ betaInviteCode: normalizedInviteCode });
+        window.localStorage.setItem(INVITE_CODE_STORAGE_KEY, normalizedInviteCode);
+      } catch (error) {
+        console.warn("NUUDL beta invite check failed.", error);
+        return {
+          ok: false,
+          message: getApiErrorMessage(error, "Dieser Beta-Code ist nicht gültig."),
+        };
+      }
+    } else {
+      window.localStorage.removeItem(INVITE_CODE_STORAGE_KEY);
+    }
+
     window.localStorage.setItem(GATE_STORAGE_KEY, "accepted");
     setGateAccepted(true);
+    return {
+      ok: true,
+      message: "Willkommen bei NUUDL.",
+    };
   };
 
   const startEmailAccountLogin = async ({
@@ -1147,9 +1370,35 @@ export function ConsumerAppProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const updateAccountProfile = async ({ displayName, discoverable }: { displayName?: string; discoverable?: boolean }) => {
+  const logoutAccountDevice = async (installIdentityId: string) => {
     try {
-      const response = await consumerApi.updateAccountProfile({ displayName, discoverable });
+      const response = await consumerApi.logoutAccountDevice(installIdentityId);
+      setAccountState(response.account);
+      await Promise.all([refreshAccountFromApi(), loadChatOverview()]);
+      return {
+        ok: true,
+        message: response.message,
+      };
+    } catch (error) {
+      console.warn("NUUDL API logoutAccountDevice failed.", error);
+      return {
+        ok: false,
+        message: getApiErrorMessage(error, "Gerät konnte gerade nicht abgemeldet werden."),
+      };
+    }
+  };
+
+  const updateAccountProfile = async ({
+    displayName,
+    bio,
+    discoverable,
+  }: {
+    displayName?: string;
+    bio?: string;
+    discoverable?: boolean;
+  }) => {
+    try {
+      const response = await consumerApi.updateAccountProfile({ displayName, bio, discoverable });
       setAccountState(response.account);
       await refreshAccountFromApi();
       return {
@@ -1164,6 +1413,9 @@ export function ConsumerAppProvider({ children }: { children: ReactNode }) {
       };
     }
   };
+
+  const checkUsernameAvailability = async ({ username }: { username: string }) =>
+    consumerApi.checkUsernameAvailability({ username });
 
   const applyLocalCreatePost = ({ cityId, channelId, body, media }: CreatePostInput) => {
     const trimmed = body.trim();
@@ -1180,6 +1432,9 @@ export function ConsumerAppProvider({ children }: { children: ReactNode }) {
     setFeedPosts((current) => [
       {
         id,
+        accountDisplayName: accountState?.isCreator ? accountState.displayName : undefined,
+        accountIsCreator: accountState?.isCreator ? true : undefined,
+        accountUsername: accountState?.isCreator ? accountState.username : undefined,
         cityId,
         channelId,
         recipientInstallIdentityId: installIdentityId,
@@ -1243,6 +1498,9 @@ export function ConsumerAppProvider({ children }: { children: ReactNode }) {
     setFeedReplies((current) => [
       {
         id,
+        accountDisplayName: accountState?.isCreator ? accountState.displayName : undefined,
+        accountIsCreator: accountState?.isCreator ? true : undefined,
+        accountUsername: accountState?.isCreator ? accountState.username : undefined,
         postId,
         recipientInstallIdentityId: installIdentityId,
         body: trimmed,
@@ -1267,7 +1525,7 @@ export function ConsumerAppProvider({ children }: { children: ReactNode }) {
     const trimmed = body.trim();
 
     if (!trimmed) {
-      return null;
+      return { id: null, message: "Schreib kurz etwas, bevor du sendest." };
     }
 
     try {
@@ -1276,14 +1534,14 @@ export function ConsumerAppProvider({ children }: { children: ReactNode }) {
         postId,
       });
       await Promise.all([loadThread(postId), refreshNotificationsFromApi()]);
-      return createdReply.id;
+      return { id: createdReply.id, message: null };
     } catch (error) {
       console.warn("NUUDL API createReply failed.", error);
       if (allowLocalFallbacks) {
-        return applyLocalCreateReply({ body: trimmed, postId });
+        return { id: applyLocalCreateReply({ body: trimmed, postId }), message: null };
       }
 
-      return null;
+      return { id: null, message: getReplyErrorMessage(error) };
     }
   };
 
@@ -1973,6 +2231,7 @@ export function ConsumerAppProvider({ children }: { children: ReactNode }) {
       value={{
         booted,
         accountState,
+        betaInviteRequired,
         demoPaymentsEnabled: allowFakePayments,
         hydrationMessage,
         hydrationStatus,
@@ -2015,6 +2274,7 @@ export function ConsumerAppProvider({ children }: { children: ReactNode }) {
         loadChannels,
         loadNotifications,
         searchCity,
+        checkUsernameAvailability,
         loadThread,
         loadChatOverview,
         loadChatThread,
@@ -2022,6 +2282,7 @@ export function ConsumerAppProvider({ children }: { children: ReactNode }) {
         startEmailAccountLogin,
         verifyEmailAccountLogin,
         logoutAccount,
+        logoutAccountDevice,
         updateAccountProfile,
         purchasePlus,
         applyForCreator,

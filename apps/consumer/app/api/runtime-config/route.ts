@@ -8,6 +8,11 @@ function isLoopbackHost(hostname: string) {
   return hostname === "localhost" || hostname === "127.0.0.1" || hostname === "[::1]";
 }
 
+function isTruthy(value: string | undefined) {
+  const normalized = value?.trim().toLowerCase();
+  return normalized === "1" || normalized === "true" || normalized === "yes";
+}
+
 export async function GET() {
   const requestHeaders = await headers();
   const hostHeader = requestHeaders.get("host") ?? "";
@@ -37,6 +42,7 @@ export async function GET() {
     {
       allowLocalFallbacks: process.env.ALLOW_LOCAL_FALLBACKS === "true" && loopback,
       apiBaseUrl,
+      betaInviteRequired: isTruthy(process.env.BETA_INVITE_REQUIRED),
       enableFakePayments: process.env.ALLOW_FAKE_PAYMENTS === "true" && loopback,
     },
     {

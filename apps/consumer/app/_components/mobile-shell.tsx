@@ -1,5 +1,6 @@
 "use client";
 
+import { type FormEvent, useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import { rootTabs, titleForView } from "./consumer-helpers";
 import type { RootView, TopBarVariant } from "./consumer-types";
@@ -134,19 +135,55 @@ function NavIcon({ view }: { view: RootView }) {
   }
 }
 
-export function ConsumerGateScreen({ onAcceptGate }: { onAcceptGate: () => void }) {
+export function ConsumerGateScreen({
+  betaInviteRequired = false,
+  onAcceptGate,
+}: {
+  betaInviteRequired?: boolean;
+  onAcceptGate: (betaInviteCode?: string) => Promise<{ ok: boolean; message: string }>;
+}) {
+  const [inviteCode, setInviteCode] = useState("");
+  const [message, setMessage] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setSubmitting(true);
+    setMessage("");
+
+    const result = await onAcceptGate(inviteCode);
+    if (!result.ok) {
+      setMessage(result.message);
+    }
+
+    setSubmitting(false);
+  };
+
   return (
     <main className="gate">
-      <section className="gateCard">
+      <form className="gateCard" onSubmit={handleSubmit}>
         <p className="eyebrow">18+</p>
         <h1>Nur für Erwachsene.</h1>
         <p className="supportCopy">
           Nach deiner Bestätigung wird NUUDL an deinen Standort und eine feste Stadt gebunden. NUUDL läuft direkt im Browser als mobile App.
         </p>
-        <button className="primaryButton" onClick={onAcceptGate} type="button">
-          Ich bin 18+
+        {betaInviteRequired ? (
+          <label className="gateInviteField">
+            <span>Beta-Code</span>
+            <input
+              autoCapitalize="characters"
+              autoComplete="one-time-code"
+              inputMode="text"
+              onChange={(event) => setInviteCode(event.target.value)}
+              placeholder="z. B. NUUDL-MUC-001"
+              value={inviteCode}
+            />
+          </label>
+        ) : null}
+        {message ? <p className="gateError">{message}</p> : null}
+        <button className="primaryButton" disabled={submitting} type="submit">
+          {submitting ? "Prüfe..." : betaInviteRequired ? "Code prüfen und 18+ bestätigen" : "Ich bin 18+"}
         </button>
-      </section>
+      </form>
     </main>
   );
 }
@@ -312,11 +349,66 @@ export function ConsumerSheet({
   onClose: () => void;
   children: ReactNode;
 }) {
+  const onCloseRef = useRef(onClose);
+  const historyMarkerRef = useRef(`nuudl-sheet-${Date.now()}-${Math.random().toString(36).slice(2)}`);
+  const closingFromHistoryRef = useRef(false);
+
+  const requestClose = () => {
+    if (typeof window !== "undefined" && !closingFromHistoryRef.current) {
+      const state = window.history.state as Record<string, unknown> | null;
+      if (state?.nuudlSheetId === historyMarkerRef.current) {
+        window.history.back();
+        return;
+      }
+    }
+
+    onCloseRef.current();
+  };
+
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  }, [onClose]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const marker = historyMarkerRef.current;
+    const previousState = window.history.state && typeof window.history.state === "object"
+      ? (window.history.state as Record<string, unknown>)
+      : {};
+
+    window.history.pushState({ ...previousState, nuudlSheetId: marker }, "", window.location.href);
+
+    const handlePopState = () => {
+      closingFromHistoryRef.current = true;
+      onCloseRef.current();
+    };
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") {
+        return;
+      }
+
+      event.preventDefault();
+      requestClose();
+    };
+
+    window.addEventListener("popstate", handlePopState);
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("popstate", handlePopState);
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
+
   return (
-    <div className="sheetBackdrop">
-      <section className="sheetPanel">
+    <div className="sheetBackdrop" onClick={requestClose}>
+      <section aria-modal="true" className="sheetPanel" onClick={(event) => event.stopPropagation()} role="dialog">
         <header className="sheetHeader">
-          <button className="headerButton" onClick={onClose} type="button">
+          <button className="headerButton" onClick={requestClose} type="button">
             Schließen
           </button>
           <strong>{title}</strong>
