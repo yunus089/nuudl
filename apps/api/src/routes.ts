@@ -3884,6 +3884,25 @@ export const registerRoutes = async (app: FastifyInstance, storeOverride?: ApiSt
     };
   });
 
+  app.get("/city/presence", async (request) => {
+    const query = request.query as Record<string, string | undefined>;
+    const cityId = (query.cityId ?? "").trim();
+
+    if (!cityId) {
+      return { activeCount: null };
+    }
+
+    const accessToken = getRequestAccessToken(request);
+    const session = accessToken ? authenticateInstallSession(store, accessToken) : null;
+
+    if (session) {
+      await createRateLimitStore(store).presence.heartbeat(cityId, session.installIdentityId);
+    }
+
+    const activeCount = await createRateLimitStore(store).presence.getActiveCount(cityId);
+    return { activeCount };
+  });
+
   app.get("/channels", async (request) => {
     const query = request.query as Record<string, string | undefined>;
     const accessToken = getRequestAccessToken(request);

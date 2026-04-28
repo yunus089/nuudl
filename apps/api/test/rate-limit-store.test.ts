@@ -86,6 +86,66 @@ describe("rate-limit store seam", () => {
     assert.ok(store.rateLimitCounters["rl:POST /posts:install:install-two:60000"]);
   });
 
+  test("presence memory backend records a heartbeat and reflects the active count", async () => {
+    const store = createInMemoryStoreForTests();
+    const rateLimits = createRateLimitStore(store);
+
+    await rateLimits.presence.heartbeat("city-pres-001", "install-alpha");
+    const count = await rateLimits.presence.getActiveCount("city-pres-001");
+
+    assert.equal(count, 1);
+  });
+
+  test("presence memory backend deduplicates the same install and counts distinct ones", async () => {
+    const store = createInMemoryStoreForTests();
+    const rateLimits = createRateLimitStore(store);
+
+    await rateLimits.presence.heartbeat("city-pres-002", "install-alpha");
+    await rateLimits.presence.heartbeat("city-pres-002", "install-beta");
+    await rateLimits.presence.heartbeat("city-pres-002", "install-beta");
+    const count = await rateLimits.presence.getActiveCount("city-pres-002");
+
+    assert.equal(count, 2);
+  });
+
+  test("presence redis mode falls back to memory when redis is unavailable", async () => {
+    const previousBackend = process.env.RATE_LIMIT_BACKEND;
+    const previousRedisUrl = process.env.REDIS_URL;
+    const previousRedisTimeout = process.env.RATE_LIMIT_REDIS_CONNECT_TIMEOUT_MS;
+    try {
+      process.env.RATE_LIMIT_BACKEND = "redis";
+      process.env.REDIS_URL = "redis://127.0.0.1:1";
+      process.env.RATE_LIMIT_REDIS_CONNECT_TIMEOUT_MS = "50";
+
+      const store = createInMemoryStoreForTests();
+      const rateLimits = createRateLimitStore(store);
+
+      await rateLimits.presence.heartbeat("city-pres-003", "install-redis-fallback");
+      const count = await rateLimits.presence.getActiveCount("city-pres-003");
+
+      assert.ok(typeof count === "number", "expected a number via memory fallback, not null");
+      assert.equal(count, 1);
+    } finally {
+      if (previousBackend === undefined) {
+        delete process.env.RATE_LIMIT_BACKEND;
+      } else {
+        process.env.RATE_LIMIT_BACKEND = previousBackend;
+      }
+
+      if (previousRedisUrl === undefined) {
+        delete process.env.REDIS_URL;
+      } else {
+        process.env.REDIS_URL = previousRedisUrl;
+      }
+
+      if (previousRedisTimeout === undefined) {
+        delete process.env.RATE_LIMIT_REDIS_CONNECT_TIMEOUT_MS;
+      } else {
+        process.env.RATE_LIMIT_REDIS_CONNECT_TIMEOUT_MS = previousRedisTimeout;
+      }
+    }
+  });
+
   test("redis falls back to memory when unavailable instead of breaking writes", async () => {
     const previousBackend = process.env.RATE_LIMIT_BACKEND;
     const previousRedisUrl = process.env.REDIS_URL;

@@ -2,6 +2,7 @@
 
 import { type FormEvent, useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
+import Link from "next/link";
 import { rootTabs, titleForView } from "./consumer-helpers";
 import type { RootView, TopBarVariant } from "./consumer-types";
 
@@ -183,6 +184,14 @@ export function ConsumerGateScreen({
         <button className="primaryButton" disabled={submitting} type="submit">
           {submitting ? "Prüfe..." : betaInviteRequired ? "Code prüfen und 18+ bestätigen" : "Ich bin 18+"}
         </button>
+        <p className="gateConsent">
+          Mit der Bestätigung stimmst du den{" "}
+          <Link href="/nutzungsbedingungen" target="_blank">Nutzungsbedingungen</Link>
+          {" "}zu.{" "}
+          <Link href="/impressum" target="_blank">Impressum</Link>
+          {" · "}
+          <Link href="/meldepfad" target="_blank">Meldepfad</Link>
+        </p>
       </form>
     </main>
   );
@@ -226,7 +235,6 @@ export function ConsumerTopBar({
   view,
   activeCityLabel,
   unreadCount,
-  karma = "40943",
   onGoBack,
   onOpenPlus,
   onOpenLocation,
@@ -237,7 +245,6 @@ export function ConsumerTopBar({
   view: RootView;
   activeCityLabel: string;
   unreadCount: number;
-  karma?: string;
   onGoBack: () => void;
   onOpenPlus: () => void;
   onOpenLocation: () => void;
@@ -248,11 +255,7 @@ export function ConsumerTopBar({
     <header className="topBar">
       {variant === "home" ? (
         <>
-          <div className="topBarSide">
-            <button className="utilityButton utilityUpgrade" onClick={onOpenPlus} type="button">
-              Plus
-            </button>
-          </div>
+          <div className="topBarSide" />
 
           <div className="topBarCenter">
             <button className="utilityCity" onClick={onOpenLocation} type="button">
@@ -263,12 +266,7 @@ export function ConsumerTopBar({
             </button>
           </div>
 
-          <div className="topBarSide topBarSideRight">
-            <button className="utilityKarma utilityKarmaCompact" onClick={onOpenMe} type="button">
-              <strong>{karma}</strong>
-              <span>KARMA</span>
-            </button>
-          </div>
+          <div className="topBarSide topBarSideRight" />
         </>
       ) : (
         <>
@@ -287,12 +285,12 @@ export function ConsumerTopBar({
               <button className="utilityButton utilityUpgrade" onClick={onOpenSettings} type="button">
                 Mehr
               </button>
-            ) : (
-              <button className="utilityKarma utilityKarmaCompact" onClick={onOpenMe} type="button">
-                <strong>{view === "alerts" ? String(unreadCount) : karma}</strong>
-                <span>{view === "alerts" ? "NEU" : "KARMA"}</span>
-              </button>
-            )}
+            ) : view === "alerts" && unreadCount > 0 ? (
+              <span className="utilityKarma utilityKarmaCompact">
+                <strong>{unreadCount}</strong>
+                <span>NEU</span>
+              </span>
+            ) : null}
           </div>
         </>
       )}
@@ -345,7 +343,7 @@ export function ConsumerSheet({
   onClose,
   children,
 }: {
-  title: string;
+  title?: string;
   onClose: () => void;
   children: ReactNode;
 }) {
@@ -411,11 +409,67 @@ export function ConsumerSheet({
           <button className="headerButton" onClick={requestClose} type="button">
             Schließen
           </button>
-          <strong>{title}</strong>
+          {title ? <strong>{title}</strong> : <span />}
           <span className="sheetSpacer" />
         </header>
         <div className="sheetBody">{children}</div>
       </section>
+    </div>
+  );
+}
+
+const FIRST_POST_OVERLAY_KEY = "nuudl-first-post-overlay-shown";
+
+export function hasSeenFirstPostOverlay(): boolean {
+  if (typeof window === "undefined") return true;
+  return window.localStorage.getItem(FIRST_POST_OVERLAY_KEY) === "1";
+}
+
+export function markFirstPostOverlayShown(): void {
+  if (typeof window === "undefined") return;
+  window.localStorage.setItem(FIRST_POST_OVERLAY_KEY, "1");
+}
+
+export function FirstPostOverlay({ onDismiss }: { onDismiss: () => void }) {
+  const [exiting, setExiting] = useState(false);
+
+  function handleTap() {
+    if (exiting) return;
+    setExiting(true);
+    setTimeout(onDismiss, 180);
+  }
+
+  return (
+    <div
+      onClick={handleTap}
+      style={{
+        position: "fixed",
+        inset: 0,
+        zIndex: 9999,
+        background: "#000",
+        display: "grid",
+        placeItems: "center",
+        padding: "0 32px",
+        opacity: exiting ? 0 : 1,
+        transition: exiting ? "opacity 180ms ease-in" : "opacity 250ms ease-out",
+        cursor: "pointer",
+      }}
+    >
+      <p
+        style={{
+          fontSize: "22px",
+          fontWeight: 400,
+          lineHeight: 1.8,
+          color: "rgba(255,255,255,0.92)",
+          textAlign: "center",
+          maxWidth: "280px",
+          margin: 0,
+        }}
+      >
+        <span style={{ display: "block" }}>Kein Name.</span>
+        <span style={{ display: "block" }}>Kein Gesicht.</span>
+        <span style={{ display: "block" }}>Niemand weiß, dass du das bist.</span>
+      </p>
     </div>
   );
 }

@@ -3,26 +3,28 @@
   --bg-base: #0a0a0a;
   --bg-surface: #141414;
   --bg-surface-elevated: #1f1f1f;
-  --text-primary: #ffffff;
-  --text-secondary: #a3a3a3;
+  --text-primary: #f0eaf5;
+  --text-secondary: #9d9393;
   --text-tertiary: #525252;
   --accent-primary: #e83d6d;
   --accent-muted: rgba(232, 61, 109, 0.15);
   --status-success: #10b981;
   --status-warning: #f59e0b;
   --status-danger: #ef4444;
-  --border-subtle: #262626;
+  --border-subtle: #1e1e1e;
   --border-focus: #e83d6d;
   --bg-card: var(--bg-surface);
   --border: var(--border-subtle);
   --text: var(--text-primary);
   --muted: var(--text-secondary);
   --shadow: 0 18px 44px rgba(0, 0, 0, 0.32);
-  --radius-xl: 24px;
-  --radius-lg: 20px;
-  --radius-md: 12px;
-  --radius-sm: 8px;
-  --font-stack: "Inter", "Segoe UI", system-ui, sans-serif;
+  --radius-xl: 16px;
+  --radius-lg: 12px;
+  --radius-md: 6px;
+  --radius-sm: 4px;
+  --font-stack: "DM Sans", "Segoe UI", system-ui, sans-serif;
+  --font-display: Fraunces, Georgia, serif;
+  --font-mono: "DM Mono", monospace;
   --safe-area-top: env(safe-area-inset-top, 0px);
   --safe-area-bottom: env(safe-area-inset-bottom, 0px);
   --safe-area-left: env(safe-area-inset-left, 0px);
@@ -102,9 +104,10 @@ button {
   display: grid;
   gap: 8px;
   color: var(--text-secondary);
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.02em;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.04em;
 }
 
 .gateInviteField input {
@@ -129,11 +132,27 @@ button {
   line-height: 1.45;
 }
 
+.gateConsent {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  letter-spacing: 0.02em;
+  text-align: center;
+}
+
+.gateConsent a {
+  color: var(--text-secondary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
 .eyebrow {
   margin: 0;
   text-transform: uppercase;
   letter-spacing: 0.18em;
-  color: var(--accent-primary);
+  color: var(--text-secondary);
   font-size: 12px;
 }
 
@@ -178,9 +197,9 @@ button {
   min-height: 50px;
   padding: 0 17px;
   border-radius: 999px;
-  background: var(--accent-primary);
-  color: var(--text-primary);
-  font-weight: 700;
+  background: var(--text-primary);
+  color: var(--bg-base);
+  font-weight: 500;
   letter-spacing: -0.01em;
   cursor: pointer;
 }
@@ -261,9 +280,11 @@ button {
 .topBarCity {
   border: 0;
   color: var(--text-primary);
-  font-size: 17px;
-  font-weight: 700;
-  letter-spacing: -0.04em;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
   cursor: pointer;
 }
 
@@ -280,8 +301,9 @@ button {
   border-radius: 999px;
   border: 0;
   background: transparent;
-  color: var(--text-tertiary);
-  font-weight: 600;
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-weight: 400;
   font-size: 10px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -292,9 +314,11 @@ button {
   align-items: center;
   gap: 6px;
   color: var(--text-primary);
-  font-size: 14px;
-  font-weight: 700;
-  letter-spacing: -0.02em;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
   padding: 0 4px;
 }
 
@@ -360,9 +384,10 @@ button {
 }
 
 .titleHeader {
-  font-size: 18px;
-  font-weight: 700;
-  letter-spacing: -0.03em;
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 300;
+  letter-spacing: -0.01em;
 }
 
 .screenBody {
@@ -404,7 +429,7 @@ button {
 }
 
 .screenHeadingAccent {
-  color: var(--accent-primary);
+  color: var(--text-primary);
 }
 
 .feedModeRow {
@@ -418,9 +443,9 @@ button {
 .feedModeButton {
   min-height: 40px;
   color: var(--text-secondary);
-  font-size: 16px;
-  font-weight: 700;
-  border-bottom: 3px solid transparent;
+  font-size: 13px;
+  font-weight: 400;
+  border-bottom: 2px solid transparent;
 }
 
 .feedModeButtonGhost {
@@ -435,12 +460,12 @@ button {
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: var(--accent-primary);
+  background: var(--text-secondary);
 }
 
 .feedModeButtonActive {
   color: var(--text-primary);
-  border-bottom-color: var(--accent-primary);
+  border-bottom-color: var(--text-primary);
 }
 
 .feedSortRow {
@@ -449,6 +474,15 @@ button {
   padding: 0 16px;
   margin: 0;
   border-bottom: 1px solid var(--border-subtle);
+}
+
+.presenceSignal {
+  margin: 0;
+  padding: 5px 16px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-secondary);
+  letter-spacing: 0.02em;
 }
 
 .feedStack {
@@ -461,6 +495,10 @@ button {
   overflow: hidden;
 }
 
+.feedScreen {
+  gap: 0;
+}
+
 .sortPill {
   min-height: 32px;
   padding: 0 0 8px;
@@ -468,16 +506,15 @@ button {
   border-bottom: 2px solid transparent;
   background: transparent;
   color: var(--text-secondary);
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  font-size: 13px;
+  font-weight: 500;
 }
 
 .sortPillActive {
   background: transparent;
   color: var(--text-primary);
-  border-bottom-color: var(--accent-primary);
+  font-weight: 500;
+  border-bottom-color: var(--text-primary);
 }
 
 .miniMetaRow {
@@ -490,7 +527,7 @@ button {
 }
 
 .miniLink {
-  color: var(--accent-primary);
+  color: var(--text-secondary);
 }
 
 .heroCard {
@@ -690,8 +727,9 @@ button {
   min-height: 24px;
   padding: 0 8px;
   border-radius: 999px;
+  font-family: var(--font-mono);
   font-size: 10px;
-  font-weight: 700;
+  font-weight: 400;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
@@ -796,7 +834,7 @@ button {
 }
 
 .listMetaPositive {
-  color: var(--accent-primary);
+  color: var(--text-primary);
 }
 
 .listMetaWarm {
@@ -822,7 +860,7 @@ button {
 
 .feedStack .feedCard {
   margin: 0;
-  padding: 16px;
+  padding: 12px 16px;
   border: 0;
   border-bottom: 1px solid var(--border-subtle);
   border-radius: 0;
@@ -839,18 +877,22 @@ button {
 }
 
 .feedStack .feedBody {
-  margin: 8px 0 0;
-  font-size: 16px;
-  line-height: 1.5;
+  margin: 4px 0 0;
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 300;
+  line-height: 1.6;
   display: -webkit-box;
   -webkit-box-orient: vertical;
-  -webkit-line-clamp: 5;
+  -webkit-line-clamp: 4;
   overflow: hidden;
 }
 
 .feedStack .feedFooter {
-  gap: 8px;
-  font-size: 11px;
+  gap: 10px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.02em;
 }
 
 .feedStack .feedFooterStack {
@@ -891,8 +933,9 @@ button {
   border: 1px solid var(--border-subtle);
   background: transparent;
   color: var(--text-secondary);
+  font-family: var(--font-mono);
   font-size: 10px;
-  font-weight: 700;
+  font-weight: 400;
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
@@ -913,6 +956,7 @@ button {
 }
 
 .feedMeta {
+  font-family: var(--font-mono);
   color: var(--muted);
   font-size: 11px;
 }
@@ -928,8 +972,9 @@ button {
   border: 0;
   background: transparent;
   color: var(--text-primary);
-  font-size: 13px;
-  font-weight: 700;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 400;
 }
 
 .feedAuthorButton {
@@ -942,8 +987,10 @@ button {
 
 .feedBody {
   margin: 8px 0 0;
+  font-family: var(--font-display);
   font-size: 16px;
-  line-height: 1.5;
+  font-weight: 300;
+  line-height: 1.6;
   color: var(--text-primary);
   overflow-wrap: anywhere;
 }
@@ -1013,8 +1060,9 @@ button {
   border: 1px solid var(--border-subtle);
   background: rgba(10, 10, 10, 0.82);
   color: var(--text-primary);
+  font-family: var(--font-mono);
   font-size: 10px;
-  font-weight: 700;
+  font-weight: 500;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
@@ -1031,7 +1079,7 @@ button {
   border: 1px solid var(--border-subtle);
   background: var(--bg-surface-elevated);
   color: var(--text-primary);
-  font-weight: 700;
+  font-weight: 400;
 }
 
 .statusPill {
@@ -1070,8 +1118,9 @@ button {
   border: 1px solid var(--border-subtle);
   background: var(--bg-surface);
   color: var(--text-secondary);
-  font-size: 12px;
-  font-weight: 700;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 400;
   cursor: pointer;
   transition: transform 180ms ease, border-color 180ms ease, background 180ms ease;
 }
@@ -1280,10 +1329,11 @@ button {
   width: 18px;
   height: 18px;
   border-radius: 6px;
-  background: var(--accent-muted);
-  color: var(--accent-primary);
-  font-size: 11px;
-  font-weight: 700;
+  background: var(--bg-surface-elevated);
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 400;
 }
 
 .channelRowMain strong,
@@ -1330,7 +1380,9 @@ button {
   border: 1px solid var(--border-subtle);
   background: var(--bg-surface-elevated);
   color: var(--text-secondary);
-  font-size: 11px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.03em;
 }
 
 .channelCount {
@@ -1346,8 +1398,10 @@ button {
   border-radius: 999px;
   background: var(--bg-surface-elevated);
   color: var(--text-secondary);
-  font-size: 11px;
-  font-weight: 700;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 400;
+  letter-spacing: 0.04em;
   cursor: pointer;
 }
 
@@ -1424,8 +1478,10 @@ button {
 .chatStatus {
   padding: 3px 8px;
   border-radius: 999px;
-  font-size: 11px;
-  font-weight: 700;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 400;
+  letter-spacing: 0.04em;
   border: 1px solid var(--border-subtle);
 }
 
@@ -1469,17 +1525,18 @@ button {
 }
 
 .chatUnreadBadge {
-  min-width: 22px;
-  min-height: 22px;
-  padding: 0 6px;
+  min-width: 20px;
+  min-height: 20px;
+  padding: 0 5px;
   border-radius: 999px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: var(--accent-muted);
-  color: var(--accent-primary);
-  font-size: 11px;
-  font-weight: 800;
+  background: var(--accent-primary);
+  color: #ffffff;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 500;
   line-height: 1;
 }
 
@@ -1564,6 +1621,10 @@ button {
 }
 
 .composerInput {
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: 16px;
+  line-height: 1.65;
   resize: vertical;
   min-height: 160px;
 }
@@ -1666,10 +1727,11 @@ button {
   width: 52px;
   height: 52px;
   border-radius: 16px;
-  background: var(--accent-muted);
-  color: var(--accent-primary);
-  font-size: 20px;
-  font-weight: 700;
+  background: var(--bg-surface-elevated);
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-size: 18px;
+  font-weight: 400;
   overflow: hidden;
 }
 
@@ -2060,6 +2122,7 @@ button {
   gap: 10px;
   align-items: center;
   flex-wrap: wrap;
+  font-family: var(--font-mono);
   color: var(--muted);
   font-size: 12px;
 }
@@ -2078,8 +2141,9 @@ button {
   border: 0;
   background: transparent;
   color: var(--text-primary);
-  font-size: 12px;
-  font-weight: 700;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 400;
 }
 
 .replyAuthorButton {
@@ -2106,8 +2170,10 @@ button {
 
 .replyBody {
   margin: 12px 0 0;
+  font-family: var(--font-display);
+  font-weight: 300;
   color: var(--text-primary);
-  line-height: 1.5;
+  line-height: 1.6;
 }
 
 .flagCard b,
@@ -2135,8 +2201,9 @@ button {
   place-items: center;
   border: 1px solid var(--border-subtle);
   background: var(--bg-surface-elevated);
-  color: var(--accent-primary);
-  font-weight: 700;
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-weight: 400;
 }
 
 .notificationRow {
@@ -2164,8 +2231,7 @@ button {
   margin: 0;
   border-top: 1px solid var(--border-subtle);
   border-radius: 0;
-  background: rgba(20, 20, 20, 0.96);
-  backdrop-filter: blur(12px);
+  background: var(--bg-base);
   position: sticky;
   bottom: 0;
   z-index: 8;
@@ -2177,7 +2243,7 @@ button {
   justify-items: center;
   align-content: center;
   gap: 4px;
-  border-radius: var(--radius-md);
+  border-radius: 0;
   cursor: pointer;
   color: var(--text-secondary);
   font-size: 12px;
@@ -2191,12 +2257,15 @@ button {
 }
 
 .navButtonActive {
-  color: var(--accent-primary);
-  background: var(--accent-muted);
+  color: var(--text-primary);
 }
 
 .navButton small {
-  display: none;
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 8px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
 
 .navButton span {
@@ -2224,14 +2293,14 @@ button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 50px;
-  height: 50px;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
-  border: 1px solid color-mix(in srgb, var(--accent-primary) 55%, transparent);
-  background: color-mix(in srgb, var(--accent-muted) 82%, var(--bg-surface));
-  color: var(--text-primary);
+  border: none;
+  background: var(--accent-primary);
+  color: #ffffff;
   padding: 0;
-  box-shadow: none;
+  box-shadow: 0 4px 16px rgba(232, 61, 109, 0.4);
   z-index: 9;
 }
 
@@ -2280,8 +2349,9 @@ button {
   border: 1px solid var(--border-subtle);
   background: var(--bg-surface-elevated);
   color: var(--text-primary);
-  font-size: 11px;
-  font-weight: 700;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 500;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
@@ -2327,8 +2397,9 @@ button {
   border-radius: 999px;
   background: rgba(4, 5, 8, 0.72);
   color: rgba(246, 248, 252, 0.92);
+  font-family: var(--font-mono);
   font-size: 10px;
-  font-weight: 700;
+  font-weight: 500;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
@@ -2351,6 +2422,12 @@ button {
 
 .sheetHeader strong {
   text-align: center;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
 }
 
 .settingsFeedback {

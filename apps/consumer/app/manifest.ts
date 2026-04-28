@@ -12,9 +12,22 @@ export default function manifest(): MetadataRoute.Manifest {
     orientation: "portrait",
     icons: [
       {
-        src: "/brand/nuudl/png/app-icon-square.png",
-        sizes: "1024x1024",
-        type: "image/png"
+        src: "/brand/nuudl/png/icon-192.png",
+        sizes: "192x192",
+        type: "image/png",
+        purpose: "any"
+      },
+      {
+        src: "/brand/nuudl/png/icon-512.png",
+        sizes: "512x512",
+        type: "image/png",
+        purpose: "any"
+      },
+      {
+        src: "/brand/nuudl/png/icon-maskable.png",
+        sizes: "512x512",
+        type: "image/png",
+        purpose: "maskable"
       }
     ]
   };

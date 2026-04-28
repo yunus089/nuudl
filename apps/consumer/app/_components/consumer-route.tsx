@@ -28,7 +28,10 @@ import {
   ConsumerScreenBody,
   ConsumerStatusScreen,
   ConsumerTopBar,
+  FirstPostOverlay,
   PlusIcon,
+  hasSeenFirstPostOverlay,
+  markFirstPostOverlayShown,
 } from "./mobile-shell";
 
 const hrefByView: Record<RootView, string> = {
@@ -51,6 +54,7 @@ export function ConsumerRoute({ view }: { view: RootView }) {
     gateAccepted,
     installIdentityId,
     activeCity,
+    activeCityCount,
     channelEntries,
     favoriteChannelIds,
     location,
@@ -95,6 +99,7 @@ export function ConsumerRoute({ view }: { view: RootView }) {
     retryHydration,
   } = useConsumerApp();
   const [sheet, setSheet] = useState<SheetView>(null);
+  const [showFirstPostOverlay, setShowFirstPostOverlay] = useState(false);
   const [activeSort, setActiveSort] = useState<FeedSort>("Neu");
   const [discoverQuery, setDiscoverQuery] = useState("");
   const [selectedAccountPreview, setSelectedAccountPreview] = useState<AccountSearchResult | null>(null);
@@ -306,6 +311,7 @@ export function ConsumerRoute({ view }: { view: RootView }) {
               <FeedScreen
                 activeCity={activeCity}
                 activeSort={activeSort}
+                activeCityCount={activeCityCount}
                 channelEntries={channelEntries}
                 onOpenAuthorChat={openAuthorChat}
                 onOpenPost={(postId) => router.push(`/post/${postId}`)}
@@ -391,7 +397,18 @@ export function ConsumerRoute({ view }: { view: RootView }) {
           <ConsumerBottomNav activeView={view} onChangeView={(nextView) => router.push(hrefByView[nextView])} />
 
           {view === "feed" ? (
-            <button aria-label="Neuen Beitrag erstellen" className="composeRing" onClick={() => openSheet("composer")} type="button">
+            <button
+              aria-label="Neuen Beitrag erstellen"
+              className="composeRing"
+              onClick={() => {
+                if (hasSeenFirstPostOverlay()) {
+                  openSheet("composer");
+                } else {
+                  setShowFirstPostOverlay(true);
+                }
+              }}
+              type="button"
+            >
               <PlusIcon className="composeRingIcon" />
             </button>
           ) : null}
@@ -477,6 +494,15 @@ export function ConsumerRoute({ view }: { view: RootView }) {
             return createdPostId;
           }}
           onToggleFavoriteChannel={toggleFavoriteChannel}
+        />
+      ) : null}
+      {showFirstPostOverlay ? (
+        <FirstPostOverlay
+          onDismiss={() => {
+            markFirstPostOverlayShown();
+            setShowFirstPostOverlay(false);
+            openSheet("composer");
+          }}
         />
       ) : null}
     </>

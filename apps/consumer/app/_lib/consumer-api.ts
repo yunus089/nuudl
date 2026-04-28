@@ -467,6 +467,8 @@ export const consumerApi = {
       method: "POST",
     }),
   getFeed: (cityId: string) => requestJson<FeedResponse>(`/feed?cityId=${encodeURIComponent(cityId)}`),
+  getCityPresence: (cityId: string) =>
+    requestJson<{ activeCount: number | null }>(`/city/presence?cityId=${encodeURIComponent(cityId)}`),
   getChannels: (cityId: string) => requestJson<ChannelsResponse>(`/channels?cityId=${encodeURIComponent(cityId)}`),
   getChannelBySlug: (slug: string) => requestJson<ChannelDetailResponse>(`/channels/${encodeURIComponent(slug)}`),
   getMe: () => requestJson<MeResponse>("/me"),

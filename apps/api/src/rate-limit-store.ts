@@ -54,6 +54,62 @@ const redisState: RedisState = {
   connecting: null,
 };
 
+const memoryPresence = new Map<string, Map<string, number>>();
+
+const PRESENCE_TTL_MS = 30 * 60 * 1000;
+
+const presenceRedisKey = (cityId: string) => `nuudl:presence:${cityId}`;
+
+const pruneMemoryPresence = (cityId: string, nowMs: number) => {
+  const city = memoryPresence.get(cityId);
+  if (!city) return;
+  for (const [id, expiry] of city) {
+    if (expiry <= nowMs) city.delete(id);
+  }
+};
+
+const heartbeatMemoryPresence = (cityId: string, installId: string) => {
+  const nowMs = Date.now();
+  if (!memoryPresence.has(cityId)) memoryPresence.set(cityId, new Map());
+  memoryPresence.get(cityId)!.set(installId, nowMs + PRESENCE_TTL_MS);
+  pruneMemoryPresence(cityId, nowMs);
+};
+
+const getMemoryPresenceCount = (cityId: string): number => {
+  pruneMemoryPresence(cityId, Date.now());
+  return memoryPresence.get(cityId)?.size ?? 0;
+};
+
+const heartbeatRedisPresence = async (cityId: string, installId: string): Promise<boolean> => {
+  const client = await getRedisClient();
+  if (!client) return false;
+  try {
+    const key = presenceRedisKey(cityId);
+    const nowMs = Date.now();
+    const expiryMs = nowMs + PRESENCE_TTL_MS;
+    await client.zAdd(key, [{ score: expiryMs, value: installId }]);
+    await client.zRemRangeByScore(key, "-inf", nowMs);
+    await client.expire(key, Math.ceil(PRESENCE_TTL_MS / 1000) * 2);
+    return true;
+  } catch (error) {
+    setRedisError(error);
+    return false;
+  }
+};
+
+const getRedisPresenceCount = async (cityId: string): Promise<number | null> => {
+  const client = await getRedisClient();
+  if (!client) return null;
+  try {
+    const key = presenceRedisKey(cityId);
+    await client.zRemRangeByScore(key, "-inf", Date.now());
+    return await client.zCard(key);
+  } catch (error) {
+    setRedisError(error);
+    return null;
+  }
+};
+
 const REDIS_HIT_SCRIPT = `
 local key = KEYS[1]
 local nowMs = tonumber(ARGV[1])
@@ -463,4 +519,21 @@ export const createRateLimitStore = (store: ApiStore) => ({
     return hitMemoryRateLimit(store, options, redisState.lastError ?? "redis_unavailable");
   },
   readiness: getRateLimitReadiness(),
+  presence: {
+    async heartbeat(cityId: string, installId: string): Promise<void> {
+      if (getRequestedBackend() === "redis") {
+        const ok = await heartbeatRedisPresence(cityId, installId);
+        if (!ok) heartbeatMemoryPresence(cityId, installId);
+        return;
+      }
+      heartbeatMemoryPresence(cityId, installId);
+    },
+    async getActiveCount(cityId: string): Promise<number | null> {
+      if (getRequestedBackend() === "redis") {
+        const count = await getRedisPresenceCount(cityId);
+        if (count !== null) return count;
+      }
+      return getMemoryPresenceCount(cityId);
+    },
+  },
 });

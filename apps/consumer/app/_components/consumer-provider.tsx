@@ -231,6 +231,7 @@ type ConsumerAppContextValue = {
   gateAccepted: boolean;
   installIdentityId: string;
   activeCity: CityContext;
+  activeCityCount: number | null;
   channelEntries: Channel[];
   favoriteChannelIds: string[];
   location: LocationState;
@@ -564,6 +565,7 @@ export function ConsumerAppProvider({ children }: { children: ReactNode }) {
   const [payoutEntries] = useState<Payout[]>([]);
   const [chatRequests, setChatRequests] = useState<ChatRequest[]>([]);
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+  const [activeCityCount, setActiveCityCount] = useState<number | null>(null);
   const [postVotes, setPostVotes] = useState<Record<string, -1 | 0 | 1>>({});
   const [replyVotes, setReplyVotes] = useState<Record<string, -1 | 0 | 1>>({});
   const [location, setLocation] = useState<LocationState>({
@@ -1224,6 +1226,26 @@ export function ConsumerAppProvider({ children }: { children: ReactNode }) {
     runtimeConfig,
     betaInviteRequired,
   ]);
+
+  useEffect(() => {
+    if (!booted || !gateAccepted || hydrationStatus !== "ready") return;
+
+    let cancelled = false;
+
+    const tick = () => {
+      void consumerApi.getCityPresence(activeCityId).then((res) => {
+        if (!cancelled) setActiveCityCount(res.activeCount);
+      }).catch(() => undefined);
+    };
+
+    tick();
+    const interval = setInterval(tick, 5 * 60 * 1000);
+
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+    };
+  }, [booted, gateAccepted, hydrationStatus, activeCityId]);
 
   const acceptGate = async (betaInviteCode?: string) => {
     const normalizedInviteCode = betaInviteCode?.trim() ?? "";
@@ -2237,6 +2259,7 @@ export function ConsumerAppProvider({ children }: { children: ReactNode }) {
         hydrationStatus,
         gateAccepted,
         activeCity: location.city ?? getSeedCity(),
+        activeCityCount,
         location,
         installIdentityId,
         channelEntries,

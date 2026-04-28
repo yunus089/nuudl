@@ -1,4 +1,4 @@
-import { Inter } from "next/font/google";
+import { Fraunces, DM_Sans, DM_Mono } from "next/font/google";
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 import "./globals.css";
@@ -6,9 +6,22 @@ import { ConsumerAppProvider } from "./_components/consumer-provider";
 import { getSiteUrl } from "./_lib/site";
 import { PwaBootstrap } from "./pwa-bootstrap";
 
-const appFont = Inter({
+const uiFont = DM_Sans({
   subsets: ["latin"],
+  weight: ["400", "500"],
   variable: "--font-stack",
+});
+
+const displayFont = Fraunces({
+  subsets: ["latin"],
+  style: ["normal", "italic"],
+  variable: "--font-display",
+});
+
+const monoFont = DM_Mono({
+  subsets: ["latin"],
+  weight: ["400", "500"],
+  variable: "--font-mono",
 });
 
 export const metadata: Metadata = {
@@ -35,10 +48,16 @@ export const metadata: Metadata = {
     title: "NUUDL"
   },
   icons: {
-    apple: "/brand/nuudl/png/app-icon-square.png",
+    apple: "/brand/nuudl/png/apple-touch-icon.png",
     icon: [
       {
-        url: "/brand/nuudl/png/app-icon.png",
+        url: "/brand/nuudl/png/favicon-32.png",
+        sizes: "32x32",
+        type: "image/png"
+      },
+      {
+        url: "/brand/nuudl/png/icon-192.png",
+        sizes: "192x192",
         type: "image/png"
       }
     ]
@@ -87,7 +106,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="de">
-      <body className={`${appFont.variable} ${appFont.className}`}>
+      <body className={`${uiFont.variable} ${displayFont.variable} ${monoFont.variable}`}>
         <PwaBootstrap />
         <ConsumerAppProvider>{children}</ConsumerAppProvider>
       </body>

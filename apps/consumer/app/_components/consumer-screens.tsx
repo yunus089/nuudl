@@ -35,7 +35,7 @@ import {
 import type { FeedSort, LocationState } from "./consumer-types";
 
 const RECENT_CHANNEL_LIMIT = 5;
-type SettingsDocumentId = "support" | "rules" | "privacy" | "imprint";
+type SettingsDocumentId = "support" | "rules" | "privacy" | "imprint" | "meldepfad";
 type ComposerMediaAttachment = {
   id: string;
   kind: "image";
@@ -304,16 +304,34 @@ const settingsDocuments = {
     title: "Rechtliche Angaben zu NUUDL",
     sections: [
       {
-        heading: "Produkt",
-        body: "NUUDL ist eine mobile Browser-App für lokale, anonyme Communities mit Feed, Chat und Creator-Tips.",
+        heading: "Anbieter",
+        body: "Angaben gemäß § 5 TMG. Vollständige Betreiberangaben findest du unter nuudl.app/impressum.",
       },
       {
-        heading: "Betrieb",
-        body: "Rechtliche Kontakt- und Betreiberangaben werden an dieser Stelle gesammelt, damit sie nicht über mehrere Flächen verteilt sind.",
+        heading: "Kontakt",
+        body: "E-Mail: yunus089@gmail.com — für Meldungen und Rechtliches.",
       },
       {
-        heading: "Verantwortung",
-        body: "Moderation, Wallet-Logik und Creator-Prüfung gehören zu denselben Produktbereichen und werden deshalb auch hier nachvollziehbar gebündelt.",
+        heading: "Meldepfad",
+        body: "Rechtswidrige Inhalte kannst du direkt in der App melden oder per Mail an yunus089@gmail.com. Bei § 184b StGB erfolgt eine Meldung beim BKA.",
+      },
+    ],
+  },
+  meldepfad: {
+    eyebrow: "Meldepfad",
+    title: "Missbrauch melden",
+    sections: [
+      {
+        heading: "Wie melden",
+        body: "Nutze den Melden-Button direkt am Beitrag oder schreibe an yunus089@gmail.com mit einer kurzen Beschreibung des Problems.",
+      },
+      {
+        heading: "Reaktionszeit",
+        body: "Meldungen werden innerhalb von 48 Stunden geprüft. Bei akuten Bedrohungen so schnell wie möglich.",
+      },
+      {
+        heading: "§ 184b StGB – Kinderschutzmaterial",
+        body: "Solche Inhalte werden sofort entfernt und beim Bundeskriminalamt (BKA) gemeldet. Kein Ermessen, keine Ausnahmen.",
       },
     ],
   },
@@ -662,9 +680,15 @@ export function FeedCard({
   );
 }
 
+function formatPresenceCount(count: number): string {
+  if (count <= 10) return String(count);
+  return `${Math.floor(count / 5) * 5}+`;
+}
+
 export function FeedScreen({
   activeCity,
   activeSort,
+  activeCityCount,
   channelEntries,
   posts,
   replies,
@@ -676,6 +700,7 @@ export function FeedScreen({
 }: {
   activeCity: CityContext;
   activeSort: FeedSort;
+  activeCityCount?: number | null;
   channelEntries: Channel[];
   posts: Post[];
   replies: Reply[];
@@ -703,7 +728,7 @@ export function FeedScreen({
   }, [replies]);
 
   return (
-    <section className="screenStack">
+    <section className="screenStack feedScreen">
       <div className="feedSortRow">
         {(["Neu", "Kommentiert", "Lauteste"] as FeedSort[]).map((tab) => (
           <button
@@ -716,6 +741,10 @@ export function FeedScreen({
           </button>
         ))}
       </div>
+
+      {activeCityCount != null && activeCityCount >= 2 ? (
+        <p className="presenceSignal">{formatPresenceCount(activeCityCount)} aktiv in {activeCity.label}</p>
+      ) : null}
 
       <div className="feedStack feedHomeList">
         {sortedPosts.length ? (
@@ -2372,6 +2401,13 @@ export function SettingsSheet({
             subtitle="Rechtliche Angaben zu NUUDL"
             onClick={() => setActiveDocument("imprint")}
           />
+          <ListRow
+            right="Melden"
+            rightTone="default"
+            title="Meldepfad"
+            subtitle="Missbrauch und rechtswidrige Inhalte melden"
+            onClick={() => setActiveDocument("meldepfad")}
+          />
         </div>
       </div>
 
@@ -2581,15 +2617,9 @@ export function ComposerSheet({
   }, [step]);
 
   return (
-    <ConsumerSheet title={step === "compose" ? "Neuer Post" : "Channel wählen"} onClose={onClose}>
+    <ConsumerSheet title={step === "channel" ? "Channel wählen" : undefined} onClose={onClose}>
       {step === "compose" ? (
-        <div className="card composerStepCard">
-          <div className="sectionLabel">
-            <div>
-                <strong>Post</strong>
-                <span>Schreib erst den Post, dann wähle den Channel.</span>
-            </div>
-          </div>
+        <div className="composerStepCard">
           <textarea
             className="composerInput"
             ref={composerBodyRef}
@@ -2633,22 +2663,7 @@ export function ComposerSheet({
                 <strong>Bild</strong>
                 <span className="composerToolTag">{pendingMedia ? "1 Bild" : "Bild wählen"}</span>
               </div>
-              <span>Ein Bild reicht. Du kannst es vor dem Senden wieder entfernen.</span>
             </button>
-            <div className="composerToolInfo">
-              <div className="composerToolMeta">
-                <strong>Umfrage</strong>
-                <span className="composerToolTag composerToolTagMuted">Bald</span>
-              </div>
-              <span>Umfragen kommen später als eigener Post und nicht in diesen Schnell-Flow.</span>
-            </div>
-            <div className="composerToolInfo">
-              <div className="composerToolMeta">
-                <strong>Privatsphäre</strong>
-                <span className="composerToolTag composerToolTagPositive">Anonym</span>
-              </div>
-              <span>Der Post erscheint ohne persönliches Profil.</span>
-            </div>
           </div>
           <input
             accept="image/*"

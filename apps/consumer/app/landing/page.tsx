@@ -59,8 +59,7 @@ export const metadata: Metadata = {
 
 const heroCtas = [
   { href: "/", label: "App öffnen", tone: "primary" as const },
-  { href: "#install", label: "Zum Homescreen", tone: "secondary" as const },
-  { href: "#safety", label: "Schutz", tone: "ghost" as const }
+  { href: "#install", label: "Wie installieren?", tone: "secondary" as const }
 ];
 
 const trustPoints = [
@@ -170,11 +169,11 @@ const legalModules = [
   {
     title: "Impressum, Kontakt und Regeln",
     intro:
-      "Bevor NUUDL öffentlich startet, müssen Ansprechpartner, Impressum, Datenschutz und Support vollständig und leicht erreichbar hinterlegt sein.",
+      "Betreiberangaben, Nutzungsbedingungen und der Meldepfad für rechtswidrige Inhalte sind vollständig hinterlegt und direkt erreichbar.",
     items: [
-      "Verantwortlicher, ladungsfähige Anschrift und Kontakt müssen final eingetragen werden.",
-      "Rechtstexte dürfen nicht nur tief in der App versteckt sein.",
-      "Änderungen an Sicherheits- oder Datenschutzregeln sollten versioniert und nachvollziehbar bleiben."
+      "Impressum gemäß § 5 TMG: vollständige Betreiberangaben unter /impressum.",
+      "Nutzungsbedingungen mit 18+-Regelung, Inhaltsregeln und § 184b StGB-Klausel unter /nutzungsbedingungen.",
+      "Meldepfad für Missbrauch inklusive BKA-Eskalation bei Kinderschutzmaterial unter /meldepfad."
     ]
   }
 ];
@@ -339,17 +338,17 @@ export default function LandingPage() {
                   <Link className={styles.primaryCta} href={cta.href} key={cta.href}>
                     {cta.label}
                   </Link>
-                ) : cta.tone === "secondary" ? (
-                  <Link className={styles.secondaryCta} href={cta.href} key={cta.href}>
-                    {cta.label}
-                  </Link>
                 ) : (
-                  <Link className={styles.ghostCta} href={cta.href} key={cta.href}>
+                  <Link className={styles.secondaryCta} href={cta.href} key={cta.href}>
                     {cta.label}
                   </Link>
                 )
               )}
             </div>
+            <p className={styles.betaNote}>
+              <strong>Geschlossene Beta · München</strong>
+              Du brauchst einen Einladungscode. Den hast du per persönlicher Einladung erhalten.
+            </p>
 
             <div className={styles.heroFactRow}>
               <span>Ohne Store</span>
@@ -566,12 +565,11 @@ export default function LandingPage() {
             </details>
           ))}
         </div>
-        <div className={styles.legalNote}>
-          <strong>Vor dem öffentlichen Launch verbindlich ergänzen</strong>
-          <p>
-            Vor Livegang brauchen Landingpage und App noch finale Unternehmensdaten, Kontaktstellen, Datenschutzerklärung,
-            Impressum, Speicherfristen und die abschließende juristische Prüfung.
-          </p>
+        <div className={styles.legalFooter}>
+          <Link href="/impressum">Impressum</Link>
+          <Link href="/nutzungsbedingungen">Nutzungsbedingungen</Link>
+          <Link href="/meldepfad">Meldepfad</Link>
+          <span>18+ · München Beta · {new Date().getFullYear()}</span>
         </div>
       </section>
 
