@@ -1,5 +1,6 @@
 import { createHash } from "node:crypto";
 import Fastify from "fastify";
+import { getMediaUploadMaxBytes } from "./ops.js";
 import { registerRoutes } from "./routes.js";
 
 const requestStartTimes = new Map<string, bigint>();
@@ -36,11 +37,13 @@ export const buildApp = async () => {
     },
   });
 
-  app.addContentTypeParser(/^image\/.+$/, { parseAs: "buffer" }, (_request, body, done) => {
+  const uploadBodyLimit = getMediaUploadMaxBytes();
+
+  app.addContentTypeParser(/^image\/.+$/, { parseAs: "buffer", bodyLimit: uploadBodyLimit }, (_request, body, done) => {
     done(null, body);
   });
 
-  app.addContentTypeParser("application/octet-stream", { parseAs: "buffer" }, (_request, body, done) => {
+  app.addContentTypeParser("application/octet-stream", { parseAs: "buffer", bodyLimit: uploadBodyLimit }, (_request, body, done) => {
     done(null, body);
   });
 

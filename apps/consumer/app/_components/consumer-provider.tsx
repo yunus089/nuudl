@@ -1247,6 +1247,34 @@ export function ConsumerAppProvider({ children }: { children: ReactNode }) {
     };
   }, [booted, gateAccepted, hydrationStatus, activeCityId]);
 
+  useEffect(() => {
+    if (!booted || !gateAccepted || hydrationStatus !== "ready") return;
+
+    let cancelled = false;
+
+    const pollInbox = async () => {
+      if (cancelled) return;
+      try {
+        const [notificationsResponse, chatResponse] = await Promise.all([
+          consumerApi.getNotifications(),
+          consumerApi.getChatRequests(),
+        ]);
+        if (cancelled) return;
+        setNotificationItems(notificationsResponse.notifications);
+        setChatRequests(sortChatRequestsByActivity(chatResponse.requests));
+      } catch {
+        // silent — background polling, don't surface network errors
+      }
+    };
+
+    const interval = setInterval(pollInbox, 45 * 1000);
+
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+    };
+  }, [booted, gateAccepted, hydrationStatus]);
+
   const acceptGate = async (betaInviteCode?: string) => {
     const normalizedInviteCode = betaInviteCode?.trim() ?? "";
 
